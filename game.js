@@ -856,6 +856,10 @@ class Game {
         this.animTime = 0;
         this.lastTime = Date.now();
         this.floatingElements = [];
+        
+        // Mummy expression state (happy when kid hit, sad when miss)
+        this.mummyExpression = 'neutral'; // 'neutral', 'happy', 'sad'
+        this.expressionTimer = 0;
 
         this.initResize();
         this.setupCollisionEvents();
@@ -1076,6 +1080,17 @@ class Game {
                         sounds.playImpact(chappal.speed / 15);
                     }
                 }
+                
+                // Detect kid hit - mummy gets HAPPY!
+                if (chappal && obstacle.label === 'Kid') {
+                    this.mummyExpression = 'happy';
+                    this.expressionTimer = 2.0; // Stay happy for 2 seconds
+                    // Celebration particles
+                    this.poof(obstacle.position.x, obstacle.position.y, '#FFD700', 20);
+                    sounds.playKidHit();
+                    // Remove the kid
+                    Composite.remove(this.world, obstacle);
+                }
             });
         });
     }
@@ -1170,6 +1185,13 @@ class Game {
             }
             if (this.chappal.speed < 0.2 || this.chappal.position.x > this.width || this.chappal.position.y > this.height) {
                 clearInterval(checkInterval);
+                
+                // Mummy gets SAD if not already happy (missed shot)
+                if (this.mummyExpression !== 'happy') {
+                    this.mummyExpression = 'sad';
+                    this.expressionTimer = 1.5; // Stay sad for 1.5 seconds
+                }
+                
                 if (this.chappal) Composite.remove(this.world, this.chappal); 
                 this.chappal = null;
                 if (this.checkWinCondition()) return;
@@ -2167,30 +2189,91 @@ class Game {
         this.ctx.beginPath(); 
         this.ctx.arc(0, 0, 22, Math.PI, 0); 
         this.ctx.fill();
+        // Eyes - size changes based on expression
+        const eyeScaleY = this.mummyExpression === 'happy' ? 3 : 
+                          this.mummyExpression === 'sad' ? 5 : 4;
         this.ctx.fillStyle = 'white'; 
         this.ctx.beginPath(); 
-        this.ctx.ellipse(-8, 2, 6, 4, 0, 0, Math.PI * 2); 
-        this.ctx.ellipse(8, 2, 6, 4, 0, 0, Math.PI * 2); 
+        this.ctx.ellipse(-8, 2, 6, eyeScaleY, 0, 0, Math.PI * 2); 
+        this.ctx.ellipse(8, 2, 6, eyeScaleY, 0, 0, Math.PI * 2); 
         this.ctx.fill();
+        
+        // Pupils - position shifts based on expression
+        const pupilY = this.mummyExpression === 'happy' ? 3 : 
+                       this.mummyExpression === 'sad' ? 3 : 2;
         this.ctx.fillStyle = 'black'; 
         this.ctx.beginPath(); 
-        this.ctx.arc(-7, 2, 2, 0, Math.PI * 2); 
-        this.ctx.arc(9, 2, 2, 0, Math.PI * 2); 
+        this.ctx.arc(-7, pupilY, 2, 0, Math.PI * 2); 
+        this.ctx.arc(9, pupilY, 2, 0, Math.PI * 2); 
         this.ctx.fill();
+        
+        // Eyebrows - angle changes based on expression
         this.ctx.lineWidth = 2.5; 
-        this.ctx.strokeStyle = '#212121'; 
-        this.ctx.beginPath(); 
-        this.ctx.moveTo(-14, -2); 
-        this.ctx.lineTo(-4, 0); 
-        this.ctx.stroke(); 
-        this.ctx.beginPath(); 
-        this.ctx.moveTo(4, 0); 
-        this.ctx.lineTo(14, -2); 
-        this.ctx.stroke();
+        this.ctx.strokeStyle = '#212121';
+        if (this.mummyExpression === 'happy') {
+            // Raised, curved eyebrows (happy)
+            this.ctx.beginPath(); 
+            this.ctx.moveTo(-14, -1); 
+            this.ctx.quadraticCurveTo(-9, -4, -4, -1); 
+            this.ctx.stroke(); 
+            this.ctx.beginPath(); 
+            this.ctx.moveTo(4, -1); 
+            this.ctx.quadraticCurveTo(9, -4, 14, -1); 
+            this.ctx.stroke();
+        } else if (this.mummyExpression === 'sad') {
+            // Angled down eyebrows (worried/sad)
+            this.ctx.beginPath(); 
+            this.ctx.moveTo(-14, -4); 
+            this.ctx.lineTo(-4, -1); 
+            this.ctx.stroke(); 
+            this.ctx.beginPath(); 
+            this.ctx.moveTo(4, -1); 
+            this.ctx.lineTo(14, -4); 
+            this.ctx.stroke();
+        } else {
+            // Neutral eyebrows
+            this.ctx.beginPath(); 
+            this.ctx.moveTo(-14, -2); 
+            this.ctx.lineTo(-4, 0); 
+            this.ctx.stroke(); 
+            this.ctx.beginPath(); 
+            this.ctx.moveTo(4, 0); 
+            this.ctx.lineTo(14, -2); 
+            this.ctx.stroke();
+        }
+        
+        // Bindi
         this.ctx.fillStyle = '#D50000'; 
         this.ctx.beginPath(); 
         this.ctx.arc(0, -6, 3, 0, Math.PI * 2); 
         this.ctx.fill();
+        
+        // Mouth - expression-based
+        this.ctx.lineWidth = 2;
+        this.ctx.lineCap = 'round';
+        if (this.mummyExpression === 'happy') {
+            // Big happy smile
+            this.ctx.strokeStyle = '#C62828';
+            this.ctx.beginPath();
+            this.ctx.arc(0, 10, 8, 0.1 * Math.PI, 0.9 * Math.PI);
+            this.ctx.stroke();
+            // Teeth showing
+            this.ctx.fillStyle = 'white';
+            this.ctx.fillRect(-5, 10, 10, 4);
+        } else if (this.mummyExpression === 'sad') {
+            // Sad frown
+            this.ctx.strokeStyle = '#5D4037';
+            this.ctx.beginPath();
+            this.ctx.arc(0, 18, 6, 1.1 * Math.PI, 1.9 * Math.PI);
+            this.ctx.stroke();
+        } else {
+            // Neutral slight curve
+            this.ctx.strokeStyle = '#5D4037';
+            this.ctx.beginPath();
+            this.ctx.arc(0, 12, 5, 0.15 * Math.PI, 0.85 * Math.PI);
+            this.ctx.stroke();
+        }
+        
         this.ctx.restore(); 
         this.ctx.restore();
         
@@ -2297,6 +2380,14 @@ class Game {
         const delta = (now - this.lastTime) / 1000;
         this.lastTime = now;
         this.animTime += delta;
+        
+        // Update mummy expression timer
+        if (this.expressionTimer > 0) {
+            this.expressionTimer -= delta;
+            if (this.expressionTimer <= 0) {
+                this.mummyExpression = 'neutral';
+            }
+        }
         
         this.update();
         this.updateFloatingElements(delta);
