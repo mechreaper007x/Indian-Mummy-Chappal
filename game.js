@@ -1807,6 +1807,7 @@ class Game {
 
     initResize() {
         const ASPECT_RATIO = 16 / 9;
+        this.container = document.getElementById('game-container');
         
         this.handleResize = () => {
             const viewportWidth = document.documentElement.clientWidth;
@@ -1825,20 +1826,29 @@ class Game {
                 gameHeight = gameWidth / ASPECT_RATIO;
             }
             
-            // Set canvas size in pixels
+            // Set game dimensions
             this.width = Math.floor(gameWidth);
             this.height = Math.floor(gameHeight);
+            
+            // Position and size the game container (holds all UI + canvas)
+            const containerLeft = (viewportWidth - this.width) / 2;
+            const containerTop = (viewportHeight - this.height) / 2;
+            
+            this.container.style.left = `${containerLeft}px`;
+            this.container.style.top = `${containerTop}px`;
+            this.container.style.width = `${this.width}px`;
+            this.container.style.height = `${this.height}px`;
+            
+            // Canvas fills container
             this.canvas.width = this.width;
             this.canvas.height = this.height;
-            
-            // Center canvas via CSS
             this.canvas.style.position = 'absolute';
-            this.canvas.style.left = `${(viewportWidth - this.width) / 2}px`;
-            this.canvas.style.top = `${(viewportHeight - this.height) / 2}px`;
-            this.canvas.style.width = `${this.width}px`;
-            this.canvas.style.height = `${this.height}px`;
+            this.canvas.style.left = '0';
+            this.canvas.style.top = '0';
+            this.canvas.style.width = '100%';
+            this.canvas.style.height = '100%';
             
-            // Calculate scale based on 16:9 reference (1920x1080)
+            // Calculate scale based on 16:9 reference
             const baseWidth = 1000;
             this.scale = Math.max(0.5, Math.min(this.width / baseWidth, this.height / 600) * 1.5);
             if (this.scale > 1.5) this.scale = 1.5;

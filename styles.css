@@ -26,6 +26,15 @@ canvas {
   height: 100%;
 }
 
+/* --- GAME CONTAINER - 16:9 Wrapper --- */
+#game-container {
+  position: absolute;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffe0b2 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
 /* --- UI LAYERS --- */
 .screen {
   position: absolute;
