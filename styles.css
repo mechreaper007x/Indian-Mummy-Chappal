@@ -218,6 +218,65 @@ canvas {
   font-weight: 600;
 }
 
+/* Chappal Selection Grid */
+.chappal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  max-width: 700px;
+  width: 95%;
+  padding: 10px;
+}
+
+@media (max-width: 600px) {
+  .chappal-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.chappal-card {
+  background: linear-gradient(135deg, #fff 0%, #e3f2fd 100%);
+  border: 3px solid #2196F3;
+  border-radius: 15px;
+  padding: 15px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.chappal-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
+}
+
+.chappal-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.chappal-card.selected {
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.4);
+}
+
+.chappal-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.chappal-name {
+  font-family: "Bangers", cursive;
+  font-size: 14px;
+  color: #1565C0;
+  margin-bottom: 4px;
+}
+
+.chappal-desc {
+  font-size: 11px;
+  color: #666;
+  font-weight: 600;
+}
+
 /* Status & Modal */
 .status-text {
   position: absolute;
@@ -738,5 +797,317 @@ canvas {
   .comic-controls .btn {
     font-size: 12px;
     padding: 5px 15px;
+  }
+}
+
+/* ========================================
+   ANIMATED WIN/LOSE MODAL STYLES
+======================================== */
+
+/* Modal Background Themes */
+#game-modal {
+  background: rgba(0, 0, 0, 0.85);
+  transition: background 0.3s;
+}
+
+#game-modal.win-theme {
+  background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.3) 0%, rgba(0, 0, 0, 0.9) 100%);
+}
+
+#game-modal.lose-theme {
+  background: radial-gradient(ellipse at center, rgba(139, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.95) 100%);
+}
+
+/* Confetti Canvas */
+#confetti-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Modal Box Themes */
+#modal-box {
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+
+#modal-box.win-modal {
+  border-color: #FFD700;
+  background: linear-gradient(135deg, #fffef0 0%, #fff8dc 50%, #ffefd5 100%);
+  box-shadow: 
+    0 0 0 4px rgba(255, 215, 0, 0.5),
+    0 20px 60px rgba(255, 215, 0, 0.3),
+    0 0 100px rgba(255, 215, 0, 0.2);
+  animation: winPulse 2s ease-in-out infinite;
+}
+
+#modal-box.lose-modal {
+  border-color: #8B0000;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 50%, #ffd0d0 100%);
+  box-shadow: 
+    0 0 0 4px rgba(139, 0, 0, 0.4),
+    0 20px 60px rgba(139, 0, 0, 0.3);
+  animation: losePulse 0.5s ease-in-out, loseShake 0.4s ease-in-out;
+}
+
+@keyframes winPulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.5), 0 20px 60px rgba(255, 215, 0, 0.3), 0 0 60px rgba(255, 215, 0, 0.2); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 215, 0, 0.6), 0 20px 80px rgba(255, 215, 0, 0.4), 0 0 100px rgba(255, 215, 0, 0.3); }
+}
+
+@keyframes losePulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes loseShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+/* Modal Icon */
+.modal-icon {
+  font-size: 72px;
+  margin-bottom: 10px;
+  animation: iconBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-icon.win-icon {
+  animation: iconBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), iconGlow 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+}
+
+.modal-icon.lose-icon {
+  animation: iconSad 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(139, 0, 0, 0.5));
+}
+
+@keyframes iconBounce {
+  0% { transform: scale(0) rotate(-180deg); }
+  60% { transform: scale(1.3) rotate(10deg); }
+  80% { transform: scale(0.9) rotate(-5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes iconGlow {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)); }
+  50% { filter: drop-shadow(0 0 25px rgba(255, 215, 0, 1)) drop-shadow(0 0 40px rgba(255, 165, 0, 0.6)); }
+}
+
+@keyframes iconSad {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+/* Modal Title */
+.modal-title-text {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.modal-title-text.win-title {
+  color: #B8860B;
+  text-shadow: 2px 2px 0 #FFD700, 4px 4px 8px rgba(184, 134, 11, 0.3);
+  animation: titleShine 2s ease-in-out infinite;
+}
+
+.modal-title-text.lose-title {
+  color: #8B0000;
+  text-shadow: 2px 2px 0 #FF6B6B, 3px 3px 6px rgba(139, 0, 0, 0.3);
+}
+
+@keyframes titleShine {
+  0%, 100% { text-shadow: 2px 2px 0 #FFD700, 4px 4px 8px rgba(184, 134, 11, 0.3); }
+  50% { text-shadow: 2px 2px 0 #FFD700, 4px 4px 8px rgba(184, 134, 11, 0.3), 0 0 20px rgba(255, 215, 0, 0.6); }
+}
+
+/* Star Rating */
+.modal-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 15px 0;
+  min-height: 45px;
+}
+
+.modal-star {
+  font-size: 36px;
+  opacity: 0;
+  transform: scale(0) rotate(-180deg);
+  animation: starPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.modal-star.empty {
+  filter: grayscale(100%) brightness(0.5);
+}
+
+.modal-star.filled {
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+}
+
+.modal-star:nth-child(1) { animation-delay: 0.2s; }
+.modal-star:nth-child(2) { animation-delay: 0.4s; }
+.modal-star:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes starPop {
+  0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+  60% { transform: scale(1.4) rotate(15deg); }
+  80% { transform: scale(0.9) rotate(-5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+/* Modal Description */
+.modal-desc-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-style: italic;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.modal-desc-text.win-desc {
+  color: #8B7500;
+}
+
+.modal-desc-text.lose-desc {
+  color: #8B0000;
+}
+
+/* Modal Button */
+.modal-btn.win-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+  box-shadow: 0 6px 0 #1B5E20, 0 0 20px rgba(76, 175, 80, 0.4);
+  animation: btnShine 2s ease-in-out infinite;
+}
+
+.modal-btn.lose-btn {
+  background: linear-gradient(135deg, #e64a19 0%, #bf360c 100%);
+  box-shadow: 0 6px 0 #8B0000;
+  animation: btnUrgent 1s ease-in-out infinite;
+}
+
+@keyframes btnShine {
+  0%, 100% { box-shadow: 0 6px 0 #1B5E20, 0 0 20px rgba(76, 175, 80, 0.4); }
+  50% { box-shadow: 0 6px 0 #1B5E20, 0 0 35px rgba(76, 175, 80, 0.6); }
+}
+
+@keyframes btnUrgent {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* Special: All Cleared Crown Animation */
+.modal-icon.crown-icon {
+  animation: iconBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), crownFloat 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 15px rgba(255, 215, 0, 1));
+}
+
+@keyframes crownFloat {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+}
+
+/* Encouragement Messages for Lose */
+.encouragement {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 10px;
+  opacity: 0.8;
+}
+
+/* ========================================
+   ACHIEVEMENT POPUP STYLES
+======================================== */
+.achievement-popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border: 3px solid #FFD700;
+  border-radius: 15px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 9999;
+  box-shadow: 
+    0 0 0 3px rgba(255, 215, 0, 0.3),
+    0 10px 40px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(255, 215, 0, 0.2);
+  animation: achievementSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-width: 350px;
+}
+
+.achievement-popup.fade-out {
+  animation: achievementFadeOut 0.5s ease-in forwards;
+}
+
+@keyframes achievementSlideIn {
+  0% { transform: translateX(120%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes achievementFadeOut {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+
+.achievement-icon {
+  font-size: 48px;
+  animation: achievementBounce 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes achievementBounce {
+  0% { transform: scale(1) rotate(-5deg); }
+  100% { transform: scale(1.1) rotate(5deg); }
+}
+
+.achievement-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.achievement-title {
+  font-family: "Bangers", cursive;
+  font-size: 12px;
+  color: #FFD700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.achievement-name {
+  font-family: "Bangers", cursive;
+  font-size: 18px;
+  color: white;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.achievement-desc {
+  font-size: 12px;
+  color: #aaa;
+  font-style: italic;
+}
+
+/* ========================================
+   ORIENTATION LOCK
+   ======================================== */
+@media screen and (orientation: portrait) and (max-width: 768px) {
+  #orientation-lock {
+    display: flex !important;
+  }
+  #game-container {
+    display: none !important;
   }
 }

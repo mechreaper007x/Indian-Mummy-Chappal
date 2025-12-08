@@ -539,36 +539,300 @@ const sounds = new SoundManager();
 // PARTICLE SYSTEM
 // ========================================
 class Particle {
-    constructor(x, y, color, scale) {
+    constructor(x, y, color, scale, type = 'impact') {
         this.x = x || 0; 
         this.y = y || 0; 
         this.color = color;
-        const angle = Math.random() * Math.PI * 2;
-        const speed = (Math.random() * 5 + 2) * scale;
-        this.vx = Math.cos(angle) * speed;
-        this.vy = Math.sin(angle) * speed;
-        this.life = 1.0;
-        this.decay = Math.random() * 0.03 + 0.02;
+        this.type = type;
         this.scale = scale;
+        this.life = 1.0;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+        
+        // Type-specific initialization
+        switch (type) {
+            case 'dust':
+                // Slow floating dust
+                this.vx = (Math.random() - 0.5) * 2 * scale;
+                this.vy = (Math.random() - 1) * scale;
+                this.decay = Math.random() * 0.015 + 0.01;
+                this.size = (Math.random() * 3 + 1) * scale;
+                break;
+            case 'sweat':
+                // Drops down with slight drift
+                this.vx = (Math.random() - 0.5) * scale;
+                this.vy = (Math.random() * 2 + 1) * scale;
+                this.decay = Math.random() * 0.03 + 0.02;
+                this.size = (Math.random() * 2 + 2) * scale;
+                break;
+            case 'steam':
+                // Rises and fades
+                this.vx = (Math.random() - 0.5) * 1.5 * scale;
+                this.vy = -(Math.random() * 3 + 2) * scale;
+                this.decay = Math.random() * 0.02 + 0.015;
+                this.size = (Math.random() * 5 + 3) * scale;
+                break;
+            case 'sparkle':
+                // Twinkles and drifts
+                const angle = Math.random() * Math.PI * 2;
+                const speed = (Math.random() * 2 + 1) * scale;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed - scale;
+                this.decay = Math.random() * 0.025 + 0.015;
+                this.size = (Math.random() * 3 + 2) * scale;
+                this.twinklePhase = Math.random() * Math.PI * 2;
+                break;
+            case 'impact':
+            default:
+                // Standard explosion particle
+                const impactAngle = Math.random() * Math.PI * 2;
+                const impactSpeed = (Math.random() * 5 + 2) * scale;
+                this.vx = Math.cos(impactAngle) * impactSpeed;
+                this.vy = Math.sin(impactAngle) * impactSpeed;
+                this.decay = Math.random() * 0.03 + 0.02;
+                this.size = 4 * scale;
+                break;
+        }
     }
 
     update() {
         this.x += this.vx; 
-        this.y += this.vy; 
-        this.vy += 0.2 * this.scale; 
+        this.y += this.vy;
+        this.rotation += this.rotationSpeed;
+        
+        // Type-specific physics
+        switch (this.type) {
+            case 'dust':
+                this.vy += 0.02 * this.scale; // Very slight gravity
+                this.vx *= 0.98; // Air resistance
+                break;
+            case 'sweat':
+                this.vy += 0.15 * this.scale; // Faster fall
+                break;
+            case 'steam':
+                this.vy *= 0.98; // Slow down as it rises
+                this.vx += (Math.random() - 0.5) * 0.1 * this.scale; // Drift
+                this.size += 0.1 * this.scale; // Expand
+                break;
+            case 'sparkle':
+                this.vy += 0.05 * this.scale; // Gentle gravity
+                this.twinklePhase += 0.3;
+                break;
+            case 'impact':
+            default:
+                this.vy += 0.2 * this.scale; // Normal gravity
+                break;
+        }
+        
         this.life -= this.decay;
     }
 
     draw(ctx) {
         if (this.life <= 0) return;
-        ctx.globalAlpha = this.life; 
-        ctx.fillStyle = this.color; 
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 4 * this.scale, 0, Math.PI * 2); 
-        ctx.fill(); 
+        ctx.save();
+        ctx.globalAlpha = this.life;
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.fillStyle = this.color;
+        
+        switch (this.type) {
+            case 'dust':
+                // Simple circle
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+            case 'sweat':
+                // Teardrop shape
+                ctx.beginPath();
+                ctx.moveTo(0, -this.size);
+                ctx.quadraticCurveTo(this.size, 0, 0, this.size * 1.5);
+                ctx.quadraticCurveTo(-this.size, 0, 0, -this.size);
+                ctx.fill();
+                break;
+            case 'steam':
+                // Fuzzy cloud
+                ctx.globalAlpha = this.life * 0.6;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                ctx.arc(this.size * 0.5, -this.size * 0.3, this.size * 0.7, 0, Math.PI * 2);
+                ctx.arc(-this.size * 0.4, this.size * 0.2, this.size * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+            case 'sparkle':
+                // 4-point star
+                const twinkle = 0.5 + Math.sin(this.twinklePhase) * 0.5;
+                ctx.globalAlpha = this.life * twinkle;
+                ctx.beginPath();
+                for (let i = 0; i < 8; i++) {
+                    const r = i % 2 === 0 ? this.size : this.size * 0.4;
+                    const angle = (i / 8) * Math.PI * 2;
+                    if (i === 0) ctx.moveTo(Math.cos(angle) * r, Math.sin(angle) * r);
+                    else ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+                }
+                ctx.closePath();
+                ctx.fill();
+                break;
+            case 'impact':
+            default:
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+        }
+        
+        ctx.restore();
         ctx.globalAlpha = 1;
     }
 }
+
+// ========================================
+// TEXT POPUP CLASS - "BOINK!", "THWACK!", "AYO!" effects
+// ========================================
+class TextPopup {
+    constructor(x, y, text, color = '#FF5722') {
+        this.x = x;
+        this.y = y;
+        this.text = text;
+        this.color = color;
+        this.life = 1.0;
+        this.decay = 0.025;
+        this.scale = 1.0;
+        this.vy = -3; // Float upward
+        this.rotation = (Math.random() - 0.5) * 0.4; // Slight random rotation
+    }
+
+    update() {
+        this.y += this.vy;
+        this.vy *= 0.95; // Slow down
+        this.scale += 0.02; // Grow slightly
+        this.life -= this.decay;
+    }
+
+    draw(ctx, gameScale) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.globalAlpha = this.life;
+        ctx.font = `bold ${Math.floor(28 * gameScale * this.scale)}px Bangers, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        // Black outline
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 4 * gameScale;
+        ctx.strokeText(this.text, 0, 0);
+        // Colored fill
+        ctx.fillStyle = this.color;
+        ctx.fillText(this.text, 0, 0);
+        ctx.restore();
+        ctx.globalAlpha = 1;
+    }
+}
+
+// ========================================
+// CHAPPAL TYPES - Different weapons with unique properties
+// ========================================
+const CHAPPAL_TYPES = [
+    { 
+        id: 'rubber', 
+        name: 'Rubber Chappal', 
+        desc: 'Extra bouncy!',
+        restitution: 0.85, 
+        damage: 0.8, 
+        color: '#4CAF50',
+        accentColor: '#388E3C',
+        special: 'bounce'
+    },
+    { 
+        id: 'wooden', 
+        name: 'Wooden Sandal', 
+        desc: 'Heavy impact!',
+        restitution: 0.2, 
+        damage: 1.5, 
+        color: '#8B4513',
+        accentColor: '#654321',
+        special: 'heavy'
+    },
+    { 
+        id: 'hawai', 
+        name: 'Hawai Chappal', 
+        desc: 'Classic blue!',
+        restitution: 0.5, 
+        damage: 1.0, 
+        color: '#2196F3',
+        accentColor: '#1565C0',
+        special: 'none'
+    },
+    { 
+        id: 'legendary', 
+        name: 'Mummy Ki Chappal', 
+        desc: 'EXPLOSIVE!',
+        restitution: 0.4, 
+        damage: 2.0, 
+        color: '#FFD700',
+        accentColor: '#FFA000',
+        special: 'explode'
+    }
+];
+
+// ========================================
+// IMPACT TEXT POPUPS - Dramatic hit effects
+// ========================================
+const IMPACT_TEXTS = [
+    { text: 'BOINK!', color: '#FF5722' },
+    { text: 'THWACK!', color: '#E91E63' },
+    { text: 'AYO!', color: '#9C27B0' },
+    { text: 'SLAP!', color: '#F44336' },
+    { text: 'WHACK!', color: '#FF9800' },
+    { text: 'POW!', color: '#4CAF50' },
+    { text: 'OUCH!', color: '#2196F3' },
+    { text: 'CERTIFIED!', color: '#FFD700' }
+];
+
+// ========================================
+// HUMOUR - Meme popups, dialogues, taunts
+// ========================================
+const MEME_POPUPS = [
+    "Chappal Supremacy! 🩴",
+    "Certified Desi Hit! 💯",
+    "Mummy Approved! ✓",
+    "Sharma Ji Impressed! ⭐",
+    "Legendary Throw! 🔥",
+    "No Escape! 😈",
+    "Target Acquired! 🎯",
+    "Parampara. Pratishtha. Anushasan!",
+    "Desi Precision! 🇮🇳"
+];
+
+const KID_DIALOGUES = [
+    "Mummy sorryyyyy!",
+    "I won't do it again!",
+    "It wasn't me, it was Sharma's son!",
+    "Main toh padh raha tha!",
+    "Bhaiya ne kiya!",
+    "Next time pakka exam top!",
+    "Please not the chappal!",
+    "I'll eat my sabzi!",
+    "Homework ab karunga!",
+    "Aiyo! Mummy maaregi!",
+    "Papa ko mat batana!",
+    "Galti se mistake ho gaya!"
+];
+
+const MUMMY_TAUNTS = [
+    "Tu ruk jaa…",
+    "Beta… Aaj tu gaya.",
+    "Chappal se bachke kahan jaayega?",
+    "Sharma ji ke bete ko dekho!",
+    "Ab pata chalega!",
+    "Mummy ko cheat karoge?!",
+    "Wo dekho chappal aa rahi hai!",
+    "Rukooo!",
+    "Abhi batati hoon!",
+    "Tujhe toh main...!",
+    "Yeh lo prasad! 🩴"
+];
 
 // ========================================
 // LEVEL DATA
@@ -1383,23 +1647,27 @@ const LEVEL_STORIES = [
 // ========================================
 
 const buildLevel = (idx, world, sx, sy, s) => {
-    // Helper functions for building structures
     const mkBox = (x, y, sz) => Composite.add(world, Bodies.rectangle(x, y, sz || s, sz || s, { 
         density: 0.002, 
         label: 'Book', 
-        friction: 0.6 
+        friction: 0.4,
+        frictionStatic: 0.5,
+        restitution: 0.15 // Slight bounce
     }));
     
     const mkKid = (x, y) => Composite.add(world, Bodies.circle(x, y, s * 0.4, { 
-        restitution: 0.6, 
+        restitution: 0.5, 
         label: 'Kid', 
-        density: 0.003 
+        density: 0.004,
+        friction: 0.3
     }));
     
     const mkPlank = (x, y, wd, ht) => Composite.add(world, Bodies.rectangle(x, y, wd, ht || s * 0.25, { 
-        density: 0.005, 
+        density: 0.004, 
         label: 'Wood', 
-        friction: 0.6 
+        friction: 0.5,
+        frictionStatic: 0.6,
+        restitution: 0.2 // Wood bounces a bit
     }));
     
     const mkVertPlank = (x, y, ht) => mkPlank(x, y, s * 0.25, ht || s * 1.5);
@@ -1756,10 +2024,14 @@ class Game {
         this.canvas = document.getElementById('world');
         this.ctx = this.canvas.getContext('2d');
         this.engine = Engine.create({ 
-            positionIterations: 16, 
-            velocityIterations: 16 
+            positionIterations: 20, 
+            velocityIterations: 20,
+            constraintIterations: 4
         });
         this.world = this.engine.world;
+        
+        // Tune gravity for satisfying arc throws
+        this.engine.world.gravity.y = 0.9;
         
         this.currentLevelIdx = 0;
         this.particles = [];
@@ -1794,6 +2066,40 @@ class Game {
         this.currentPanelIdx = 0;
         this.currentStory = null;
 
+        // ========================================
+        // PHASE 1 & 8 ENHANCEMENTS
+        // ========================================
+        
+        // Screen shake effect
+        this.screenShake = { intensity: 0, duration: 0 };
+        
+        // Slow-motion effect for perfect hits
+        this.slowMotion = { active: false, duration: 0, timeScale: 1 };
+        
+        // Text popups array ("BOINK!", "THWACK!", etc.)
+        this.textPopups = [];
+        
+        // Kid health tracking (body.id -> { hp, maxHp })
+        this.kidHealth = new Map();
+        
+        // Block health tracking (body.id -> { hp, maxHp })
+        this.blockHealth = new Map();
+        
+        // Dying blocks for fade-out effect (records position, size, type, alpha)
+        this.dyingBlocks = [];
+        
+        // Selected chappal type
+        this.selectedChappalIdx = 2; // Default: Hawai Chappal
+        
+        // Trajectory guide points
+        this.trajectoryPoints = [];
+        
+        // Meme/dialogue popup state
+        this.dialoguePopup = { text: '', timer: 0, type: '' };
+        
+        // Level stats for star rating
+        this.levelStats = { hitsLanded: 0, shotsFired: 0, blocksDestroyed: 0, totalBlocks: 0 };
+
         this.initResize();
         this.setupCollisionEvents();
         this.setupMouse();
@@ -1801,8 +2107,16 @@ class Game {
         this.setupFullscreenListener();
         this.initFloatingElements();
         
-        // Start Loop
-        this.loop();
+        // Initialize animation timing
+        this.lastTime = Date.now();
+        this.animTime = 0;
+        this.expressionTimer = 0;
+        
+        // Bind loop to this context
+        this.loop = this.loop.bind(this);
+        
+        // Start the game loop
+        requestAnimationFrame(this.loop);
     }
 
     initResize() {
@@ -2102,10 +2416,6 @@ class Game {
                 // Update selection visual
                 document.querySelectorAll('.mummy-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
-                // Auto-proceed to level select after short delay
-                setTimeout(() => {
-                    this.showLevelSelect();
-                }, 300);
             };
             grid.appendChild(card);
         });
@@ -2130,11 +2440,53 @@ class Game {
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('mummy-screen').classList.remove('hidden');
         document.getElementById('level-screen').classList.add('hidden');
+        document.getElementById('chappal-screen').classList.add('hidden');
+    }
+
+    showChappalSelect() {
+        sounds.playClick();
+        this.initChappalGrid();
+        document.getElementById('mummy-screen').classList.add('hidden');
+        document.getElementById('chappal-screen').classList.remove('hidden');
+        document.getElementById('level-screen').classList.add('hidden');
+    }
+
+    initChappalGrid() {
+        const grid = document.getElementById('chappal-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        
+        // Emoji icons for each chappal type
+        const chappalIcons = {
+            'rubber': '🟢',
+            'wooden': '🪵',
+            'hawai': '🔵',
+            'legendary': '⭐'
+        };
+        
+        CHAPPAL_TYPES.forEach((chappal, idx) => {
+            const card = document.createElement('div');
+            card.className = `chappal-card${this.selectedChappalIdx === idx ? ' selected' : ''}`;
+            card.innerHTML = `
+                <div class="chappal-icon">${chappalIcons[chappal.id] || '🩴'}</div>
+                <div class="chappal-name">${chappal.name}</div>
+                <div class="chappal-desc">${chappal.desc}</div>
+            `;
+            card.onclick = () => {
+                sounds.playClick();
+                this.selectedChappalIdx = idx;
+                // Update UI
+                grid.querySelectorAll('.chappal-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+            };
+            grid.appendChild(card);
+        });
     }
 
     showLevelSelect() {
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('mummy-screen').classList.add('hidden');
+        document.getElementById('chappal-screen').classList.add('hidden');
         document.getElementById('level-screen').classList.remove('hidden');
         document.getElementById('pause-screen').classList.add('hidden');
         document.getElementById('comic-screen').classList.add('hidden');
@@ -2271,39 +2623,53 @@ class Game {
             nextBtn.style.background = '#e64a19';
         }
         
-        // Draw characters on canvas
-        this.drawComicCharacters(panel);
+        // Draw characters on canvas is handled by the loop now
     }
     
     drawComicCharacters(panel) {
-        const canvas = document.getElementById('comic-canvas');
-        const ctx = canvas.getContext('2d');
+        const comicCanvas = document.getElementById('comic-canvas');
+        if (!comicCanvas) return;
+        const comicCtx = comicCanvas.getContext('2d');
         const mummyType = MUMMY_TYPES[this.selectedMummyIdx];
         
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // CONTEXT SWAP: Temporarily use comic canvas as main context so drawing functions work
+        const originalCtx = this.ctx;
+        this.ctx = comicCtx;
+        
+        // Clear comic canvas
+        this.ctx.clearRect(0, 0, comicCanvas.width, comicCanvas.height);
         
         // Get background color based on level theme
         const bg = LEVEL_BACKGROUNDS[this.currentLevelIdx] || LEVEL_BACKGROUNDS[0];
         
         // Draw simple background
-        ctx.fillStyle = bg.wallColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height * 0.7);
-        ctx.fillStyle = bg.floorColor;
-        ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
+        this.ctx.fillStyle = bg.wallColor;
+        this.ctx.fillRect(0, 0, comicCanvas.width, comicCanvas.height * 0.7);
+        this.ctx.fillStyle = bg.floorColor;
+        this.ctx.fillRect(0, comicCanvas.height * 0.7, comicCanvas.width, comicCanvas.height * 0.3);
         
         // Add some scene details based on level
-        this.drawSceneDetails(ctx, canvas, this.currentLevelIdx);
+        this.drawSceneDetails(this.ctx, comicCanvas, this.currentLevelIdx);
         
-        // Draw mummy (left side) - larger and more detailed
-        if (panel.mummyExpression) {
-            this.drawComicMummy(ctx, 130, 160, mummyType, panel.mummyExpression);
-        }
-        
-        // Draw kid (right side) - larger and more detailed
+        // Draw kid FIRST (right side, further back)
         if (panel.kidExpression) {
-            this.drawComicKid(ctx, 380, 170, panel.kidExpression);
+            this.ctx.save();
+            this.ctx.translate(380, 160); // Position Kid on right, moved up
+            this.ctx.scale(0.7, 0.7);
+            this.drawKid(30, null, panel.kidExpression);
+            this.ctx.restore();
         }
+        
+        // Draw mummy SECOND (left side, in front)
+        const originalExpression = this.mummyExpression;
+        if (panel.mummyExpression) {
+            this.mummyExpression = panel.mummyExpression;
+        }
+        this.drawMummy(100, 200, 0.75);
+        this.mummyExpression = originalExpression;
+        
+        // Restore context
+        this.ctx = originalCtx;
     }
     
     drawSceneDetails(ctx, canvas, levelIdx) {
@@ -2882,6 +3248,32 @@ class Game {
         
         this.setupMouse(); // Re-bind mouse to new world
         buildLevel(this.currentLevelIdx, this.world, this.targetStartX, this.targetStartY, 50 * this.scale);
+        
+        // Initialize kid health - each kid gets HP based on level difficulty
+        this.kidHealth.clear();
+        const baseHP = 2 + Math.floor(this.currentLevelIdx / 5); // 2 HP for levels 1-5, 3 HP for 6-10, etc
+        Composite.allBodies(this.world).forEach(b => {
+            if (b.label === 'Kid') {
+                this.kidHealth.set(b.id, { hp: baseHP, maxHp: baseHP });
+            }
+        });
+        
+        // Reset level stats for star rating
+        this.levelStats = { hitsLanded: 0, shotsFired: 0, blocksDestroyed: 0, totalBlocks: 0 };
+        
+        // Initialize block health tracking  
+        this.blockHealth.clear();
+        this.dyingBlocks = [];
+        Composite.allBodies(this.world).forEach(b => {
+            if (b.label === 'Book') {
+                this.blockHealth.set(b.id, { hp: 2, maxHp: 2 });
+                this.levelStats.totalBlocks++;
+            } else if (b.label === 'Wood') {
+                this.blockHealth.set(b.id, { hp: 3, maxHp: 3 });
+                this.levelStats.totalBlocks++;
+            }
+        });
+        
         this.spawnChappal();
     }
 
@@ -2899,31 +3291,169 @@ class Game {
                 if (chappal && (obstacle.label === 'Book' || obstacle.label === 'Wood')) {
                     if (chappal.speed > 8) {
                         const contact = pair.collision.supports[0] || obstacle.position;
-                        this.poof(contact.x, contact.y, '#EEE', 5);
-                        // Play impact sound with intensity based on speed
-                        sounds.playImpact(chappal.speed / 15);
+                        const intensity = Math.min(chappal.speed / 15, 1.5);
+                        
+                        // SPARK PARTICLES - vibrant rainbow sparks on hit!
+                        const sparkColors = ['#FF6B35', '#FFD93D', '#6BCB77', '#4D96FF', '#FF6B6B', '#C9B1FF'];
+                        for (let i = 0; i < Math.floor(10 + intensity * 8); i++) {
+                            this.particles.push(new Particle(contact.x, contact.y, 
+                                sparkColors[Math.floor(Math.random() * sparkColors.length)], this.scale, 'sparkle'));
+                        }
+                        // Dust cloud - warmer tones
+                        this.poof(contact.x, contact.y, '#D4A574', Math.floor(4 + intensity * 3));
+                        
+                        // Play impact sound with intensity
+                        sounds.playImpact(intensity);
+                        
+                        // SCREEN SHAKE based on intensity!
+                        this.triggerScreenShake(intensity * 5, 0.15);
+                        
+                        // DAMAGE BLOCK HEALTH
+                        const blockData = this.blockHealth.get(obstacle.id);
+                        if (blockData) {
+                            const damage = intensity > 1 ? 2 : 1; // Hard hit = 2 damage
+                            blockData.hp -= damage;
+                            
+                            if (blockData.hp <= 0) {
+                                // BLOCK DESTROYED! Add to dying blocks for fade-out
+                                const w = obstacle.bounds.max.x - obstacle.bounds.min.x;
+                                const h = obstacle.bounds.max.y - obstacle.bounds.min.y;
+                                this.dyingBlocks.push({
+                                    x: obstacle.position.x,
+                                    y: obstacle.position.y,
+                                    w: w,
+                                    h: h,
+                                    angle: obstacle.angle,
+                                    type: obstacle.label,
+                                    alpha: 1.0,
+                                    vx: (Math.random() - 0.5) * 3,
+                                    vy: -2 - Math.random() * 3,
+                                    rotSpeed: (Math.random() - 0.5) * 0.2
+                                });
+                                
+                                // Remove from world
+                                Composite.remove(this.world, obstacle);
+                                this.blockHealth.delete(obstacle.id);
+                                
+                                // Track destruction for star rating
+                                this.levelStats.blocksDestroyed++;
+                                
+                                // DESTROYED popup
+                                this.textPopups.push(new TextPopup(contact.x, contact.y - 20, '💥', '#FF5722'));
+                            } else {
+                                // CRACK popup - block damaged but not destroyed
+                                if (Math.random() < 0.6) {
+                                    this.textPopups.push(new TextPopup(contact.x, contact.y, 'CRACK!', '#8B4513'));
+                                }
+                            }
+                        }
                     }
                 }
                 
-                // Detect kid hit - mummy gets HAPPY!
+                // Detect kid hit - CELEBRATION TIME!
                 if (chappal && obstacle.label === 'Kid') {
+                    const hitPos = obstacle.position;
+                    const impactSpeed = chappal.speed;
+                    const isPerfectHit = impactSpeed > 20;
+                    
+                    // Mummy gets HAPPY!
                     this.mummyExpression = 'happy';
-                    this.expressionTimer = 2.0; // Stay happy for 2 seconds
-                    // Celebration particles
-                    this.poof(obstacle.position.x, obstacle.position.y, '#FFD700', 20);
+                    this.expressionTimer = 2.0;
+                    
+                    // Enhanced celebration particles
+                    this.poof(hitPos.x, hitPos.y, '#FFD700', 25);
+                    this.poof(hitPos.x, hitPos.y, '#FF5722', 15);
+                    
+                    // SCREEN SHAKE (bigger for perfect hits!)
+                    this.triggerScreenShake(isPerfectHit ? 12 : 6, isPerfectHit ? 0.25 : 0.15);
+                    
+                    // SLOW-MOTION for perfect hits!
+                    if (isPerfectHit) {
+                        this.triggerSlowMotion(0.3, 0.3);
+                    }
+                    
+                    // IMPACT TEXT POPUP!
+                    const popup = isPerfectHit 
+                        ? { text: 'PERFECT!', color: '#FFD700' }
+                        : IMPACT_TEXTS[Math.floor(Math.random() * IMPACT_TEXTS.length)];
+                    this.textPopups.push(new TextPopup(hitPos.x, hitPos.y - 20, popup.text, popup.color));
+                    
+                    // KID DIALOGUE (random chance)
+                    if (Math.random() < 0.5) {
+                        const dialogue = KID_DIALOGUES[Math.floor(Math.random() * KID_DIALOGUES.length)];
+                        this.showDialoguePopup(dialogue, 'kid');
+                    }
+                    
+                    // MEME POPUP (rarer)
+                    if (isPerfectHit && Math.random() < 0.6) {
+                        const meme = MEME_POPUPS[Math.floor(Math.random() * MEME_POPUPS.length)];
+                        this.showDialoguePopup(meme, 'meme');
+                    }
+                    
                     sounds.playKidHit();
-                    // Remove the kid
-                    Composite.remove(this.world, obstacle);
+                    
+                    // Track stats
+                    this.levelStats.hitsLanded++;
+                    
+                    // Calculate damage based on chappal type
+                    const chappalType = CHAPPAL_TYPES[this.selectedChappalIdx];
+                    let damage = chappalType ? chappalType.damage : 1;
+                    if (isPerfectHit) damage *= 1.5; // Perfect hits deal 50% more damage
+                    
+                    // Legendary chappal EXPLODES!
+                    if (chappalType && chappalType.special === 'explode') {
+                        this.poof(hitPos.x, hitPos.y, '#FF4500', 40);
+                        this.poof(hitPos.x, hitPos.y, '#FFD700', 30);
+                        this.triggerScreenShake(20, 0.4);
+                        sounds.playDramaticSting();
+                        damage = 99; // Instakill
+                    }
+                    
+                    // Apply damage to kid health
+                    const health = this.kidHealth.get(obstacle.id);
+                    if (health) {
+                        health.hp -= damage;
+                        if (health.hp <= 0) {
+                            // Kid knocked out!
+                            this.textPopups.push(new TextPopup(hitPos.x, hitPos.y - 40, 'K.O.!', '#FF1744'));
+                            Composite.remove(this.world, obstacle);
+                            this.kidHealth.delete(obstacle.id);
+                        } else {
+                            // Kid still standing - show damage number
+                            this.textPopups.push(new TextPopup(hitPos.x, hitPos.y - 30, `-${Math.floor(damage)}`, '#FF5722'));
+                        }
+                    } else {
+                        // Fallback: no health data, remove immediately
+                        Composite.remove(this.world, obstacle);
+                    }
                 }
             });
         });
+    }
+    
+    // Trigger screen shake effect
+    triggerScreenShake(intensity, duration) {
+        this.screenShake.intensity = Math.max(this.screenShake.intensity, intensity);
+        this.screenShake.duration = Math.max(this.screenShake.duration, duration);
+    }
+    
+    // Trigger slow-motion effect
+    triggerSlowMotion(duration, timeScale = 0.3) {
+        this.slowMotion.active = true;
+        this.slowMotion.duration = duration;
+        this.slowMotion.timeScale = timeScale;
+    }
+    
+    // Show dialogue/meme popup
+    showDialoguePopup(text, type) {
+        this.dialoguePopup = { text, timer: 2.5, type };
     }
 
     setupMouse() {
         const mouse = Mouse.create(this.canvas);
         const mouseConstraint = MouseConstraint.create(this.engine, {
             mouse: mouse,
-            constraint: { stiffness: 0.05, render: { visible: false } }
+            constraint: { stiffness: 0.2, render: { visible: false } }
         });
         mouseConstraint.collisionFilter.mask = 0x0001;
         Composite.add(this.world, mouseConstraint);
@@ -2947,7 +3477,7 @@ class Game {
                             this.sling = null; 
                             this.chappal.frictionAir = 0.001; 
                             // Godspeed Velocity
-                            const throwForce = Math.min(Vector.magnitude(forceVector) * 0.25, 50);
+                            const throwForce = Math.min(Vector.magnitude(forceVector) * 0.5, 85);
                             const throwDir = Vector.normalise(forceVector);
                             Body.setVelocity(this.chappal, Vector.mult(throwDir, throwForce));
                             
@@ -2955,11 +3485,12 @@ class Game {
                             sounds.playThrow();
                             
                             this.shotFired = true; 
-                            this.ammo--; 
+                            this.ammo--;
+                            this.levelStats.shotsFired++; // Track for star rating
                             this.updateUI(); 
                             this.checkForNextShot();
                         }
-                    }, 20);
+                    }, 0);
                 } else {
                     // Cancel/Drop if dragged left
                     setTimeout(() => { 
@@ -2968,11 +3499,12 @@ class Game {
                             this.sling = null; 
                             this.chappal.frictionAir = 0.002; 
                             this.shotFired = true; 
-                            this.ammo--; 
+                            this.ammo--;
+                            this.levelStats.shotsFired++; // Track for star rating
                             this.updateUI(); 
                             this.checkForNextShot(); 
                         }
-                    }, 20);
+                    }, 0);
                 }
             }
         });
@@ -2984,15 +3516,16 @@ class Game {
         const h = 20 * this.scale;
         this.chappal = Bodies.rectangle(this.anchor.x, this.anchor.y, w, h, { 
             chamfer: { radius: h * 0.4 }, 
-            density: 0.012, 
-            restitution: 0.6, 
+            density: 0.008, // Lighter for better arcs
+            restitution: 0.5, // Bounces off blocks
             label: 'Chappal', 
-            frictionAir: 0.05 
+            frictionAir: 0.015, // Less air drag = longer throws
+            friction: 0.4
         });
         this.sling = Constraint.create({ 
             pointA: { x: this.anchor.x, y: this.anchor.y }, 
             bodyB: this.chappal, 
-            stiffness: 0.1, 
+            stiffness: 0.15, // Snappy slingshot
             length: 0 
         });
         Composite.add(this.world, [this.chappal, this.sling]);
@@ -3051,21 +3584,95 @@ class Game {
         sounds.playWin();
         
         const modal = document.getElementById('game-modal');
+        const modalBox = document.getElementById('modal-box');
+        const icon = document.getElementById('modal-icon');
         const title = document.getElementById('modal-title');
         const desc = document.getElementById('modal-desc');
         const btn = document.getElementById('modal-btn');
+        const starsContainer = document.getElementById('modal-stars');
+        
+        // Apply win theme
+        modal.classList.remove('lose-theme');
+        modal.classList.add('win-theme');
+        modalBox.classList.remove('lose-modal');
+        modalBox.classList.add('win-modal');
+        icon.classList.remove('lose-icon', 'crown-icon');
+        icon.classList.add('win-icon');
+        title.classList.remove('lose-title');
+        title.classList.add('win-title');
+        desc.classList.remove('lose-desc');
+        desc.classList.add('win-desc');
+        btn.classList.remove('lose-btn');
+        btn.classList.add('win-btn');
+        
         modal.dataset.action = 'next';
         
+        // ============================================
+        // ENHANCED STAR RATING SYSTEM
+        // Uses: Accuracy + Ammo Efficiency + Destruction
+        // ============================================
+        let starScore = 0;
+        
+        // 1. ACCURACY BONUS (up to 1.5 stars)
+        // How many shots hit kids vs total shots
+        const accuracy = this.levelStats.shotsFired > 0 
+            ? this.levelStats.hitsLanded / this.levelStats.shotsFired 
+            : 0;
+        starScore += accuracy * 1.5;
+        
+        // 2. AMMO EFFICIENCY (up to 1.0 star)
+        // More remaining ammo = better
+        const ammoEfficiency = this.ammo / 6;
+        starScore += ammoEfficiency * 1.0;
+        
+        // 3. DESTRUCTION BONUS (up to 0.5 stars)
+        // Destroying blocks with chappal impact
+        const destructionRate = this.levelStats.totalBlocks > 0 
+            ? this.levelStats.blocksDestroyed / this.levelStats.totalBlocks 
+            : 0;
+        starScore += destructionRate * 0.5;
+        
+        // Convert score to 1-3 stars (never 0)
+        const stars = Math.min(3, Math.max(1, Math.round(starScore)));
+        
+        // Save best stars for this level
+        if (!this.levelStars) this.levelStars = {};
+        if (!this.levelStars[this.currentLevelIdx] || stars > this.levelStars[this.currentLevelIdx]) {
+            this.levelStars[this.currentLevelIdx] = stars;
+        }
+        
+        // Check for achievements
+        this.checkAchievements(stars, accuracy, this.ammo);
+        
+        starsContainer.innerHTML = '';
+        for (let i = 0; i < 3; i++) {
+            const star = document.createElement('span');
+            star.className = 'modal-star ' + (i < stars ? 'filled' : 'empty');
+            star.textContent = '⭐';
+            starsContainer.appendChild(star);
+        }
+        starsContainer.style.display = 'flex';
+        
         if (this.currentLevelIdx === LEVELS.length - 1) { 
+            icon.textContent = '👑';
+            icon.classList.add('crown-icon');
             title.innerText = "ALL CLEARED!"; 
-            desc.innerText = "Mishmay would be proud."; 
-            btn.innerText = "MENU"; 
+            desc.innerText = "Mishmay would be proud. You're a true Chappal Master!"; 
+            btn.innerText = "🏠 MENU"; 
             modal.dataset.action = 'menu';
         } else { 
+            icon.textContent = '🏆';
             title.innerText = "CLEARED!"; 
             desc.innerText = LEVELS[this.currentLevelIdx].desc; 
-            btn.innerText = "NEXT LEVEL"; 
+            btn.innerText = "NEXT LEVEL ▶"; 
         }
+        
+        // Start confetti celebration!
+        this.startConfetti();
+        
+        // Screen shake for emphasis
+        this.triggerScreenShake(5, 0.2);
+        
         modal.classList.remove('hidden');
     }
 
@@ -3074,19 +3681,304 @@ class Game {
         sounds.playLose();
         
         const modal = document.getElementById('game-modal');
+        const modalBox = document.getElementById('modal-box');
+        const icon = document.getElementById('modal-icon');
+        const title = document.getElementById('modal-title');
+        const desc = document.getElementById('modal-desc');
+        const btn = document.getElementById('modal-btn');
+        const starsContainer = document.getElementById('modal-stars');
+        
+        // Apply lose theme
+        modal.classList.remove('win-theme');
+        modal.classList.add('lose-theme');
+        modalBox.classList.remove('win-modal');
+        modalBox.classList.add('lose-modal');
+        icon.classList.remove('win-icon', 'crown-icon');
+        icon.classList.add('lose-icon');
+        title.classList.remove('win-title');
+        title.classList.add('lose-title');
+        desc.classList.remove('win-desc');
+        desc.classList.add('lose-desc');
+        btn.classList.remove('win-btn');
+        btn.classList.add('lose-btn');
+        
+        // No stars for loss
+        starsContainer.innerHTML = '';
+        starsContainer.style.display = 'none';
+        
+        // Randomized fail icon and encouragement
+        const failIcons = ['💔', '😢', '😭', '🙈', '💀'];
+        const encouragements = [
+            "Out of chappals!",
+            "Even Mummy misses sometimes...",
+            "Those kids are fast!",
+            "Try again, beta!",
+            "Mummy believes in you!",
+            "Aim higher next time!",
+            "The chappal will fly true!"
+        ];
+        
+        icon.textContent = failIcons[Math.floor(Math.random() * failIcons.length)];
         modal.dataset.action = 'retry';
-        document.getElementById('modal-title').innerText = "FAILED!";
-        document.getElementById('modal-desc').innerText = "Out of chappals!";
-        document.getElementById('modal-btn').innerText = "RETRY";
+        title.innerText = "FAILED!";
+        desc.innerText = encouragements[Math.floor(Math.random() * encouragements.length)];
+        btn.innerText = "🔄 RETRY";
+        
+        // Dramatic screen shake
+        this.triggerScreenShake(12, 0.3);
+        
+        // Stop any confetti
+        this.stopConfetti();
+        
         modal.classList.remove('hidden');
     }
 
     handleModalAction() {
         const modal = document.getElementById('game-modal');
         const action = modal.dataset.action;
+        
+        // Stop confetti when leaving modal
+        this.stopConfetti();
+        
         if (action === 'next') this.nextLevel();
         else if (action === 'retry') this.resetLevel();
         else if (action === 'menu') this.showStartScreen();
+    }
+    
+    // ========================================
+    // CONFETTI SYSTEM - Victory Celebration!
+    // ========================================
+    startConfetti() {
+        this.confettiActive = true;
+        this.confettiParticles = [];
+        
+        const canvas = document.getElementById('confetti-canvas');
+        const modal = document.getElementById('game-modal');
+        canvas.width = modal.clientWidth;
+        canvas.height = modal.clientHeight;
+        
+        const ctx = canvas.getContext('2d');
+        const colors = ['#FFD700', '#FF5722', '#4CAF50', '#2196F3', '#E91E63', '#9C27B0', '#FF9800'];
+        
+        // Create initial burst
+        for (let i = 0; i < 100; i++) {
+            this.confettiParticles.push({
+                x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+                y: canvas.height / 2,
+                vx: (Math.random() - 0.5) * 15,
+                vy: (Math.random() - 1) * 12 - 5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                size: Math.random() * 8 + 4,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.3,
+                shape: Math.random() > 0.5 ? 'rect' : 'circle'
+            });
+        }
+        
+        // Animate confetti
+        const animateConfetti = () => {
+            if (!this.confettiActive) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            this.confettiParticles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3; // Gravity
+                p.vx *= 0.99; // Air resistance
+                p.rotation += p.rotationSpeed;
+                
+                // Draw particle
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation);
+                ctx.fillStyle = p.color;
+                
+                if (p.shape === 'rect') {
+                    ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            });
+            
+            // Remove particles that fell off screen
+            this.confettiParticles = this.confettiParticles.filter(p => p.y < canvas.height + 50);
+            
+            // Add more particles occasionally
+            if (this.confettiParticles.length < 50 && Math.random() < 0.3) {
+                this.confettiParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: -20,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: Math.random() * 3 + 2,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 8 + 4,
+                    rotation: Math.random() * Math.PI * 2,
+                    rotationSpeed: (Math.random() - 0.5) * 0.3,
+                    shape: Math.random() > 0.5 ? 'rect' : 'circle'
+                });
+            }
+            
+            this.confettiAnimationId = requestAnimationFrame(animateConfetti);
+        };
+        
+        animateConfetti();
+    }
+    
+    stopConfetti() {
+        this.confettiActive = false;
+        if (this.confettiAnimationId) {
+            cancelAnimationFrame(this.confettiAnimationId);
+            this.confettiAnimationId = null;
+        }
+        const canvas = document.getElementById('confetti-canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        this.confettiParticles = [];
+    }
+
+    // ========================================
+    // ACHIEVEMENT SYSTEM
+    // ========================================
+    initAchievements() {
+        // Load saved achievements from localStorage
+        this.achievements = JSON.parse(localStorage.getItem('mummyChappalAchievements') || '{}');
+        this.achievementQueue = []; // Queue for showing achievement popups
+        
+        // Achievement definitions
+        this.achievementDefs = {
+            'first_blood': { name: '🩴 First Blood', desc: 'Win your first level', icon: '🩴' },
+            'veteran': { name: '🎖️ Veteran', desc: 'Win 10 levels', icon: '🎖️' },
+            'master': { name: '👑 Master', desc: 'Beat all 20 levels', icon: '👑' },
+            'perfect': { name: '⭐ Perfect', desc: 'Get 3 stars on any level', icon: '⭐' },
+            'sharpshooter': { name: '🎯 Sharpshooter', desc: '100% accuracy on a level', icon: '🎯' },
+            'speedrunner': { name: '⚡ Speedrunner', desc: 'Win with 5+ ammo remaining', icon: '⚡' },
+            'one_shot': { name: '💥 One Shot', desc: 'Clear a level in 1 throw', icon: '💥' },
+            'untouchable': { name: '🛡️ Untouchable', desc: 'Win without hitting any blocks', icon: '🛡️' },
+            'triple_threat': { name: '🏆 Triple Threat', desc: 'Get 3 stars on 3 levels in a row', icon: '🏆' },
+            'completionist': { name: '💯 Completionist', desc: '3 stars on all levels', icon: '💯' },
+            'destroyer': { name: '💣 Destroyer', desc: 'Destroy 100 blocks total', icon: '💣' },
+            'rage_mode': { name: '😤 Rage Mode', desc: 'Trigger mummy rage 10 times', icon: '😤' }
+        };
+    }
+    
+    checkAchievements(stars, accuracy, ammoRemaining) {
+        if (!this.achievements) this.initAchievements();
+        
+        // Track statistics
+        if (!this.gameStats) {
+            this.gameStats = JSON.parse(localStorage.getItem('mummyChappalStats') || '{}');
+            this.gameStats.winsTotal = this.gameStats.winsTotal || 0;
+            this.gameStats.blocksDestroyed = this.gameStats.blocksDestroyed || 0;
+            this.gameStats.rageTriggers = this.gameStats.rageTriggers || 0;
+            this.gameStats.levelsCleared = this.gameStats.levelsCleared || [];
+        }
+        
+        this.gameStats.winsTotal++;
+        this.gameStats.blocksDestroyed += this.levelStats.blocksDestroyed || 0;
+        if (!this.gameStats.levelsCleared.includes(this.currentLevelIdx)) {
+            this.gameStats.levelsCleared.push(this.currentLevelIdx);
+        }
+        
+        // Check each achievement
+        if (!this.achievements['first_blood']) {
+            this.unlockAchievement('first_blood');
+        }
+        
+        if (this.gameStats.winsTotal >= 10 && !this.achievements['veteran']) {
+            this.unlockAchievement('veteran');
+        }
+        
+        if (this.gameStats.levelsCleared.length >= 20 && !this.achievements['master']) {
+            this.unlockAchievement('master');
+        }
+        
+        if (stars === 3 && !this.achievements['perfect']) {
+            this.unlockAchievement('perfect');
+        }
+        
+        if (accuracy >= 1.0 && !this.achievements['sharpshooter']) {
+            this.unlockAchievement('sharpshooter');
+        }
+        
+        if (ammoRemaining >= 5 && !this.achievements['speedrunner']) {
+            this.unlockAchievement('speedrunner');
+        }
+        
+        if (ammoRemaining === 5 && !this.achievements['one_shot']) {
+            // 6 ammo - 1 shot = 5 remaining means one shot clear
+            this.unlockAchievement('one_shot');
+        }
+        
+        if (this.levelStats.blocksDestroyed === 0 && !this.achievements['untouchable']) {
+            this.unlockAchievement('untouchable');
+        }
+        
+        if (this.gameStats.blocksDestroyed >= 100 && !this.achievements['destroyer']) {
+            this.unlockAchievement('destroyer');
+        }
+        
+        // Check for triple threat (3 stars on 3 consecutive levels)
+        if (this.levelStars && !this.achievements['triple_threat']) {
+            for (let i = 0; i <= LEVELS.length - 3; i++) {
+                if (this.levelStars[i] === 3 && this.levelStars[i+1] === 3 && this.levelStars[i+2] === 3) {
+                    this.unlockAchievement('triple_threat');
+                    break;
+                }
+            }
+        }
+        
+        // Check for completionist
+        if (this.levelStars && Object.keys(this.levelStars).length >= 20 && !this.achievements['completionist']) {
+            const all3Stars = Object.values(this.levelStars).every(s => s === 3);
+            if (all3Stars) {
+                this.unlockAchievement('completionist');
+            }
+        }
+        
+        // Save stats
+        localStorage.setItem('mummyChappalStats', JSON.stringify(this.gameStats));
+    }
+    
+    unlockAchievement(id) {
+        if (!this.achievements) this.initAchievements();
+        if (this.achievements[id]) return; // Already unlocked
+        
+        this.achievements[id] = { unlocked: true, timestamp: Date.now() };
+        localStorage.setItem('mummyChappalAchievements', JSON.stringify(this.achievements));
+        
+        // Show achievement popup
+        const def = this.achievementDefs[id];
+        if (def) {
+            sounds.playClick();
+            this.showAchievementPopup(def);
+        }
+    }
+    
+    showAchievementPopup(achievement) {
+        // Create and show floating achievement notification
+        const popup = document.createElement('div');
+        popup.className = 'achievement-popup';
+        popup.innerHTML = `
+            <div class="achievement-icon">${achievement.icon}</div>
+            <div class="achievement-text">
+                <div class="achievement-title">ACHIEVEMENT UNLOCKED!</div>
+                <div class="achievement-name">${achievement.name}</div>
+                <div class="achievement-desc">${achievement.desc}</div>
+            </div>
+        `;
+        document.body.appendChild(popup);
+        
+        // Auto-remove after animation
+        setTimeout(() => {
+            popup.classList.add('fade-out');
+            setTimeout(() => popup.remove(), 500);
+        }, 3000);
     }
 
     /**
@@ -3111,7 +4003,14 @@ class Game {
 
     update() {
         if (!this.isPaused && this.gameActive) {
-            Engine.update(this.engine, 1000 / 60);
+            // Apply slow-motion effect to physics with smooth sub-stepping
+            const timeScale = this.slowMotion.active ? this.slowMotion.timeScale : 1;
+            // Sub-step physics at 240fps for ultra-smooth animation
+            const subSteps = 4;
+            const subDelta = (1000 / 60 / subSteps) * timeScale;
+            for (let i = 0; i < subSteps; i++) {
+                Engine.update(this.engine, subDelta);
+            }
             
             // Godspeed Governor
             if (this.chappal) {
@@ -3133,18 +4032,46 @@ class Game {
                     }
                 });
             }
+            
+            // Update particles
             for (let i = this.particles.length - 1; i >= 0; i--) {
                 this.particles[i].update(); 
                 if (this.particles[i].life <= 0) this.particles.splice(i, 1);
+            }
+            
+            // Update text popups
+            for (let i = this.textPopups.length - 1; i >= 0; i--) {
+                this.textPopups[i].update();
+                if (this.textPopups[i].life <= 0) this.textPopups.splice(i, 1);
+            }
+            
+            // Update dying blocks (fade-out effect)
+            for (let i = this.dyingBlocks.length - 1; i >= 0; i--) {
+                const db = this.dyingBlocks[i];
+                db.x += db.vx;
+                db.y += db.vy;
+                db.vy += 0.15; // Gravity
+                db.angle += db.rotSpeed;
+                db.alpha -= 0.03; // Fade out
+                if (db.alpha <= 0) this.dyingBlocks.splice(i, 1);
             }
         }
     }
 
     draw() {
         try {
-            this.ctx.clearRect(0, 0, this.width, this.height);
+            const ctx = this.ctx;
+            ctx.clearRect(0, 0, this.width, this.height);
             
             if (this.gameActive) {
+                // SCREEN SHAKE - Apply canvas transform
+                ctx.save();
+                if (this.screenShake.duration > 0) {
+                    const shakeX = (Math.random() - 0.5) * this.screenShake.intensity * 2;
+                    const shakeY = (Math.random() - 0.5) * this.screenShake.intensity * 2;
+                    ctx.translate(shakeX, shakeY);
+                }
+                
                 // Draw themed background
                 this.drawBackground();
                 
@@ -3153,24 +4080,152 @@ class Game {
 
                 this.drawMummy(this.anchor.x - (60 * this.scale), this.anchor.y + (30 * this.scale), this.scale);
 
+                // TRAJECTORY GUIDE - Show when aiming
+                if (this.isAiming && this.chappal && this.sling) {
+                    this.drawTrajectoryGuide();
+                }
+
                 Composite.allBodies(this.world).forEach(b => {
-                    this.ctx.save(); 
-                    this.ctx.translate(b.position.x, b.position.y); 
-                    this.ctx.rotate(b.angle);
+                    ctx.save(); 
+                    ctx.translate(b.position.x, b.position.y); 
+                    ctx.rotate(b.angle);
                     const w = b.bounds.max.x - b.bounds.min.x; 
                     const h = b.bounds.max.y - b.bounds.min.y;
                     if (b.label === 'Chappal') this.drawChappal(w, h);
                     else if (b.label === 'Kid') this.drawKid(w / 2, b);
-                    else if (b.label === 'Book') this.drawBook(w, h);
-                    else if (b.label === 'Wood') this.drawWood(w, h);
-                    this.ctx.restore();
+                    else if (b.label === 'Book') this.drawBook(w, h, false, b);
+                    else if (b.label === 'Wood') this.drawWood(w, h, false, b);
+                    ctx.restore();
                 });
                 
-                this.particles.forEach(p => p.draw(this.ctx));
+                // Draw particles
+                this.particles.forEach(p => p.draw(ctx));
+                
+                // Draw text popups ("BOINK!", "THWACK!", etc.)
+                this.textPopups.forEach(popup => popup.draw(ctx, this.scale));
+                
+                // Draw dying blocks (fade-out effect)
+                this.dyingBlocks.forEach(db => {
+                    ctx.save();
+                    ctx.globalAlpha = db.alpha;
+                    ctx.translate(db.x, db.y);
+                    ctx.rotate(db.angle);
+                    if (db.type === 'Book') this.drawBook(db.w, db.h, true);
+                    else if (db.type === 'Wood') this.drawWood(db.w, db.h, true);
+                    ctx.restore();
+                });
+                ctx.globalAlpha = 1;
+                
+                // Restore from screen shake
+                ctx.restore();
+                
+                // Draw dialogue/meme popup (UI layer - not affected by shake)
+                this.drawDialoguePopup();
             }
         } catch (e) { 
             console.error(e); 
         }
+    }
+    
+    // Trajectory guide - dotted line showing predicted path
+    drawTrajectoryGuide() {
+        if (!this.chappal || !this.anchor) return;
+        
+        const ctx = this.ctx;
+        const chappalPos = this.chappal.position;
+        const pullVector = Vector.sub(this.anchor, chappalPos);
+        const throwForce = Math.min(Vector.magnitude(pullVector) * 0.25, 50);
+        const throwDir = Vector.normalise(pullVector);
+        
+        // Only show if pulling right (valid throw direction)
+        if (pullVector.x < 0) return;
+        
+        // Simulate trajectory
+        const velocity = Vector.mult(throwDir, throwForce);
+        const gravity = 0.001 * (1000 / 60); // Match Matter.js default gravity
+        const points = [];
+        let pos = { x: chappalPos.x, y: chappalPos.y };
+        let vel = { x: velocity.x, y: velocity.y };
+        
+        for (let i = 0; i < 40; i++) {
+            points.push({ x: pos.x, y: pos.y });
+            vel.y += gravity * 60; // Accumulate gravity
+            pos.x += vel.x * 0.5;
+            pos.y += vel.y * 0.5;
+            
+            // Stop if off screen
+            if (pos.y > this.height || pos.x > this.width) break;
+        }
+        
+        // Draw dotted line
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 87, 34, 0.6)';
+        ctx.lineWidth = 3 * this.scale;
+        ctx.setLineDash([8 * this.scale, 8 * this.scale]);
+        ctx.lineCap = 'round';
+        
+        ctx.beginPath();
+        if (points.length > 0) {
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                // Fade opacity over distance
+                const alpha = 1 - (i / points.length);
+                ctx.globalAlpha = alpha * 0.6;
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+    
+    // Draw dialogue/meme popup
+    drawDialoguePopup() {
+        if (this.dialoguePopup.timer <= 0) return;
+        
+        const ctx = this.ctx;
+        const text = this.dialoguePopup.text;
+        const type = this.dialoguePopup.type;
+        
+        ctx.save();
+        
+        // Position based on type
+        const x = this.width / 2;
+        const y = type === 'kid' ? this.height * 0.25 : this.height * 0.15;
+        
+        // Background bubble
+        ctx.font = `bold ${Math.floor(22 * this.scale)}px "Open Sans", sans-serif`;
+        const metrics = ctx.measureText(text);
+        const padding = 15 * this.scale;
+        const bubbleWidth = metrics.width + padding * 2;
+        const bubbleHeight = 35 * this.scale;
+        
+        // Animate in
+        const progress = Math.min(this.dialoguePopup.timer / 2.5, 1);
+        const scale = 0.5 + progress * 0.5;
+        
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        ctx.globalAlpha = Math.min(this.dialoguePopup.timer, 1);
+        
+        // Bubble background
+        ctx.fillStyle = type === 'kid' ? '#FFF9C4' : type === 'meme' ? '#E1F5FE' : '#FFEBEE';
+        ctx.strokeStyle = type === 'kid' ? '#FBC02D' : type === 'meme' ? '#03A9F4' : '#D32F2F';
+        ctx.lineWidth = 3;
+        
+        ctx.beginPath();
+        ctx.roundRect(-bubbleWidth/2, -bubbleHeight/2, bubbleWidth, bubbleHeight, 10);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Text
+        ctx.fillStyle = '#1a1a1a';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, 0, 0);
+        
+        ctx.restore();
     }
 
     // ========================================
@@ -3257,6 +4312,247 @@ class Game {
                 this.drawBossRoom(ctx, w, h, s, bg);
                 break;
         }
+        
+        // Draw dynamic animated elements
+        this.drawDynamicElements(ctx, w, h, s, bg);
+    }
+    
+    // ========================================
+    // DYNAMIC BACKGROUND ELEMENTS
+    // Animated decorations: fans, lamps, clouds, cricket balls
+    // ========================================
+    drawDynamicElements(ctx, w, h, s, bg) {
+        const t = this.animTime;
+        
+        // CEILING FAN - Living rooms, bedrooms
+        if (['living', 'living_cozy', 'living_cool', 'bedroom_night', 'bedroom_dark', 'bedroom_morning', 'guest'].includes(bg.theme)) {
+            this.drawCeilingFan(ctx, w * 0.6, 60 * s, s, t);
+        }
+        
+        // DESK LAMP (swinging) - Study rooms
+        if (['study', 'study_night', 'study_tense'].includes(bg.theme)) {
+            this.drawSwingingLamp(ctx, 200 * s, 50 * s, s, t);
+        }
+        
+        // ANIMATED CLOUDS - Outdoor
+        if (bg.theme === 'outdoor') {
+            // Drifting clouds
+            const cloudOffset1 = (t * 10) % (w + 200 * s);
+            const cloudOffset2 = ((t * 8) + w/2) % (w + 200 * s);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.drawCloud(ctx, cloudOffset1 - 100 * s, 50 * s, s * 0.6);
+            this.drawCloud(ctx, cloudOffset2 - 100 * s, 80 * s, s * 0.4);
+            
+            // Floating cricket ball
+            const ballY = h * 0.2 + Math.sin(t * 2) * 30 * s;
+            const ballX = w * 0.7 + Math.cos(t) * 20 * s;
+            this.drawCricketBall(ctx, ballX, ballY, 15 * s, t);
+        }
+        
+        // WALL CLOCK (ticking) - Study, living rooms
+        if (['study', 'living_cozy', 'dining', 'dining_green'].includes(bg.theme)) {
+            this.drawTickingClock(ctx, w - 80 * s, 80 * s, 25 * s, t);
+        }
+    }
+    
+    // Spinning ceiling fan
+    drawCeilingFan(ctx, x, y, s, time) {
+        ctx.save();
+        ctx.translate(x, y);
+        
+        // Fan rod - rich mahogany
+        ctx.fillStyle = '#4A1C1C';
+        ctx.fillRect(-4 * s, 0, 8 * s, 30 * s);
+        
+        // Fan motor - chrome with gradient
+        const motorGrad = ctx.createRadialGradient(0, 30 * s, 0, 0, 30 * s, 15 * s);
+        motorGrad.addColorStop(0, '#888');
+        motorGrad.addColorStop(0.5, '#555');
+        motorGrad.addColorStop(1, '#222');
+        ctx.fillStyle = motorGrad;
+        ctx.beginPath();
+        ctx.arc(0, 30 * s, 14 * s, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Spinning blades - each with unique rich color
+        const bladeColors = ['#8B5A2B', '#CD853F', '#A0522D'];
+        const bladeCount = 3;
+        const rotation = time * 5; // Spin speed
+        
+        for (let i = 0; i < bladeCount; i++) {
+            ctx.save();
+            ctx.translate(0, 30 * s);
+            ctx.rotate(rotation + (i * Math.PI * 2 / bladeCount));
+            
+            // Blade gradient
+            const bladeGrad = ctx.createLinearGradient(0, 0, 80 * s, 0);
+            bladeGrad.addColorStop(0, bladeColors[i]);
+            bladeGrad.addColorStop(0.5, '#DEB887');
+            bladeGrad.addColorStop(1, bladeColors[i]);
+            ctx.fillStyle = bladeGrad;
+            
+            ctx.beginPath();
+            ctx.ellipse(45 * s, 0, 40 * s, 10 * s, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Blade edge highlight
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        ctx.restore();
+    }
+    
+    // Swinging desk lamp
+    drawSwingingLamp(ctx, x, y, s, time) {
+        ctx.save();
+        ctx.translate(x, y);
+        
+        // Swing angle
+        const swingAngle = Math.sin(time * 0.8) * 0.15;
+        ctx.rotate(swingAngle);
+        
+        // Lamp arm - bronze
+        ctx.strokeStyle = '#8B6914';
+        ctx.lineWidth = 5 * s;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, 50 * s);
+        ctx.stroke();
+        
+        // Lamp shade - vibrant sunset gradient
+        const shadeGrad = ctx.createLinearGradient(-25 * s, 30 * s, 25 * s, 50 * s);
+        shadeGrad.addColorStop(0, '#FF6B35');
+        shadeGrad.addColorStop(0.5, '#FFD93D');
+        shadeGrad.addColorStop(1, '#FF8C42');
+        ctx.fillStyle = shadeGrad;
+        ctx.beginPath();
+        ctx.moveTo(-28 * s, 52 * s);
+        ctx.lineTo(0, 28 * s);
+        ctx.lineTo(28 * s, 52 * s);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Shade edge
+        ctx.strokeStyle = '#E85D04';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Light glow - warm amber
+        const gradient = ctx.createRadialGradient(0, 65 * s, 5 * s, 0, 90 * s, 100 * s);
+        gradient.addColorStop(0, 'rgba(255, 200, 100, 0.5)');
+        gradient.addColorStop(0.4, 'rgba(255, 150, 50, 0.2)');
+        gradient.addColorStop(1, 'rgba(255, 100, 0, 0)');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(0, 80 * s, 100 * s, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.restore();
+    }
+    
+    // Cricket ball
+    drawCricketBall(ctx, x, y, r, time) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(time * 2); // Spinning
+        
+        // Ball shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.beginPath();
+        ctx.ellipse(3, 5, r, r * 0.4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Ball - vivid crimson with gradient
+        const ballGrad = ctx.createRadialGradient(-r * 0.3, -r * 0.3, 0, 0, 0, r);
+        ballGrad.addColorStop(0, '#FF4444');
+        ballGrad.addColorStop(0.6, '#CC0000');
+        ballGrad.addColorStop(1, '#8B0000');
+        ctx.fillStyle = ballGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Glossy shine
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.beginPath();
+        ctx.ellipse(-r * 0.3, -r * 0.3, r * 0.25, r * 0.15, -0.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Seam - crisp white
+        ctx.strokeStyle = '#FFFEF0';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.65, -Math.PI * 0.4, Math.PI * 0.4);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.65, Math.PI * 0.6, Math.PI * 1.4);
+        ctx.stroke();
+        
+        ctx.restore();
+    }
+    
+    // Ticking wall clock
+    drawTickingClock(ctx, x, y, r, time) {
+        ctx.save();
+        ctx.translate(x, y);
+        
+        // Clock face
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Hour markers
+        ctx.fillStyle = '#333';
+        for (let i = 0; i < 12; i++) {
+            ctx.save();
+            ctx.rotate((i * Math.PI * 2) / 12);
+            ctx.fillRect(-1, -r + 3, 2, 6);
+            ctx.restore();
+        }
+        
+        // Hands - move with game time
+        const hourAngle = (time * 0.05) % (Math.PI * 2);
+        const minuteAngle = (time * 0.2) % (Math.PI * 2);
+        const secondAngle = (time * 2) % (Math.PI * 2);
+        
+        // Hour hand
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.sin(hourAngle) * r * 0.4, -Math.cos(hourAngle) * r * 0.4);
+        ctx.stroke();
+        
+        // Minute hand
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.sin(minuteAngle) * r * 0.6, -Math.cos(minuteAngle) * r * 0.6);
+        ctx.stroke();
+        
+        // Second hand
+        ctx.strokeStyle = '#FF0000';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.sin(secondAngle) * r * 0.7, -Math.cos(secondAngle) * r * 0.7);
+        ctx.stroke();
+        
+        // Center dot
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.restore();
     }
     
     // Helper to darken colors
@@ -3742,25 +5038,60 @@ class Game {
         this.ctx.closePath();
     }
 
-    drawKid(radius, body) {
+    drawKid(radius, body, expressionOverride = null) {
         const ctx = this.ctx;
+        
+        // Get kid health for visual feedback
+        const health = body ? this.kidHealth.get(body.id) : null;
+        const hpPercent = health ? (health.hp / health.maxHp) : 1;
+        const isLowHP = hpPercent <= 0.5;
+        
+        // Trembling when low HP
+        const tremble = isLowHP ? Math.sin(this.animTime * 30) * 2 : 0;
         
         // Check if chappal is nearby (within 200 units) - scared mode
         let isScared = false;
         let isVeryScared = false;
-        if (this.chappal && body) {
-            const dx = this.chappal.position.x - body.position.x;
-            const dy = this.chappal.position.y - body.position.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            isScared = dist < 300;
-            isVeryScared = dist < 150;
+        
+        if (expressionOverride) {
+            // Map string expressions to boolean states
+            const expr = expressionOverride;
+            if (['scared','nervous','sweating','hiding','caught','guilty','regret','dread','suspicious'].includes(expr)) isScared = true;
+            if (['terrified','crying','united_fear','pleading','frozen','shaking','panic','panicking'].includes(expr)) isVeryScared = true;
+            // Taunting handled below
+        } else {
+            if (this.chappal && body) {
+                const dx = this.chappal.position.x - body.position.x;
+                const dy = this.chappal.position.y - body.position.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                isScared = dist < 300;
+                isVeryScared = dist < 150;
+            }
         }
         
         // PROVOCATION STATE - kids taunt when not scared
         const tauntCycle = (this.animTime + (body ? body.id * 0.5 : 0)) % 5;
-        const isTaunting = !isScared && tauntCycle > 3.5 && tauntCycle < 4.5;
-        const isShowingTongue = !isScared && tauntCycle > 2.5 && tauntCycle < 3.5;
+        let isTaunting = !isScared && tauntCycle > 3.5 && tauntCycle < 4.5;
+        let isShowingTongue = !isScared && tauntCycle > 2.5 && tauntCycle < 3.5;
         
+        // Override provocation
+        if (expressionOverride) {
+            const expr = expressionOverride;
+            if (['rebellious','fighting','pointing','refusing','mischievous'].includes(expr)) {
+                isTaunting = true;
+                isScared = false;
+            }
+            if (['sneaking','clown'].includes(expr)) {
+                isShowingTongue = true;
+                isScared = false;
+            }
+             if (['playing','neutral','bored','chilling','innocent','proud','hopeful'].includes(expr)) {
+                isTaunting = false;
+                isShowingTongue = false;
+                isScared = false;
+            }
+        }
+
         // Blinking animation (blink every 3 seconds for 0.1 seconds)
         const blinkCycle = this.animTime % 3;
         const isBlinking = blinkCycle > 2.9 && blinkCycle < 3.0 && !isTaunting;
@@ -3771,8 +5102,30 @@ class Game {
         // Subtle breathing animation
         const breathe = Math.sin(this.animTime * 2) * 0.02;
         ctx.save();
-        ctx.translate(0, bounce);
+        ctx.translate(tremble, bounce);
         ctx.scale(1, 1 + breathe);
+        
+        // === HEALTH BAR (draw above kid) ===
+        if (health && health.hp < health.maxHp) {
+            const barWidth = radius * 2;
+            const barHeight = 6;
+            const barY = -radius - 15;
+            
+            // Background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(-barWidth/2, barY, barWidth, barHeight);
+            
+            // Health fill
+            const fillWidth = barWidth * hpPercent;
+            const hpColor = hpPercent > 0.5 ? '#4CAF50' : hpPercent > 0.25 ? '#FF9800' : '#F44336';
+            ctx.fillStyle = hpColor;
+            ctx.fillRect(-barWidth/2, barY, fillWidth, barHeight);
+            
+            // Border
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(-barWidth/2, barY, barWidth, barHeight);
+        }
         
         // Face base
         ctx.fillStyle = '#FFCCBC'; 
@@ -3940,6 +5293,69 @@ class Game {
             ctx.restore();
         }
         
+        // FLAILING ARMS when very scared! 🙌
+        if (isVeryScared && !isTaunting) {
+            ctx.fillStyle = '#FFCCBC';
+            const armWave = Math.sin(this.animTime * 20); // Fast panicked waving
+            const armWave2 = Math.sin(this.animTime * 20 + Math.PI); // Opposite phase
+            
+            // Left arm - waving up frantically
+            ctx.save();
+            ctx.translate(-radius * 0.8, -radius * 0.2);
+            ctx.rotate(-0.8 + armWave * 0.4); // Wave up and down
+            // Upper arm
+            ctx.fillRect(0, 0, radius * 0.15, radius * 0.5);
+            // Forearm
+            ctx.translate(0, radius * 0.5);
+            ctx.rotate(-0.3 + armWave * 0.3);
+            ctx.fillRect(-2, 0, radius * 0.12, radius * 0.4);
+            // Hand
+            ctx.beginPath();
+            ctx.arc(radius * 0.05, radius * 0.45, radius * 0.12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            
+            // Right arm - waving opposite
+            ctx.save();
+            ctx.translate(radius * 0.8, -radius * 0.2);
+            ctx.rotate(0.8 + armWave2 * 0.4); // Wave up and down
+            // Upper arm
+            ctx.fillRect(-radius * 0.15, 0, radius * 0.15, radius * 0.5);
+            // Forearm
+            ctx.translate(0, radius * 0.5);
+            ctx.rotate(0.3 + armWave2 * 0.3);
+            ctx.fillRect(-radius * 0.1, 0, radius * 0.12, radius * 0.4);
+            // Hand
+            ctx.beginPath();
+            ctx.arc(-radius * 0.05, radius * 0.45, radius * 0.12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+        
+        // TEARS streaming down face when very scared! 😭
+        if (isVeryScared || isLowHP) {
+            ctx.fillStyle = '#64B5F6';
+            const tearPhase = this.animTime * 3;
+            const tearY1 = ((tearPhase) % 1) * radius * 0.6;
+            const tearY2 = ((tearPhase + 0.5) % 1) * radius * 0.6;
+            
+            // Left eye tears
+            ctx.beginPath();
+            ctx.ellipse(-radius * 0.3, radius * 0.1 + tearY1, radius * 0.06, radius * 0.1, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(-radius * 0.35, radius * 0.05 + tearY2, radius * 0.04, radius * 0.08, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Right eye tears  
+            ctx.beginPath();
+            ctx.ellipse(radius * 0.3, radius * 0.1 + tearY1, radius * 0.06, radius * 0.1, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(radius * 0.35, radius * 0.05 + tearY2, radius * 0.04, radius * 0.08, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
         // Legs (outside breathing transform)
         ctx.fillStyle = '#1E88E5'; 
         ctx.save(); 
@@ -3960,10 +5376,15 @@ class Game {
     }
 
     drawChappal(w, h) {
-        this.ctx.fillStyle = '#2962FF'; 
+        // Get selected chappal variant colors
+        const chappalType = CHAPPAL_TYPES[this.selectedChappalIdx] || CHAPPAL_TYPES[2]; // Default to Hawai
+        const mainColor = chappalType.color;
+        const accentColor = chappalType.accentColor;
+        
+        this.ctx.fillStyle = mainColor; 
         this.drawRoundedRect(-w / 2, -h / 2, w, h, h * 0.4); 
         this.ctx.fill();
-        this.ctx.strokeStyle = '#1038A6'; 
+        this.ctx.strokeStyle = accentColor; 
         this.ctx.lineWidth = 1; 
         this.ctx.stroke();
         this.ctx.strokeStyle = 'white'; 
@@ -3975,29 +5396,100 @@ class Game {
         this.ctx.moveTo(-w * 0.2, 0); 
         this.ctx.lineTo(w * 0.1, h / 2); 
         this.ctx.stroke();
-        this.ctx.fillStyle = '#2962FF'; 
+        this.ctx.fillStyle = mainColor; 
         this.ctx.beginPath(); 
         this.ctx.arc(-w * 0.2, 0, h * 0.15, 0, Math.PI * 2); 
         this.ctx.fill();
     }
 
-    drawBook(w, h) {
-        this.ctx.fillStyle = '#1565C0'; 
-        this.ctx.fillRect(-w / 2, -h / 2, w, h);
-        this.ctx.fillStyle = 'white'; 
-        this.ctx.fillRect(-w / 2 + w * 0.08, -h / 2 + h * 0.04, w * 0.84, h * 0.1); 
-        this.ctx.fillRect(-w / 2 + w * 0.08, h / 2 - h * 0.14, w * 0.84, h * 0.1);
-        this.ctx.fillStyle = 'white'; 
-        this.ctx.font = `bold ${w * 0.3}px Arial`; 
-        this.ctx.fillText('MATH', -w * 0.4, h * 0.1);
+    drawBook(w, h, isDying = false, body = null) {
+        const ctx = this.ctx;
+        
+        // Check block damage level
+        let damageLevel = 0; // 0 = full, 1 = damaged, 2 = critical
+        if (body && this.blockHealth.has(body.id)) {
+            const health = this.blockHealth.get(body.id);
+            damageLevel = health.maxHp - health.hp;
+        }
+        if (isDying) damageLevel = 2;
+        
+        // Base book color (gets darker when damaged)
+        const colors = ['#1565C0', '#0D47A1', '#1A237E']; // Normal, damaged, critical
+        ctx.fillStyle = colors[Math.min(damageLevel, 2)];
+        ctx.fillRect(-w / 2, -h / 2, w, h);
+        
+        // Book details
+        ctx.fillStyle = 'white'; 
+        ctx.fillRect(-w / 2 + w * 0.08, -h / 2 + h * 0.04, w * 0.84, h * 0.1); 
+        ctx.fillRect(-w / 2 + w * 0.08, h / 2 - h * 0.14, w * 0.84, h * 0.1);
+        ctx.font = `bold ${w * 0.3}px Arial`; 
+        ctx.fillText('MATH', -w * 0.4, h * 0.1);
+        
+        // CRACK OVERLAY when damaged
+        if (damageLevel > 0) {
+            ctx.strokeStyle = isDying ? '#FF0000' : '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            // Jagged crack pattern
+            ctx.moveTo(-w * 0.3, -h * 0.4);
+            ctx.lineTo(-w * 0.1, 0);
+            ctx.lineTo(w * 0.1, -h * 0.2);
+            ctx.lineTo(w * 0.2, h * 0.3);
+            if (damageLevel >= 2) {
+                // More cracks when critical
+                ctx.moveTo(w * 0.3, -h * 0.3);
+                ctx.lineTo(0, 0);
+                ctx.lineTo(-w * 0.2, h * 0.4);
+            }
+            ctx.stroke();
+        }
     }
 
-    drawWood(w, h) {
-        this.ctx.fillStyle = '#8D6E63'; 
-        this.ctx.fillRect(-w / 2, -h / 2, w, h);
-        this.ctx.strokeStyle = '#5D4037'; 
-        this.ctx.lineWidth = 2; 
-        this.ctx.strokeRect(-w / 2, -h / 2, w, h);
+    drawWood(w, h, isDying = false, body = null) {
+        const ctx = this.ctx;
+        
+        // Check block damage level
+        let damageLevel = 0;
+        if (body && this.blockHealth.has(body.id)) {
+            const health = this.blockHealth.get(body.id);
+            damageLevel = health.maxHp - health.hp;
+        }
+        if (isDying) damageLevel = 3;
+        
+        // Wood color (gets darker when damaged)
+        const colors = ['#8D6E63', '#6D4C41', '#4E342E', '#3E2723'];
+        ctx.fillStyle = colors[Math.min(damageLevel, 3)];
+        ctx.fillRect(-w / 2, -h / 2, w, h);
+        ctx.strokeStyle = '#5D4037'; 
+        ctx.lineWidth = 2; 
+        ctx.strokeRect(-w / 2, -h / 2, w, h);
+        
+        // Wood grain lines
+        ctx.strokeStyle = '#5D4037';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.3, -h * 0.5);
+        ctx.lineTo(-w * 0.3, h * 0.5);
+        ctx.moveTo(w * 0.2, -h * 0.5);
+        ctx.lineTo(w * 0.2, h * 0.5);
+        ctx.stroke();
+        
+        // CRACK OVERLAY when damaged
+        if (damageLevel > 0) {
+            ctx.strokeStyle = isDying ? '#FF4444' : '#2D2D2D';
+            ctx.lineWidth = Math.min(damageLevel + 1, 3);
+            ctx.beginPath();
+            // Zigzag crack
+            ctx.moveTo(-w * 0.4, -h * 0.3);
+            ctx.lineTo(-w * 0.1, h * 0.1);
+            ctx.lineTo(w * 0.15, -h * 0.1);
+            ctx.lineTo(w * 0.35, h * 0.35);
+            if (damageLevel >= 2) {
+                ctx.moveTo(w * 0.1, -h * 0.4);
+                ctx.lineTo(-w * 0.15, h * 0.2);
+            }
+            ctx.stroke();
+        }
     }
 
     drawMummy(x, y, s) {
@@ -4007,24 +5499,129 @@ class Game {
         const accentColor = mummyType.accentColor;
         const skinTone = mummyType.skinTone;
         const bindiColor = mummyType.bindiColor;
+        // ============================================
+        // MUMMY TRANSFORMATION STATES
+        // ============================================
+        const expression = this.mummyExpression;
+        const isAngry = expression === 'angry';
+        const isRage = expression === 'rage' || expression === 'furious';
+        const isSuperRage = expression === 'ultimate_rage' || expression === 'super_rage';
+        const isHappy = expression === 'happy';
+        const isSad = expression === 'sad';
+        const isCharging = this.isAiming && this.chappal; // Charging up a throw
         
-        // Anger shake effect
-        const isAngry = this.mummyExpression === 'angry';
-        const shakeX = isAngry ? Math.sin(this.animTime * 30) * 2 : 0;
+        // Transformation shake intensity
+        let shakeIntensity = 0;
+        if (isAngry) shakeIntensity = 2;
+        if (isRage) shakeIntensity = 4;
+        if (isSuperRage) shakeIntensity = 6;
+        const shakeX = shakeIntensity > 0 ? Math.sin(this.animTime * 30) * shakeIntensity : 0;
+        const shakeY = isSuperRage ? Math.sin(this.animTime * 25) * 2 : 0;
         
         this.ctx.save(); 
-        this.ctx.translate(x + shakeX, y); 
+        this.ctx.translate(x + shakeX, y + shakeY); 
         this.ctx.scale(s, s); 
         const lx = 0, ly = 0;
         
-        // Angry red overlay effect
-        if (isAngry) {
+        // ============================================
+        // TRANSFORMATION AURA EFFECTS
+        // ============================================
+        
+        // SUPER RAGE - Fire aura with particles
+        if (isSuperRage) {
+            // Outer fire ring
+            const fireGradient = this.ctx.createRadialGradient(lx, ly - 30, 30, lx, ly - 30, 100);
+            fireGradient.addColorStop(0, 'rgba(255, 69, 0, 0.6)');
+            fireGradient.addColorStop(0.5, 'rgba(255, 0, 0, 0.3)');
+            fireGradient.addColorStop(1, 'rgba(139, 0, 0, 0)');
+            this.ctx.fillStyle = fireGradient;
+            this.ctx.beginPath();
+            this.ctx.arc(lx, ly - 30, 100, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Fire particles rising
+            for (let i = 0; i < 8; i++) {
+                const particleX = lx + Math.sin(this.animTime * 5 + i * 0.8) * 40;
+                const particleY = ly - 50 - ((this.animTime * 100 + i * 30) % 80);
+                const particleSize = 5 + Math.sin(this.animTime * 10 + i) * 2;
+                this.ctx.fillStyle = `rgba(255, ${100 + i * 20}, 0, ${0.8 - (particleY - (ly - 130)) / 80 * 0.8})`;
+                this.ctx.beginPath();
+                this.ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            // Anger veins effect (red lines radiating)
+            this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.4)';
+            this.ctx.lineWidth = 2;
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2 + this.animTime;
+                this.ctx.beginPath();
+                this.ctx.moveTo(lx, ly - 60);
+                this.ctx.lineTo(lx + Math.cos(angle) * 70, ly - 60 + Math.sin(angle) * 50);
+                this.ctx.stroke();
+            }
+        }
+        // RAGE MODE - Pulsing red glow
+        else if (isRage) {
+            const pulseAlpha = 0.3 + Math.sin(this.animTime * 8) * 0.15;
+            const rageGradient = this.ctx.createRadialGradient(lx, ly - 30, 20, lx, ly - 30, 80);
+            rageGradient.addColorStop(0, `rgba(255, 0, 0, ${pulseAlpha})`);
+            rageGradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
+            this.ctx.fillStyle = rageGradient;
+            this.ctx.beginPath();
+            this.ctx.arc(lx, ly - 30, 80, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Steam particles
+            for (let i = 0; i < 4; i++) {
+                const steamX = lx - 20 + i * 15 + Math.sin(this.animTime * 3 + i) * 5;
+                const steamY = ly - 80 - ((this.animTime * 40 + i * 15) % 40);
+                this.ctx.fillStyle = `rgba(255, 255, 255, ${0.4 - (ly - 120 - steamY) / 40 * 0.4})`;
+                this.ctx.beginPath();
+                this.ctx.arc(steamX, steamY, 4 + i, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        }
+        // ANGRY - Red overlay
+        else if (isAngry) {
             this.ctx.globalAlpha = 0.3;
             this.ctx.fillStyle = '#FF0000';
             this.ctx.beginPath();
             this.ctx.arc(lx, ly - 30, 80, 0, Math.PI * 2);
             this.ctx.fill();
             this.ctx.globalAlpha = 1;
+        }
+        // CHARGING UP - Power aura
+        else if (isCharging) {
+            const chargeAlpha = 0.2 + Math.sin(this.animTime * 10) * 0.1;
+            const chargeGradient = this.ctx.createRadialGradient(lx, ly - 30, 10, lx, ly - 30, 60);
+            chargeGradient.addColorStop(0, `rgba(255, 165, 0, ${chargeAlpha})`);
+            chargeGradient.addColorStop(0.5, `rgba(255, 200, 0, ${chargeAlpha * 0.5})`);
+            chargeGradient.addColorStop(1, 'rgba(255, 165, 0, 0)');
+            this.ctx.fillStyle = chargeGradient;
+            this.ctx.beginPath();
+            this.ctx.arc(lx, ly - 30, 60, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        // HAPPY - Gentle glow
+        else if (isHappy) {
+            const happyGradient = this.ctx.createRadialGradient(lx, ly - 30, 20, lx, ly - 30, 70);
+            happyGradient.addColorStop(0, 'rgba(76, 175, 80, 0.2)');
+            happyGradient.addColorStop(1, 'rgba(76, 175, 80, 0)');
+            this.ctx.fillStyle = happyGradient;
+            this.ctx.beginPath();
+            this.ctx.arc(lx, ly - 30, 70, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        // SAD - Blue tint
+        else if (isSad) {
+            const sadGradient = this.ctx.createRadialGradient(lx, ly - 30, 20, lx, ly - 30, 70);
+            sadGradient.addColorStop(0, 'rgba(100, 149, 237, 0.15)');
+            sadGradient.addColorStop(1, 'rgba(100, 149, 237, 0)');
+            this.ctx.fillStyle = sadGradient;
+            this.ctx.beginPath();
+            this.ctx.arc(lx, ly - 30, 70, 0, Math.PI * 2);
+            this.ctx.fill();
         }
         
         // Feet
@@ -4760,7 +6357,7 @@ class Game {
     }
 
     loop() {
-        // Update animation time for living elements
+        // Update animation time
         const now = Date.now();
         const delta = (now - this.lastTime) / 1000;
         this.lastTime = now;
@@ -4773,39 +6370,85 @@ class Game {
                 this.mummyExpression = 'neutral';
             }
         }
-        
-        // KID PROVOCATION DETECTION - triggers mummy anger!
-        if (this.gameActive && !this.isPaused && !this.isGameOver) {
-            this.kidProvocationTimer -= delta;
-            
-            // Check if any kid is currently taunting
-            let anyKidTaunting = false;
-            const tauntCheckTime = this.animTime % 5;
-            if (tauntCheckTime > 3.5 && tauntCheckTime < 4.5) {
-                // Kids are taunting right now
-                anyKidTaunting = Composite.allBodies(this.world).some(b => b.label === 'Kid');
-            }
-            
-            // Trigger mummy anger when kids taunt (with cooldown)
-            if (anyKidTaunting && this.kidProvocationTimer <= 0 && this.mummyExpression !== 'happy') {
-                this.mummyExpression = 'angry';
-                this.expressionTimer = 1.5; // Stay angry for 1.5 seconds
-                this.kidProvocationTimer = 5; // 5 second cooldown between anger triggers
-                
-                // Play angry sound + dramatic sting!
-                sounds.playMummyAngry();
-                sounds.playDramaticSting();
-            }
-            
-            // Reset provocation timer if it goes too negative
-            if (this.kidProvocationTimer < -10) {
-                this.kidProvocationTimer = 0;
+
+        // COMIC MODE LOOP
+        if (this.comicActive) {
+            if (this.currentStory && this.currentStory.panels[this.currentPanelIdx]) {
+                const panel = this.currentStory.panels[this.currentPanelIdx];
+                this.drawComicCharacters(panel);
             }
         }
         
-        this.update();
-        this.updateFloatingElements(delta);
-        this.draw();
+        // GAME MODE LOOP
+        else if (this.gameActive) {
+            // KID PROVOCATION DETECTION - triggers mummy anger!
+            if (!this.isPaused && !this.isGameOver) {
+                this.kidProvocationTimer -= delta;
+                
+                // Check if any kid is currently taunting
+                let anyKidTaunting = false;
+                const tauntCheckTime = this.animTime % 5;
+                if (tauntCheckTime > 3.5 && tauntCheckTime < 4.5) {
+                    // Kids are taunting right now
+                    anyKidTaunting = Composite.allBodies(this.world).some(b => b.label === 'Kid');
+                }
+                
+                // Trigger mummy anger when kids taunt (with cooldown)
+                if (anyKidTaunting && this.kidProvocationTimer <= 0 && this.mummyExpression !== 'happy') {
+                    this.mummyExpression = 'angry';
+                    this.expressionTimer = 1.5; // Stay angry for 1.5 seconds
+                    this.kidProvocationTimer = 5; // 5 second cooldown between anger triggers
+                    
+                    // Play angry sound + dramatic sting!
+                    sounds.playMummyAngry();
+                    sounds.playDramaticSting();
+                }
+                
+                // Reset provocation timer if it goes too negative
+                if (this.kidProvocationTimer < -10) {
+                    this.kidProvocationTimer = 0;
+                }
+            }
+            
+            // Screen shake decay
+            if (this.screenShake.duration > 0) {
+                this.screenShake.duration -= delta;
+                if (this.screenShake.duration <= 0) {
+                    this.screenShake.intensity = 0;
+                    this.screenShake.duration = 0;
+                } else {
+                    // Gradually reduce intensity
+                    this.screenShake.intensity *= 0.9;
+                }
+            }
+            
+            // Slow-motion decay
+            if (this.slowMotion.active) {
+                this.slowMotion.duration -= delta;
+                if (this.slowMotion.duration <= 0) {
+                    this.slowMotion.active = false;
+                    this.slowMotion.timeScale = 1;
+                }
+            }
+            
+            // Dialogue popup timer
+            if (this.dialoguePopup.timer > 0) {
+                this.dialoguePopup.timer -= delta;
+            }
+            
+            // MUMMY TAUNTS - show taunt when mummy gets angry
+            if (this.mummyExpression === 'angry' && this.gameActive && !this.dialoguePopup.timer) {
+                if (Math.random() < 0.3) { // 30% chance
+                    const taunt = MUMMY_TAUNTS[Math.floor(Math.random() * MUMMY_TAUNTS.length)];
+                    this.showDialoguePopup(taunt, 'mummy');
+                }
+            }
+            
+            this.update();
+            this.updateFloatingElements(delta);
+            this.draw();
+        }
+        
         requestAnimationFrame(() => this.loop());
     }
 }
