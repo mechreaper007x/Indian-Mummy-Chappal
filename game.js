@@ -703,8 +703,685 @@ const LEVEL_BACKGROUNDS = [
 ];
 
 // ========================================
+// LEVEL STORIES - Comic Intro for Each Level
+// Regional dialogue variations based on selected mummy type
+// ========================================
+const REGIONAL_EXCLAMATIONS = {
+    punjabi: { angry: 'Oye!', shock: 'Rabba!', threat: 'Khotey da puttar!', call: 'Beta ji!' },
+    tamil: { angry: 'Aiyo!', shock: 'Amma!', threat: 'Poda!', call: 'Kanna!' },
+    bengali: { angry: 'Ore baba!', shock: 'Ki holo!', threat: 'Shono!', call: 'Sona!' },
+    gujarati: { angry: 'Arey!', shock: 'Hey Ram!', threat: 'Kem chho!', call: 'Dikra!' },
+    marathi: { angry: 'Aai ga!', shock: 'Devach jane!', threat: 'Thamba!', call: 'Bala!' },
+    malayali: { angry: 'Aiyyo!', shock: 'Daivame!', threat: 'Poda patti!', call: 'Mone!' },
+    rajasthani: { angry: 'Arey re!', shock: 'Bhagwan!', threat: 'Ruk ja!', call: 'Chhora!' },
+    bihari: { angry: 'Ae haaye!', shock: 'Ram Ram!', threat: 'Ruk!', call: 'Babua!' }
+};
+
+const LEVEL_STORIES = [
+    // ============ LEVEL 1: Homework Pile ============
+    {
+        title: 'The Missing Homework',
+        panels: [
+            {
+                scene: 'study_room',
+                narration: 'Meanwhile, in the study room...',
+                mummyExpression: 'stern',
+                kidExpression: 'nervous',
+                dialogue: { speaker: 'mummy', text: 'Beta, show me your Maths homework.' },
+                kidPosition: 'hiding_behind_books'
+            },
+            {
+                scene: 'books_pile',
+                mummyExpression: 'suspicious',
+                kidExpression: 'sweating',
+                dialogue: { speaker: 'kid', text: 'Homework? What homework? I don\'t remember any...' },
+                effect: 'sweat_drops'
+            },
+            {
+                scene: 'dramatic_reveal',
+                mummyExpression: 'angry',
+                kidExpression: 'scared',
+                dialogue: { speaker: 'mummy', text: 'HIDING BEHIND BOOKS WON\'T SAVE YOU!' },
+                effect: 'anger_lines',
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 2: Sofa Fort ============
+    {
+        title: 'The Cushion Fortress',
+        panels: [
+            {
+                scene: 'living_room',
+                narration: 'One week before final exams...',
+                mummyExpression: 'stern',
+                kidExpression: 'mischievous',
+                dialogue: { speaker: 'mummy', text: 'Why is the sofa destroyed?!' }
+            },
+            {
+                scene: 'sofa_fort',
+                mummyExpression: 'shocked',
+                kidExpression: 'hiding',
+                dialogue: { speaker: 'kid', text: 'It\'s not destroyed... it\'s a FORT!' },
+                effect: 'fort_reveal'
+            },
+            {
+                scene: 'tv_on',
+                mummyExpression: 'furious',
+                kidExpression: 'caught',
+                dialogue: { speaker: 'mummy', text: 'NO TV UNTIL YOU TOP THE CLASS!' },
+                effect: 'dramatic_zoom',
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 3: Cricket Match ============
+    {
+        title: 'The Broken Window',
+        panels: [
+            {
+                scene: 'outdoor',
+                narration: 'Earlier that afternoon...',
+                mummyExpression: 'neutral',
+                kidExpression: 'playing',
+                dialogue: { speaker: 'kid', text: 'SIXER! I hit a SIXER!' },
+                effect: 'cricket_ball_flying'
+            },
+            {
+                scene: 'crash_sound',
+                narration: '*CRASH*',
+                mummyExpression: 'shocked',
+                kidExpression: 'frozen',
+                effect: 'glass_breaking'
+            },
+            {
+                scene: 'window_broken',
+                mummyExpression: 'investigating',
+                kidExpression: 'hiding',
+                dialogue: { speaker: 'mummy', text: 'WHO THREW THAT BALL?!' },
+                effect: 'anger_lines'
+            },
+            {
+                scene: 'confrontation',
+                mummyExpression: 'rage',
+                kidExpression: 'terrified',
+                dialogue: { speaker: 'mummy', text: 'That window cost 5000 rupees!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 4: Kitchen Raid ============
+    {
+        title: 'The Gulab Jamun Heist',
+        panels: [
+            {
+                scene: 'kitchen_night',
+                narration: 'Late at night... the fridge light glows...',
+                mummyExpression: 'sleeping',
+                kidExpression: 'sneaking',
+                effect: 'tiptoe'
+            },
+            {
+                scene: 'gulab_jamun_box',
+                kidExpression: 'excited',
+                dialogue: { speaker: 'kid', text: 'Just one... okay maybe two...' },
+                effect: 'drooling'
+            },
+            {
+                scene: 'lights_on',
+                mummyExpression: 'caught_you',
+                kidExpression: 'frozen',
+                dialogue: { speaker: 'mummy', text: 'THOSE ARE FOR GUESTS TOMORROW!' },
+                effect: 'spotlight'
+            },
+            {
+                scene: 'chase',
+                mummyExpression: 'rage',
+                kidExpression: 'running',
+                dialogue: { speaker: 'mummy', text: 'You ate FIVE of them?!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 5: Phone Addiction ============
+    {
+        title: 'Screen Time Exceeded',
+        panels: [
+            {
+                scene: 'bedroom_dark',
+                narration: 'At 11:30 PM...',
+                mummyExpression: 'suspicious',
+                kidExpression: 'phone_glow',
+                dialogue: { speaker: 'mummy', text: 'Is that a light under the blanket?' }
+            },
+            {
+                scene: 'blanket_pulled',
+                mummyExpression: 'angry',
+                kidExpression: 'caught',
+                dialogue: { speaker: 'kid', text: 'I was just checking the time!' },
+                effect: 'phone_reveal'
+            },
+            {
+                scene: 'phone_confiscated',
+                mummyExpression: 'furious',
+                kidExpression: 'pleading',
+                dialogue: { speaker: 'mummy', text: 'You\'ll go BLIND staring at that screen!' },
+                effect: 'anger_lines',
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 6: Forgot Tiffin ============
+    {
+        title: 'The Empty Stomach',
+        panels: [
+            {
+                scene: 'dining_room',
+                narration: 'Morning chaos...',
+                mummyExpression: 'packing',
+                kidExpression: 'rushing',
+                dialogue: { speaker: 'mummy', text: 'Don\'t forget your tiffin!' }
+            },
+            {
+                scene: 'school_gate',
+                mummyExpression: 'shocked',
+                narration: '2 hours later...',
+                dialogue: { speaker: 'kid', text: '(hungry noises)' },
+                effect: 'tiffin_on_table'
+            },
+            {
+                scene: 'angry_call',
+                mummyExpression: 'furious',
+                kidExpression: 'apologetic',
+                dialogue: { speaker: 'mummy', text: 'How will you SURVIVE?! What will people think?!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 7: Broken Vase ============
+    {
+        title: 'Nani\'s Gift',
+        panels: [
+            {
+                scene: 'drawing_room',
+                narration: 'During a game of catch...',
+                kidExpression: 'playing',
+                effect: 'ball_trajectory'
+            },
+            {
+                scene: 'vase_falling',
+                narration: '...everything went slow motion...',
+                effect: 'slow_motion',
+                mummyExpression: 'shock'
+            },
+            {
+                scene: 'vase_shattered',
+                mummyExpression: 'heartbroken',
+                kidExpression: 'guilty',
+                dialogue: { speaker: 'mummy', text: 'YOUR NANI GAVE US THAT! It was 40 years old!' },
+                effect: 'tear_drop'
+            },
+            {
+                scene: 'consequences',
+                mummyExpression: 'rage',
+                kidExpression: 'terrified',
+                dialogue: { speaker: 'mummy', text: 'Do you know its SENTIMENTAL VALUE?!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 8: Sibling Fight ============
+    {
+        title: 'Blood is Not Thicker',
+        panels: [
+            {
+                scene: 'kids_room',
+                narration: 'The daily ritual...',
+                kidExpression: 'fighting',
+                dialogue: { speaker: 'kid', text: 'That\'s MY toy!' }
+            },
+            {
+                scene: 'crying',
+                mummyExpression: 'tired',
+                kidExpression: 'crying',
+                dialogue: { speaker: 'kid2', text: 'MUMMY! He hit me!' },
+                effect: 'tears'
+            },
+            {
+                scene: 'mummy_arrives',
+                mummyExpression: 'furious',
+                kidExpression: 'pointing',
+                dialogue: { speaker: 'mummy', text: 'STOP HITTING YOUR BHAI!' },
+                effect: 'anger_lines'
+            },
+            {
+                scene: 'both_punished',
+                mummyExpression: 'rage',
+                kidExpression: 'united_fear',
+                dialogue: { speaker: 'mummy', text: 'BOTH of you will get it now!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 9: Relatives Visit ============
+    {
+        title: 'Namaste Aunty',
+        panels: [
+            {
+                scene: 'doorbell',
+                narration: 'The doorbell of doom...',
+                mummyExpression: 'excited',
+                kidExpression: 'dread',
+                dialogue: { speaker: 'mummy', text: 'Sharma Aunty is here! Come say hello!' }
+            },
+            {
+                scene: 'hiding_spot',
+                mummyExpression: 'searching',
+                kidExpression: 'hiding',
+                dialogue: { speaker: 'kid', text: '(under the bed, not breathing)' },
+                effect: 'hiding'
+            },
+            {
+                scene: 'found',
+                mummyExpression: 'angry',
+                kidExpression: 'caught',
+                dialogue: { speaker: 'mummy', text: 'I can see your FEET!' },
+                effect: 'spotlight'
+            },
+            {
+                scene: 'dragged_out',
+                mummyExpression: 'forced_smile',
+                kidExpression: 'embarrassed',
+                dialogue: { speaker: 'mummy', text: 'Go touch their FEET! Show some RESPECT!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 10: Exam Tomorrow ============
+    {
+        title: 'Last Minute Panic',
+        panels: [
+            {
+                scene: 'calendar',
+                narration: 'The night before the exam...',
+                effect: 'red_circle_tomorrow'
+            },
+            {
+                scene: 'study_night',
+                mummyExpression: 'suspicious',
+                kidExpression: 'panicking',
+                dialogue: { speaker: 'mummy', text: 'Why are you studying NOW?' }
+            },
+            {
+                scene: 'books_everywhere',
+                mummyExpression: 'realizing',
+                kidExpression: 'guilty',
+                dialogue: { speaker: 'mummy', text: 'You had THREE MONTHS for this!' },
+                effect: 'anger_rising'
+            },
+            {
+                scene: 'rage_mode',
+                mummyExpression: 'ultimate_rage',
+                kidExpression: 'terrified',
+                dialogue: { speaker: 'mummy', text: 'I told you EVERY DAY to study!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 11: Late Night ============
+    {
+        title: 'The 2 AM Raid',
+        panels: [
+            {
+                scene: 'bedroom_2am',
+                narration: 'At 2:00 AM...',
+                mummyExpression: 'sleeping',
+                kidExpression: 'phone_glow',
+                effect: 'clock_ticking'
+            },
+            {
+                scene: 'door_opens',
+                mummyExpression: 'suspicious',
+                kidExpression: 'pretending_sleep',
+                dialogue: { speaker: 'mummy', text: 'I can see the PHONE GLOW under your blanket!' }
+            },
+            {
+                scene: 'busted',
+                mummyExpression: 'furious',
+                kidExpression: 'caught',
+                dialogue: { speaker: 'mummy', text: 'You have SCHOOL tomorrow!' },
+                effect: 'dramatic_lighting',
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 12: Messy Room ============
+    {
+        title: 'The Disaster Zone',
+        panels: [
+            {
+                scene: 'messy_room_door',
+                mummyExpression: 'opening_door',
+                narration: 'Mummy opens the door...',
+                effect: 'horror_music'
+            },
+            {
+                scene: 'chaos_revealed',
+                mummyExpression: 'shock',
+                narration: 'Clothes everywhere. Books on floor. Chips packets. Chaos.',
+                effect: 'mess_explosion'
+            },
+            {
+                scene: 'maid_not',
+                mummyExpression: 'rage',
+                kidExpression: 'unbothered',
+                dialogue: { speaker: 'mummy', text: 'I am NOT your MAID!' },
+                effect: 'anger_lines'
+            },
+            {
+                scene: 'deadline',
+                mummyExpression: 'ultimatum',
+                kidExpression: 'scared',
+                dialogue: { speaker: 'mummy', text: 'Clean this RIGHT NOW or face the chappal!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 13: Lost Remote ============
+    {
+        title: 'The Vanishing Remote',
+        panels: [
+            {
+                scene: 'living_room_search',
+                mummyExpression: 'searching',
+                kidExpression: 'innocent',
+                dialogue: { speaker: 'mummy', text: 'Where is the TV remote?' }
+            },
+            {
+                scene: 'checking_everywhere',
+                mummyExpression: 'frustrated',
+                kidExpression: 'nervous',
+                dialogue: { speaker: 'kid', text: 'I don\'t know, I didn\'t touch it!' },
+                effect: 'searching'
+            },
+            {
+                scene: 'accusation',
+                mummyExpression: 'suspicious',
+                kidExpression: 'sweating',
+                dialogue: { speaker: 'mummy', text: 'Check under your BUNS!' },
+                effect: 'detective_mode'
+            },
+            {
+                scene: 'found_under_kid',
+                mummyExpression: 'rage',
+                kidExpression: 'guilty',
+                dialogue: { speaker: 'mummy', text: 'You were SITTING on it?!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 14: Wet Towel ============
+    {
+        title: 'The Bed Crime',
+        panels: [
+            {
+                scene: 'bedroom_morning',
+                mummyExpression: 'entering',
+                kidExpression: 'leaving',
+                dialogue: { speaker: 'mummy', text: 'Did you take a bath?' }
+            },
+            {
+                scene: 'bed_check',
+                mummyExpression: 'investigating',
+                narration: 'She touches the bed...',
+                effect: 'wet_spot'
+            },
+            {
+                scene: 'towel_found',
+                mummyExpression: 'rage',
+                kidExpression: 'scared',
+                dialogue: { speaker: 'mummy', text: 'WET TOWEL ON THE BED?!' },
+                effect: 'anger_explosion'
+            },
+            {
+                scene: 'hotel_comparison',
+                mummyExpression: 'furious',
+                kidExpression: 'terrified',
+                dialogue: { speaker: 'mummy', text: 'THIS IS NOT A FIVE-STAR HOTEL!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 15: Bad Report Card ============
+    {
+        title: 'Only 98%?',
+        panels: [
+            {
+                scene: 'report_card_day',
+                narration: 'Result day...',
+                mummyExpression: 'expectant',
+                kidExpression: 'proud',
+                dialogue: { speaker: 'kid', text: 'Mummy! I got 98%!' }
+            },
+            {
+                scene: 'reading_card',
+                mummyExpression: 'examining',
+                kidExpression: 'hopeful',
+                dialogue: { speaker: 'mummy', text: 'Hmm... 98... 98...' }
+            },
+            {
+                scene: 'sharma_comparison',
+                mummyExpression: 'disappointed',
+                kidExpression: 'sinking',
+                dialogue: { speaker: 'mummy', text: 'Sharma ji\'s son got 99%!' },
+                effect: 'sharma_kid_image'
+            },
+            {
+                scene: 'failure',
+                mummyExpression: 'angry',
+                kidExpression: 'crying',
+                dialogue: { speaker: 'mummy', text: 'Where did 2 marks GO?! You FAILED us!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 16: Vegetables ============
+    {
+        title: 'The Karela War',
+        panels: [
+            {
+                scene: 'dining_table',
+                mummyExpression: 'serving',
+                kidExpression: 'disgust',
+                dialogue: { speaker: 'mummy', text: 'Eat your vegetables!' }
+            },
+            {
+                scene: 'plate_rejection',
+                mummyExpression: 'stern',
+                kidExpression: 'refusing',
+                dialogue: { speaker: 'kid', text: 'I don\'t like Karela! It\'s BITTER!' },
+                effect: 'yuck_face'
+            },
+            {
+                scene: 'health_lecture',
+                mummyExpression: 'lecturing',
+                kidExpression: 'bored',
+                dialogue: { speaker: 'mummy', text: 'It\'s GOOD for you! Clears blood pressure!' }
+            },
+            {
+                scene: 'ultimatum',
+                mummyExpression: 'rage',
+                kidExpression: 'scared',
+                dialogue: { speaker: 'mummy', text: 'EAT or there\'s NO DINNER!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 17: Empty Water Bottles ============
+    {
+        title: 'The Dehydration Crisis',
+        panels: [
+            {
+                scene: 'kitchen',
+                mummyExpression: 'discovering',
+                narration: 'Mummy goes to the fridge...',
+                effect: 'fridge_opening'
+            },
+            {
+                scene: 'empty_bottles',
+                mummyExpression: 'shock',
+                narration: 'ALL bottles empty. ALL of them.',
+                effect: 'empty_bottles_row'
+            },
+            {
+                scene: 'who_did',
+                mummyExpression: 'angry',
+                kidExpression: 'hiding',
+                dialogue: { speaker: 'mummy', text: 'Who DRANK all the water and didn\'t REFILL?!' },
+                effect: 'investigation'
+            },
+            {
+                scene: 'punishment',
+                mummyExpression: 'rage',
+                kidExpression: 'caught',
+                dialogue: { speaker: 'mummy', text: 'You\'ll die of THIRST one day!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 18: AC On ============
+    {
+        title: 'The Electricity Bill',
+        panels: [
+            {
+                scene: 'living_room_cold',
+                mummyExpression: 'entering',
+                kidExpression: 'chilling',
+                dialogue: { speaker: 'kid', text: 'Ahhh... 16 degrees... perfect!' },
+                effect: 'snowflakes'
+            },
+            {
+                scene: 'bill_arrives',
+                mummyExpression: 'shock',
+                narration: 'The monthly bill arrives...',
+                effect: 'bill_dramatic'
+            },
+            {
+                scene: 'confrontation',
+                mummyExpression: 'furious',
+                kidExpression: 'sweating',
+                dialogue: { speaker: 'mummy', text: '₹5000 bill?! Are we made of MONEY?!' },
+                effect: 'bill_burning'
+            },
+            {
+                scene: 'trees',
+                mummyExpression: 'rage',
+                kidExpression: 'scared',
+                dialogue: { speaker: 'mummy', text: 'Money doesn\'t GROW on TREES!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 19: Back Answer ============
+    {
+        title: 'The Unforgivable Sin',
+        panels: [
+            {
+                scene: 'argument',
+                mummyExpression: 'scolding',
+                kidExpression: 'annoyed',
+                dialogue: { speaker: 'mummy', text: 'How many times do I have to tell you?!' }
+            },
+            {
+                scene: 'back_talk',
+                mummyExpression: 'shocked',
+                kidExpression: 'rebellious',
+                dialogue: { speaker: 'kid', text: 'Whatever, I don\'t care...' },
+                effect: 'record_scratch'
+            },
+            {
+                scene: 'time_stops',
+                mummyExpression: 'freeze_rage',
+                narration: '...Time stopped. The air grew cold.',
+                effect: 'dramatic_pause'
+            },
+            {
+                scene: 'doom',
+                mummyExpression: 'ultimate_rage',
+                kidExpression: 'regret',
+                dialogue: { speaker: 'mummy', text: 'REPEAT what you just SAID!' },
+                effect: 'earthquake',
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 20: THE FINAL BOSS ============
+    {
+        title: 'DAD IS COMING HOME',
+        panels: [
+            {
+                scene: 'phone_rings',
+                narration: 'The phone rings...',
+                mummyExpression: 'answering',
+                kidExpression: 'playing',
+                effect: 'phone_ringing'
+            },
+            {
+                scene: 'dads_voice',
+                mummyExpression: 'grinning',
+                kidExpression: 'nervous',
+                dialogue: { speaker: 'phone', text: '"I\'ll be home in 10 minutes..."' },
+                effect: 'ominous'
+            },
+            {
+                scene: 'mummy_warning',
+                mummyExpression: 'threatening',
+                kidExpression: 'scared',
+                dialogue: { speaker: 'mummy', text: 'Wait till your PAPA hears about today...' },
+                effect: 'doom_clock'
+            },
+            {
+                scene: 'kids_united',
+                mummyExpression: 'calling',
+                kidExpression: 'united_fear',
+                dialogue: { speaker: 'mummy', text: 'ALL of you... COME HERE NOW!' },
+                effect: 'boss_music'
+            },
+            {
+                scene: 'final_stand',
+                mummyExpression: 'ultimate_rage',
+                kidExpression: 'terrified',
+                dialogue: { speaker: 'mummy', text: 'Before Papa comes... I\'ll handle this MYSELF!' },
+                effect: 'final_boss_aura',
+                chappalReady: true
+            }
+        ]
+    }
+];
+
+// ========================================
 // LEVEL BUILDER - Angry Birds Style Layouts
 // ========================================
+
 const buildLevel = (idx, world, sx, sy, s) => {
     // Helper functions for building structures
     const mkBox = (x, y, sz) => Composite.add(world, Bodies.rectangle(x, y, sz || s, sz || s, { 
@@ -1112,6 +1789,11 @@ class Game {
         this.kidProvocationTimer = 0;
         this.kidsAreTaunting = false;
 
+        // Comic storyline state
+        this.comicActive = false;
+        this.currentPanelIdx = 0;
+        this.currentStory = null;
+
         this.initResize();
         this.setupCollisionEvents();
         this.setupMouse();
@@ -1153,7 +1835,7 @@ class Game {
             btn.onclick = () => {
                 sounds.playClick();
                 this.currentLevelIdx = i;
-                this.startGame();
+                this.showComic(i); // Show comic intro before starting
             };
             grid.appendChild(btn);
         });
@@ -1413,9 +2095,620 @@ class Game {
         document.getElementById('mummy-screen').classList.add('hidden');
         document.getElementById('level-screen').classList.remove('hidden');
         document.getElementById('pause-screen').classList.add('hidden');
+        document.getElementById('comic-screen').classList.add('hidden');
     }
 
+    // ========================================
+    // COMIC STORYLINE SYSTEM
+    // ========================================
+    
+    showComic(levelIdx) {
+        sounds.init();
+        this.comicActive = true;
+        this.currentPanelIdx = 0;
+        this.currentStory = LEVEL_STORIES[levelIdx];
+        
+        // Hide other screens
+        document.getElementById('level-screen').classList.add('hidden');
+        document.getElementById('comic-screen').classList.remove('hidden');
+        
+        // Set story title
+        document.getElementById('comic-story-title').innerText = this.currentStory.title.toUpperCase();
+        
+        // Render first panel
+        this.renderComicPanel();
+    }
+    
+    advancePanel() {
+        sounds.playClick();
+        this.currentPanelIdx++;
+        
+        if (this.currentPanelIdx >= this.currentStory.panels.length) {
+            // All panels shown, start the game
+            this.skipComic();
+        } else {
+            // Re-animate the panel by forcing a re-render
+            const panel = document.getElementById('comic-panel');
+            panel.style.animation = 'none';
+            panel.offsetHeight; // Trigger reflow
+            panel.style.animation = 'panelSlideIn 0.4s ease-out';
+            
+            this.renderComicPanel();
+        }
+    }
+    
+    skipComic() {
+        sounds.playClick();
+        this.comicActive = false;
+        document.getElementById('comic-screen').classList.add('hidden');
+        this.startGame();
+    }
+    
+    renderComicPanel() {
+        const panel = this.currentStory.panels[this.currentPanelIdx];
+        const totalPanels = this.currentStory.panels.length;
+        
+        // Update panel counter
+        document.getElementById('panel-counter').innerText = `${this.currentPanelIdx + 1}/${totalPanels}`;
+        
+        // Get selected mummy type for regional dialogue
+        const mummyType = MUMMY_TYPES[this.selectedMummyIdx];
+        const regional = REGIONAL_EXCLAMATIONS[mummyType.id] || REGIONAL_EXCLAMATIONS.punjabi;
+        
+        // Handle narration
+        const narrationBox = document.getElementById('comic-narration');
+        if (panel.narration) {
+            narrationBox.style.display = 'block';
+            narrationBox.innerText = panel.narration;
+        } else {
+            narrationBox.style.display = 'none';
+        }
+        
+        // Handle dialogue
+        const dialogueBox = document.getElementById('comic-dialogue');
+        if (panel.dialogue) {
+            dialogueBox.style.display = 'block';
+            
+            // Apply regional prefix for mummy dialogue
+            let text = panel.dialogue.text;
+            if (panel.dialogue.speaker === 'mummy' && panel.mummyExpression === 'angry' || 
+                panel.mummyExpression === 'rage' || panel.mummyExpression === 'furious') {
+                // Add regional exclamation for angry mummy
+                text = `${regional.angry} ${text}`;
+            }
+            
+            dialogueBox.innerText = `"${text}"`;
+            
+            // Style based on speaker
+            dialogueBox.classList.remove('kid-speech', 'angry-speech');
+            if (panel.dialogue.speaker === 'kid' || panel.dialogue.speaker === 'kid2') {
+                dialogueBox.classList.add('kid-speech');
+            }
+            if (panel.mummyExpression === 'angry' || panel.mummyExpression === 'rage' || 
+                panel.mummyExpression === 'furious' || panel.mummyExpression === 'ultimate_rage') {
+                dialogueBox.classList.add('angry-speech');
+            }
+        } else {
+            dialogueBox.style.display = 'none';
+        }
+        
+        // Handle effects
+        const comicPanel = document.getElementById('comic-panel');
+        
+        // Remove existing effect overlays
+        const existingEffects = comicPanel.querySelectorAll('.effect-anger, .effect-dramatic, .chappal-ready');
+        existingEffects.forEach(el => el.remove());
+        
+        if (panel.effect === 'anger_lines' || panel.effect === 'anger_explosion' || panel.effect === 'earthquake') {
+            const angerEffect = document.createElement('div');
+            angerEffect.className = 'effect-anger';
+            comicPanel.appendChild(angerEffect);
+        }
+        
+        if (panel.effect === 'dramatic_zoom' || panel.effect === 'dramatic_pause' || 
+            panel.effect === 'ominous' || panel.effect === 'final_boss_aura') {
+            const dramaticEffect = document.createElement('div');
+            dramaticEffect.className = 'effect-dramatic';
+            comicPanel.appendChild(dramaticEffect);
+        }
+        
+        if (panel.chappalReady) {
+            const chappalIndicator = document.createElement('div');
+            chappalIndicator.className = 'chappal-ready';
+            chappalIndicator.innerText = '🩴 CHAPPAL READY!';
+            comicPanel.appendChild(chappalIndicator);
+        }
+        
+        // Update Next button text on last panel
+        const nextBtn = document.getElementById('comic-next-btn');
+        if (this.currentPanelIdx >= totalPanels - 1) {
+            nextBtn.innerText = 'LET\'S GO! 🩴';
+            nextBtn.style.background = '#4CAF50';
+        } else {
+            nextBtn.innerText = 'NEXT ▶';
+            nextBtn.style.background = '#e64a19';
+        }
+        
+        // Draw characters on canvas
+        this.drawComicCharacters(panel);
+    }
+    
+    drawComicCharacters(panel) {
+        const canvas = document.getElementById('comic-canvas');
+        const ctx = canvas.getContext('2d');
+        const mummyType = MUMMY_TYPES[this.selectedMummyIdx];
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Get background color based on level theme
+        const bg = LEVEL_BACKGROUNDS[this.currentLevelIdx] || LEVEL_BACKGROUNDS[0];
+        
+        // Draw simple background
+        ctx.fillStyle = bg.wallColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height * 0.7);
+        ctx.fillStyle = bg.floorColor;
+        ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
+        
+        // Add some scene details based on level
+        this.drawSceneDetails(ctx, canvas, this.currentLevelIdx);
+        
+        // Draw mummy (left side) - larger and more detailed
+        if (panel.mummyExpression) {
+            this.drawComicMummy(ctx, 130, 160, mummyType, panel.mummyExpression);
+        }
+        
+        // Draw kid (right side) - larger and more detailed
+        if (panel.kidExpression) {
+            this.drawComicKid(ctx, 380, 170, panel.kidExpression);
+        }
+    }
+    
+    drawSceneDetails(ctx, canvas, levelIdx) {
+        // Add simple scene props based on level theme
+        ctx.globalAlpha = 0.3;
+        
+        // Window or frame
+        ctx.fillStyle = '#87CEEB';
+        ctx.fillRect(canvas.width - 80, 20, 50, 60);
+        ctx.strokeStyle = '#654321';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(canvas.width - 80, 20, 50, 60);
+        ctx.beginPath();
+        ctx.moveTo(canvas.width - 55, 20);
+        ctx.lineTo(canvas.width - 55, 80);
+        ctx.moveTo(canvas.width - 80, 50);
+        ctx.lineTo(canvas.width - 30, 50);
+        ctx.stroke();
+        
+        ctx.globalAlpha = 1;
+    }
+    
+    drawComicMummy(ctx, x, y, mummyType, expression) {
+        // Ground level is at y, character drawn upward
+        const footY = y;
+        
+        // === LEGS ===
+        ctx.fillStyle = mummyType.accentColor;
+        // Left leg
+        ctx.beginPath();
+        ctx.moveTo(x - 15, footY - 70);
+        ctx.lineTo(x - 20, footY);
+        ctx.lineTo(x - 5, footY);
+        ctx.lineTo(x - 5, footY - 70);
+        ctx.fill();
+        // Right leg  
+        ctx.beginPath();
+        ctx.moveTo(x + 5, footY - 70);
+        ctx.lineTo(x + 5, footY);
+        ctx.lineTo(x + 20, footY);
+        ctx.lineTo(x + 15, footY - 70);
+        ctx.fill();
+        
+        // === FEET (chappals) ===
+        ctx.fillStyle = '#8B4513';
+        ctx.beginPath();
+        ctx.ellipse(x - 12, footY + 3, 12, 5, 0, 0, Math.PI * 2);
+        ctx.ellipse(x + 12, footY + 3, 12, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // === SAREE BODY ===
+        ctx.fillStyle = mummyType.sareeColor;
+        ctx.beginPath();
+        ctx.moveTo(x - 25, footY - 70);
+        ctx.quadraticCurveTo(x - 30, footY - 100, x - 20, footY - 120);
+        ctx.lineTo(x + 20, footY - 120);
+        ctx.quadraticCurveTo(x + 30, footY - 100, x + 25, footY - 70);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = mummyType.accentColor;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // === PALLU (draped part) ===
+        ctx.fillStyle = mummyType.accentColor;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(x - 20, footY - 120);
+        ctx.quadraticCurveTo(x + 30, footY - 110, x + 35, footY - 80);
+        ctx.lineTo(x + 25, footY - 80);
+        ctx.quadraticCurveTo(x + 20, footY - 100, x - 15, footY - 110);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        
+        // === ARMS ===
+        ctx.fillStyle = mummyType.skinTone;
+        ctx.strokeStyle = mummyType.skinTone;
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
+        
+        // Left arm (down or akimbo)
+        ctx.beginPath();
+        ctx.moveTo(x - 22, footY - 110);
+        ctx.lineTo(x - 35, footY - 80);
+        ctx.stroke();
+        // Hand
+        ctx.beginPath();
+        ctx.arc(x - 37, footY - 75, 8, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Right arm - posture based on expression
+        if (expression === 'rage' || expression === 'furious' || 
+            expression === 'ultimate_rage' || expression === 'angry') {
+            // Raised arm with chappal!
+            ctx.beginPath();
+            ctx.moveTo(x + 22, footY - 110);
+            ctx.lineTo(x + 50, footY - 145);
+            ctx.stroke();
+            // Hand
+            ctx.beginPath();
+            ctx.arc(x + 55, footY - 150, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // CHAPPAL in hand - the weapon!
+            ctx.fillStyle = '#8B4513';
+            ctx.save();
+            ctx.translate(x + 60, footY - 160);
+            ctx.rotate(-0.8);
+            // Chappal body
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 12, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Chappal strap
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(-6, -5, 12, 4);
+            ctx.restore();
+        } else {
+            // Normal arm position
+            ctx.beginPath();
+            ctx.moveTo(x + 22, footY - 110);
+            ctx.lineTo(x + 35, footY - 80);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(x + 37, footY - 75, 8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // === HEAD ===
+        ctx.fillStyle = mummyType.skinTone;
+        ctx.beginPath();
+        ctx.arc(x, footY - 145, 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // === HAIR ===
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.ellipse(x, footY - 160, 20, 12, 0, Math.PI * 0.9, Math.PI * 2.1);
+        ctx.fill();
+        // Hair bun
+        ctx.beginPath();
+        ctx.arc(x - 18, footY - 150, 10, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // === BINDI ===
+        ctx.fillStyle = mummyType.bindiColor;
+        ctx.beginPath();
+        ctx.arc(x, footY - 155, 4, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // === FACE - Expression based ===
+        this.drawMummyFace(ctx, x, footY - 145, expression);
+    }
+    
+    drawMummyFace(ctx, x, y, expression) {
+        // Eyes
+        const isAngry = expression === 'angry' || expression === 'rage' || 
+                       expression === 'furious' || expression === 'ultimate_rage';
+        const isShocked = expression === 'shocked' || expression === 'shock';
+        
+        // Eyebrows
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        if (isAngry) {
+            // Angry V-shaped eyebrows
+            ctx.beginPath();
+            ctx.moveTo(x - 14, y - 12);
+            ctx.lineTo(x - 6, y - 6);
+            ctx.moveTo(x + 14, y - 12);
+            ctx.lineTo(x + 6, y - 6);
+            ctx.stroke();
+        }
+        
+        // Eye whites
+        ctx.fillStyle = '#fff';
+        const eyeSize = isShocked ? 7 : 5;
+        ctx.beginPath();
+        ctx.ellipse(x - 8, y - 3, eyeSize, eyeSize - 1, 0, 0, Math.PI * 2);
+        ctx.ellipse(x + 8, y - 3, eyeSize, eyeSize - 1, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Pupils
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(x - 8, y - 2, 2.5, 0, Math.PI * 2);
+        ctx.arc(x + 8, y - 2, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Mouth
+        ctx.strokeStyle = '#8B0000';
+        ctx.lineWidth = 2;
+        if (isAngry) {
+            // Angry open mouth
+            ctx.fillStyle = '#8B0000';
+            ctx.beginPath();
+            ctx.moveTo(x - 10, y + 10);
+            ctx.quadraticCurveTo(x, y + 5, x + 10, y + 10);
+            ctx.quadraticCurveTo(x, y + 18, x - 10, y + 10);
+            ctx.fill();
+            // Teeth
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x - 6, y + 8, 12, 4);
+        } else if (isShocked) {
+            // O-mouth
+            ctx.fillStyle = '#8B0000';
+            ctx.beginPath();
+            ctx.ellipse(x, y + 12, 6, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            // Stern straight line
+            ctx.beginPath();
+            ctx.moveTo(x - 8, y + 12);
+            ctx.lineTo(x + 8, y + 12);
+            ctx.stroke();
+        }
+        
+        // Nose
+        ctx.strokeStyle = '#c4a07a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + 2, y + 6);
+        ctx.lineTo(x, y + 6);
+        ctx.stroke();
+    }
+    
+    drawComicKid(ctx, x, y, expression) {
+        // Ground level is at y, kid drawn upward (smaller than mummy)
+        const footY = y;
+        const scale = 0.75; // Kids are smaller
+        
+        // === LEGS ===
+        ctx.fillStyle = '#5D4037'; // Brown pants/shorts
+        ctx.beginPath();
+        ctx.moveTo(x - 10, footY - 50);
+        ctx.lineTo(x - 15, footY);
+        ctx.lineTo(x - 3, footY);
+        ctx.lineTo(x - 3, footY - 50);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x + 3, footY - 50);
+        ctx.lineTo(x + 3, footY);
+        ctx.lineTo(x + 15, footY);
+        ctx.lineTo(x + 10, footY - 50);
+        ctx.fill();
+        
+        // === SHOES ===
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.ellipse(x - 9, footY + 3, 10, 5, 0, 0, Math.PI * 2);
+        ctx.ellipse(x + 9, footY + 3, 10, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // === SHIRT/BODY ===
+        ctx.fillStyle = '#2196F3'; // Blue shirt
+        ctx.beginPath();
+        ctx.moveTo(x - 18, footY - 50);
+        ctx.lineTo(x - 20, footY - 85);
+        ctx.lineTo(x + 20, footY - 85);
+        ctx.lineTo(x + 18, footY - 50);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#1565C0';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Shirt collar
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.moveTo(x - 8, footY - 85);
+        ctx.lineTo(x, footY - 78);
+        ctx.lineTo(x + 8, footY - 85);
+        ctx.fill();
+        
+        // === ARMS ===
+        ctx.fillStyle = '#E8B89D';
+        ctx.strokeStyle = '#E8B89D';
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
+        
+        if (expression === 'playing' || expression === 'mischievous') {
+            // Arms up (playful)
+            ctx.beginPath();
+            ctx.moveTo(x - 18, footY - 75);
+            ctx.lineTo(x - 30, footY - 95);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 18, footY - 75);
+            ctx.lineTo(x + 30, footY - 95);
+            ctx.stroke();
+        } else if (expression === 'scared' || expression === 'terrified') {
+            // Arms up in fear
+            ctx.beginPath();
+            ctx.moveTo(x - 18, footY - 75);
+            ctx.lineTo(x - 25, footY - 100);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 18, footY - 75);
+            ctx.lineTo(x + 25, footY - 100);
+            ctx.stroke();
+        } else {
+            // Normal arms down
+            ctx.beginPath();
+            ctx.moveTo(x - 18, footY - 75);
+            ctx.lineTo(x - 25, footY - 55);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 18, footY - 75);
+            ctx.lineTo(x + 25, footY - 55);
+            ctx.stroke();
+        }
+        
+        // Hands
+        ctx.beginPath();
+        if (expression === 'playing' || expression === 'mischievous') {
+            ctx.arc(x - 32, footY - 97, 6, 0, Math.PI * 2);
+            ctx.arc(x + 32, footY - 97, 6, 0, Math.PI * 2);
+        } else if (expression === 'scared' || expression === 'terrified') {
+            ctx.arc(x - 27, footY - 102, 6, 0, Math.PI * 2);
+            ctx.arc(x + 27, footY - 102, 6, 0, Math.PI * 2);
+        } else {
+            ctx.arc(x - 27, footY - 53, 6, 0, Math.PI * 2);
+            ctx.arc(x + 27, footY - 53, 6, 0, Math.PI * 2);
+        }
+        ctx.fill();
+        
+        // === HEAD ===
+        ctx.fillStyle = '#E8B89D';
+        ctx.beginPath();
+        ctx.arc(x, footY - 105, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // === HAIR ===
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.ellipse(x, footY - 118, 16, 10, 0, Math.PI * 0.85, Math.PI * 2.15);
+        ctx.fill();
+        // Messy spikes
+        ctx.beginPath();
+        ctx.moveTo(x - 10, footY - 120);
+        ctx.lineTo(x - 8, footY - 130);
+        ctx.lineTo(x - 3, footY - 122);
+        ctx.lineTo(x, footY - 132);
+        ctx.lineTo(x + 3, footY - 122);
+        ctx.lineTo(x + 8, footY - 130);
+        ctx.lineTo(x + 10, footY - 120);
+        ctx.fill();
+        
+        // === FACE ===
+        this.drawKidFace(ctx, x, footY - 105, expression);
+    }
+    
+    drawKidFace(ctx, x, y, expression) {
+        const isScared = expression === 'scared' || expression === 'terrified';
+        const isSweating = expression === 'sweating' || expression === 'nervous';
+        const isHappy = expression === 'mischievous' || expression === 'playing';
+        
+        // Eye whites
+        ctx.fillStyle = '#fff';
+        const eyeW = isScared ? 7 : 5;
+        const eyeH = isScared ? 8 : 5;
+        ctx.beginPath();
+        ctx.ellipse(x - 6, y - 2, eyeW, eyeH, 0, 0, Math.PI * 2);
+        ctx.ellipse(x + 6, y - 2, eyeW, eyeH, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Pupils
+        ctx.fillStyle = '#000';
+        const pupilX = isSweating ? 2 : 0; // Looking sideways if nervous
+        ctx.beginPath();
+        ctx.arc(x - 6 + pupilX, y - 1, 2, 0, Math.PI * 2);
+        ctx.arc(x + 6 + pupilX, y - 1, 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Eyebrows
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        if (isScared) {
+            // Worried eyebrows
+            ctx.beginPath();
+            ctx.moveTo(x - 10, y - 12);
+            ctx.lineTo(x - 4, y - 10);
+            ctx.moveTo(x + 10, y - 12);
+            ctx.lineTo(x + 4, y - 10);
+            ctx.stroke();
+        }
+        
+        // Mouth
+        if (isScared) {
+            // Open scared mouth
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.ellipse(x, y + 10, 6, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (isHappy) {
+            // Big smile
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y + 6, 8, 0.1, Math.PI - 0.1);
+            ctx.stroke();
+            // Teeth
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x - 5, y + 7, 10, 4);
+        } else if (isSweating) {
+            // Nervous crooked smile
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x - 6, y + 10);
+            ctx.quadraticCurveTo(x, y + 6, x + 6, y + 10);
+            ctx.stroke();
+        } else {
+            // Neutral/worried
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y + 10, 5, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+        }
+        
+        // Sweat drop for nervous expressions
+        if (isSweating || isScared) {
+            ctx.fillStyle = '#64B5F6';
+            ctx.beginPath();
+            ctx.moveTo(x + 16, y - 8);
+            ctx.quadraticCurveTo(x + 20, y, x + 16, y + 5);
+            ctx.quadraticCurveTo(x + 12, y, x + 16, y - 8);
+            ctx.fill();
+        }
+    }
+
+
     startGame() {
+
         // Initialize sound on first game start (requires user interaction)
         sounds.init();
         sounds.playClick();
