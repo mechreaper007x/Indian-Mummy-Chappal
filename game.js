@@ -1806,14 +1806,43 @@ class Game {
     }
 
     initResize() {
+        const ASPECT_RATIO = 16 / 9;
+        
         this.handleResize = () => {
-            this.width = document.documentElement.clientWidth;
-            this.height = document.documentElement.clientHeight;
+            const viewportWidth = document.documentElement.clientWidth;
+            const viewportHeight = document.documentElement.clientHeight;
+            
+            // Calculate dimensions that fit 16:9 within available space
+            let gameWidth, gameHeight;
+            
+            if (viewportWidth / viewportHeight > ASPECT_RATIO) {
+                // Viewport is wider than 16:9 - fit to height (pillarbox)
+                gameHeight = viewportHeight;
+                gameWidth = gameHeight * ASPECT_RATIO;
+            } else {
+                // Viewport is taller than 16:9 - fit to width (letterbox)
+                gameWidth = viewportWidth;
+                gameHeight = gameWidth / ASPECT_RATIO;
+            }
+            
+            // Set canvas size in pixels
+            this.width = Math.floor(gameWidth);
+            this.height = Math.floor(gameHeight);
             this.canvas.width = this.width;
             this.canvas.height = this.height;
+            
+            // Center canvas via CSS
+            this.canvas.style.position = 'absolute';
+            this.canvas.style.left = `${(viewportWidth - this.width) / 2}px`;
+            this.canvas.style.top = `${(viewportHeight - this.height) / 2}px`;
+            this.canvas.style.width = `${this.width}px`;
+            this.canvas.style.height = `${this.height}px`;
+            
+            // Calculate scale based on 16:9 reference (1920x1080)
             const baseWidth = 1000;
             this.scale = Math.max(0.5, Math.min(this.width / baseWidth, this.height / 600) * 1.5);
             if (this.scale > 1.5) this.scale = 1.5;
+            
             this.anchor = { 
                 x: Math.max(80 * this.scale, this.width * 0.15), 
                 y: this.height - (150 * this.scale) 
@@ -1821,8 +1850,11 @@ class Game {
             this.targetStartX = this.width * 0.75;
             this.targetStartY = this.height - (50 * this.scale);
         };
+        
         this.handleResize();
         window.addEventListener('resize', () => setTimeout(() => this.handleResize(), 200));
+        // Mobile orientation change
+        window.addEventListener('orientationchange', () => setTimeout(() => this.handleResize(), 300));
     }
 
     initLevelGrid() {

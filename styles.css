@@ -11,7 +11,7 @@
 
 body {
   overflow: hidden;
-  background: linear-gradient(135deg, #fff8e1 0%, #ffe0b2 100%);
+  background: #1a0a0a; /* Letterbox/pillarbox background */
   touch-action: none;
   font-family: "Open Sans", sans-serif;
   width: 100vw;
