@@ -83,7 +83,10 @@
             AMMO: <span id="ammo-count">6</span>
           </div>
         </div>
-        <button class="btn btn-small" onclick="game.togglePause()">⏸</button>
+        <div class="flex gap-2">
+          <button class="btn btn-small" onclick="game.toggleFullscreen()" id="fullscreen-btn" title="Fullscreen">⊞</button>
+          <button class="btn btn-small" onclick="game.togglePause()">⏸</button>
+        </div>
       </div>
 
       <div id="status-display" class="status-text">RELOADING...</div>

@@ -223,8 +223,24 @@ canvas {
 .italic {
   font-style: italic;
 }
+.gap-2 {
+  gap: 0.5rem;
+}
 .gap-4 {
   gap: 1rem;
+}
+
+/* Fullscreen Mode */
+:fullscreen body,
+:-webkit-full-screen body,
+:-moz-full-screen body,
+:-ms-fullscreen body {
+  width: 100vw;
+  height: 100vh;
+}
+
+#fullscreen-btn {
+  font-size: max(3vw, 20px);
 }
 .mt-2 {
   margin-top: 0.5rem;

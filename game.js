@@ -434,13 +434,14 @@ class Game {
         this.setupCollisionEvents();
         this.setupMouse();
         this.initLevelGrid();
+        this.setupFullscreenListener();
         
         // Start Loop
         this.loop();
     }
 
     initResize() {
-        const resize = () => {
+        this.handleResize = () => {
             this.width = document.documentElement.clientWidth;
             this.height = document.documentElement.clientHeight;
             this.canvas.width = this.width;
@@ -455,8 +456,8 @@ class Game {
             this.targetStartX = this.width * 0.75;
             this.targetStartY = this.height - (50 * this.scale);
         };
-        resize();
-        window.addEventListener('resize', () => setTimeout(resize, 200));
+        this.handleResize();
+        window.addEventListener('resize', () => setTimeout(() => this.handleResize(), 200));
     }
 
     initLevelGrid() {
@@ -513,6 +514,71 @@ class Game {
         const pauseScreen = document.getElementById('pause-screen');
         if (this.isPaused) pauseScreen.classList.remove('hidden');
         else pauseScreen.classList.add('hidden');
+    }
+
+    // Toggle fullscreen mode for mobile gameplay
+    toggleFullscreen() {
+        const elem = document.documentElement;
+        
+        const isFullscreen = document.fullscreenElement || 
+                            document.webkitFullscreenElement || 
+                            document.mozFullScreenElement || 
+                            document.msFullscreenElement;
+
+        if (!isFullscreen) {
+            // Enter fullscreen
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        } else {
+            // Exit fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+        
+        sounds.playClick();
+    }
+
+    // Listen for fullscreen changes to update button icon and resize
+    setupFullscreenListener() {
+        const updateFullscreen = () => {
+            const btn = document.getElementById('fullscreen-btn');
+            const isFullscreen = document.fullscreenElement || 
+                                document.webkitFullscreenElement || 
+                                document.mozFullScreenElement || 
+                                document.msFullscreenElement;
+            
+            if (btn) {
+                btn.innerText = isFullscreen ? '✕' : '⊞';
+            }
+            
+            // Trigger resize after a short delay to let fullscreen settle
+            setTimeout(() => {
+                this.handleResize();
+                // Reset level to fix physics positioning if game is active
+                if (this.gameActive && !this.isPaused) {
+                    this.resetLevel();
+                }
+            }, 100);
+        };
+        
+        document.addEventListener('fullscreenchange', updateFullscreen);
+        document.addEventListener('webkitfullscreenchange', updateFullscreen);
+        document.addEventListener('mozfullscreenchange', updateFullscreen);
+        document.addEventListener('MSFullscreenChange', updateFullscreen);
     }
 
     resetLevel() {
