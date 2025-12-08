@@ -353,10 +353,117 @@ const LEVELS = [
 ];
 
 // ========================================
-// LEVEL BUILDER
+// LEVEL BACKGROUNDS - Themed scenes for each level
+// ========================================
+const LEVEL_BACKGROUNDS = [
+    // 0: Homework Pile - Study Room
+    { 
+        wallColor: '#e8dcc8', floorColor: '#8B4513', 
+        theme: 'study', accent: '#4a3728'
+    },
+    // 1: Sofa Fort - Living Room
+    { 
+        wallColor: '#f5e6d3', floorColor: '#654321', 
+        theme: 'living', accent: '#8B4513'
+    },
+    // 2: Cricket Match - Outdoor/Balcony
+    { 
+        wallColor: '#87CEEB', floorColor: '#228B22', 
+        theme: 'outdoor', accent: '#32CD32'
+    },
+    // 3: Kitchen Raid - Kitchen
+    { 
+        wallColor: '#fff8dc', floorColor: '#cd853f', 
+        theme: 'kitchen', accent: '#8B4513'
+    },
+    // 4: Phone Addiction - Bedroom (Night)
+    { 
+        wallColor: '#2c3e50', floorColor: '#5D4037', 
+        theme: 'bedroom_night', accent: '#1a252f'
+    },
+    // 5: Forgot Tiffin - Dining Room
+    { 
+        wallColor: '#ffefd5', floorColor: '#8B4513', 
+        theme: 'dining', accent: '#D2691E'
+    },
+    // 6: Broken Vase - Drawing Room
+    { 
+        wallColor: '#ffe4c4', floorColor: '#A0522D', 
+        theme: 'drawing', accent: '#8B4513'
+    },
+    // 7: Sibling Fight - Kids Room
+    { 
+        wallColor: '#87CEEB', floorColor: '#DEB887', 
+        theme: 'kids_room', accent: '#FFB6C1'
+    },
+    // 8: Relatives Visit - Guest Room
+    { 
+        wallColor: '#faf0e6', floorColor: '#8B4513', 
+        theme: 'guest', accent: '#DAA520'
+    },
+    // 9: Exam Tomorrow - Study Room (Night)
+    { 
+        wallColor: '#1a1a2e', floorColor: '#4a3728', 
+        theme: 'study_night', accent: '#FFD700'
+    },
+    // 10: Late Night - Bedroom (Dark)
+    { 
+        wallColor: '#0f0f1a', floorColor: '#3d3d3d', 
+        theme: 'bedroom_dark', accent: '#4169E1'
+    },
+    // 11: Messy Room - Messy Bedroom
+    { 
+        wallColor: '#dda0dd', floorColor: '#8B4513', 
+        theme: 'messy', accent: '#BA55D3'
+    },
+    // 12: Lost Remote - Living Room (Cozy)
+    { 
+        wallColor: '#f0e68c', floorColor: '#8B4513', 
+        theme: 'living_cozy', accent: '#CD853F'
+    },
+    // 13: Wet Towel - Bedroom (Morning)
+    { 
+        wallColor: '#add8e6', floorColor: '#DEB887', 
+        theme: 'bedroom_morning', accent: '#4682B4'
+    },
+    // 14: Bad Report Card - Study Room (Tense)
+    { 
+        wallColor: '#cd5c5c', floorColor: '#8B0000', 
+        theme: 'study_tense', accent: '#B22222'
+    },
+    // 15: Vegetables - Dining Room (Green)
+    { 
+        wallColor: '#90EE90', floorColor: '#228B22', 
+        theme: 'dining_green', accent: '#006400'
+    },
+    // 16: Empty Water Bottles - Kitchen (Blue)
+    { 
+        wallColor: '#b0e0e6', floorColor: '#cd853f', 
+        theme: 'kitchen_blue', accent: '#4682B4'
+    },
+    // 17: AC On - Living Room (Cool)
+    { 
+        wallColor: '#e0ffff', floorColor: '#8B4513', 
+        theme: 'living_cool', accent: '#00CED1'
+    },
+    // 18: Back Answer - Angry Room
+    { 
+        wallColor: '#ff6b6b', floorColor: '#8B0000', 
+        theme: 'angry', accent: '#DC143C'
+    },
+    // 19: The Final Boss - Epic Entry
+    { 
+        wallColor: '#1a0a0a', floorColor: '#2d1810', 
+        theme: 'boss', accent: '#FF4500'
+    }
+];
+
+// ========================================
+// LEVEL BUILDER - Angry Birds Style Layouts
 // ========================================
 const buildLevel = (idx, world, sx, sy, s) => {
-    const mkBox = (x, y, sz) => Composite.add(world, Bodies.rectangle(x, y, sz, sz, { 
+    // Helper functions for building structures
+    const mkBox = (x, y, sz) => Composite.add(world, Bodies.rectangle(x, y, sz || s, sz || s, { 
         density: 0.002, 
         label: 'Book', 
         friction: 0.6 
@@ -368,40 +475,355 @@ const buildLevel = (idx, world, sx, sy, s) => {
         density: 0.003 
     }));
     
-    const mkPlank = (x, y, wd, ht) => Composite.add(world, Bodies.rectangle(x, y, wd, ht, { 
+    const mkPlank = (x, y, wd, ht) => Composite.add(world, Bodies.rectangle(x, y, wd, ht || s * 0.25, { 
         density: 0.005, 
         label: 'Wood', 
         friction: 0.6 
     }));
+    
+    const mkVertPlank = (x, y, ht) => mkPlank(x, y, s * 0.25, ht || s * 1.5);
 
-    // Level-specific patterns
-    if (idx === 0) { // Homework
-        mkBox(sx - s, sy - s / 2, s); 
-        mkBox(sx + s, sy - s / 2, s); 
-        mkKid(sx, sy - s / 2); 
-        mkPlank(sx, sy - s * 1.2, s * 3, s * 0.3); 
-        mkKid(sx, sy - s * 1.6);
-    } else if (idx === 1) { // Sofa
-        mkBox(sx - s * 1.5, sy - s, s); 
-        mkBox(sx + s * 1.5, sy - s, s); 
-        mkPlank(sx, sy - s * 1.8, s * 4, s * 0.4); 
-        mkKid(sx, sy - s / 2); 
-        mkKid(sx - s, sy - s / 2); 
-        mkKid(sx + s, sy - s / 2);
-    } else {
-        // Generic Generation for other levels
-        const rows = 2 + Math.floor(idx / 3);
-        for (let i = 0; i < rows; i++) {
-            let y = sy - s / 2 - (i * s * 1.2);
-            if (i % 2 === 0) { 
-                mkBox(sx - s, y, s); 
-                mkBox(sx + s, y, s); 
-            } else { 
-                mkKid(sx, y); 
+    switch(idx) {
+        // ============ EASY LEVELS (1-5) ============
+        
+        case 0: // Homework Pile - Simple tower
+            // Two books as base, kid on top
+            mkBox(sx - s * 0.6, sy - s * 0.5, s);
+            mkBox(sx + s * 0.6, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 2.5);
+            mkKid(sx, sy - s * 1.5);
+            break;
+            
+        case 1: // Sofa Fort - Simple fortification
+            // L-shaped cover with kids behind
+            mkBox(sx - s * 1.2, sy - s * 0.5, s);
+            mkBox(sx + s * 1.2, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 3.5);
+            mkKid(sx - s * 0.6, sy - s * 1.5);
+            mkKid(sx + s * 0.6, sy - s * 1.5);
+            break;
+            
+        case 2: // Cricket Match - Triangle formation
+            // Pyramid of boxes with kid at top
+            mkBox(sx - s, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 0.5, s);
+            mkBox(sx + s, sy - s * 0.5, s);
+            mkBox(sx - s * 0.5, sy - s * 1.5, s);
+            mkBox(sx + s * 0.5, sy - s * 1.5, s);
+            mkPlank(sx, sy - s * 2.1, s * 2);
+            mkKid(sx, sy - s * 2.5);
+            break;
+            
+        case 3: // Kitchen Raid - Counter protection
+            // Kids hiding behind counter
+            mkVertPlank(sx - s * 1.5, sy - s * 0.8, s * 1.6);
+            mkVertPlank(sx + s * 1.5, sy - s * 0.8, s * 1.6);
+            mkPlank(sx, sy - s * 1.7, s * 3.5);
+            mkKid(sx - s * 0.5, sy - s * 0.5);
+            mkKid(sx + s * 0.5, sy - s * 0.5);
+            // Pot on top (small box)
+            mkBox(sx, sy - s * 2.1, s * 0.6);
+            break;
+            
+        case 4: // Phone Addiction - Bed structure
+            // Kid in bed-like enclosure
+            mkBox(sx - s * 1.3, sy - s * 0.5, s);
+            mkBox(sx + s * 1.3, sy - s * 0.5, s);
+            mkVertPlank(sx - s * 1.3, sy - s * 1.4, s * 1.2);
+            mkVertPlank(sx + s * 1.3, sy - s * 1.4, s * 1.2);
+            mkPlank(sx, sy - s * 2.1, s * 3);
+            mkKid(sx, sy - s * 0.5);
+            mkKid(sx, sy - s * 2.5);
+            break;
+            
+        // ============ MEDIUM LEVELS (6-10) ============
+        
+        case 5: // Forgot Tiffin - Table structure
+            // Dining table with kids underneath and on top
+            mkVertPlank(sx - s * 2, sy - s * 1, s * 2);
+            mkVertPlank(sx + s * 2, sy - s * 1, s * 2);
+            mkPlank(sx, sy - s * 2.1, s * 5);
+            mkKid(sx - s, sy - s * 0.5);
+            mkKid(sx + s, sy - s * 0.5);
+            mkKid(sx, sy - s * 2.5);
+            break;
+            
+        case 6: // Broken Vase - Multi-level tower
+            // Tall tower structure
+            mkBox(sx - s * 0.6, sy - s * 0.5, s);
+            mkBox(sx + s * 0.6, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 2);
+            mkBox(sx - s * 0.4, sy - s * 1.5, s * 0.8);
+            mkBox(sx + s * 0.4, sy - s * 1.5, s * 0.8);
+            mkPlank(sx, sy - s * 2, s * 1.5);
+            mkKid(sx, sy - s * 2.4);
+            // Vase (bonus target)
+            mkBox(sx + s * 2, sy - s * 0.5, s * 0.5);
+            mkKid(sx + s * 2, sy - s * 1);
+            break;
+            
+        case 7: // Sibling Fight - Two towers
+            // Twin towers with kids
+            // Left tower
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkVertPlank(sx - s * 2, sy - s * 1.5, s * 1.5);
+            mkBox(sx - s * 2, sy - s * 2.4, s * 0.8);
+            mkKid(sx - s * 2, sy - s * 3);
+            // Right tower
+            mkBox(sx + s * 2, sy - s * 0.5, s);
+            mkVertPlank(sx + s * 2, sy - s * 1.5, s * 1.5);
+            mkBox(sx + s * 2, sy - s * 2.4, s * 0.8);
+            mkKid(sx + s * 2, sy - s * 3);
+            // Bridge connecting
+            mkPlank(sx, sy - s * 2.4, s * 3);
+            mkKid(sx, sy - s * 2.8);
+            break;
+            
+        case 8: // Relatives Visit - Guest room setup
+            // Enclosed structure
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkBox(sx - s * 1, sy - s * 0.5, s);
+            mkBox(sx + s * 1, sy - s * 0.5, s);
+            mkBox(sx + s * 2, sy - s * 0.5, s);
+            mkVertPlank(sx - s * 2.2, sy - s * 1.5, s * 1.5);
+            mkVertPlank(sx + s * 2.2, sy - s * 1.5, s * 1.5);
+            mkPlank(sx, sy - s * 2.3, s * 5);
+            mkKid(sx - s, sy - s * 1.2);
+            mkKid(sx + s, sy - s * 1.2);
+            mkKid(sx, sy - s * 2.7);
+            break;
+            
+        case 9: // Exam Tomorrow - Study desk fortress
+            // Heavy fortification
+            mkBox(sx - s * 1.5, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 0.5, s);
+            mkBox(sx + s * 1.5, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 4);
+            mkBox(sx - s * 1, sy - s * 1.6, s);
+            mkBox(sx + s * 1, sy - s * 1.6, s);
+            mkPlank(sx, sy - s * 2.2, s * 3);
+            mkKid(sx, sy - s * 1.6);
+            mkKid(sx, sy - s * 2.6);
+            // Books stacked on side
+            mkBox(sx + s * 3, sy - s * 0.5, s * 0.8);
+            mkBox(sx + s * 3, sy - s * 1.2, s * 0.8);
+            mkKid(sx + s * 3, sy - s * 1.8);
+            break;
+            
+        // ============ HARD LEVELS (11-15) ============
+        
+        case 10: // Late Night - Bed fortress
+            // Complex bed structure
+            mkBox(sx - s * 2.5, sy - s * 0.5, s);
+            mkBox(sx - s * 1.5, sy - s * 0.5, s);
+            mkBox(sx + s * 1.5, sy - s * 0.5, s);
+            mkBox(sx + s * 2.5, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 6);
+            // Blanket fort on top
+            mkVertPlank(sx - s * 2, sy - s * 2, s * 1.5);
+            mkVertPlank(sx + s * 2, sy - s * 2, s * 1.5);
+            mkPlank(sx, sy - s * 2.8, s * 4.5);
+            mkKid(sx - s, sy - s * 1.5);
+            mkKid(sx, sy - s * 1.5);
+            mkKid(sx + s, sy - s * 1.5);
+            mkKid(sx, sy - s * 3.2);
+            break;
+            
+        case 11: // Messy Room - Chaotic pile
+            // Random-looking but strategic placement
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkBox(sx - s * 0.8, sy - s * 0.5, s);
+            mkBox(sx + s * 0.5, sy - s * 0.5, s);
+            mkBox(sx + s * 1.8, sy - s * 0.5, s);
+            mkBox(sx - s * 1.4, sy - s * 1.5, s);
+            mkBox(sx + s * 1.2, sy - s * 1.5, s);
+            mkPlank(sx, sy - s * 2.2, s * 4);
+            mkKid(sx - s * 2, sy - s * 1.2);
+            mkKid(sx + s * 2, sy - s * 1.2);
+            mkKid(sx - s * 0.5, sy - s * 2.6);
+            mkKid(sx + s * 0.5, sy - s * 2.6);
+            break;
+            
+        case 12: // Lost Remote - Sofa maze
+            // Multiple hiding spots
+            mkVertPlank(sx - s * 3, sy - s * 1, s * 2);
+            mkVertPlank(sx - s * 1.5, sy - s * 1, s * 2);
+            mkVertPlank(sx + s * 1.5, sy - s * 1, s * 2);
+            mkVertPlank(sx + s * 3, sy - s * 1, s * 2);
+            mkPlank(sx - s * 2.25, sy - s * 2.1, s * 2);
+            mkPlank(sx + s * 2.25, sy - s * 2.1, s * 2);
+            mkKid(sx - s * 2.25, sy - s * 0.5);
+            mkKid(sx, sy - s * 0.5);
+            mkKid(sx + s * 2.25, sy - s * 0.5);
+            mkKid(sx - s * 2.25, sy - s * 2.5);
+            mkKid(sx + s * 2.25, sy - s * 2.5);
+            break;
+            
+        case 13: // Wet Towel - Bedroom layers
+            // Stacked horizontal layers
+            for (let i = 0; i < 3; i++) {
+                mkBox(sx - s * 1.5, sy - s * 0.5 - i * s * 1.2, s);
+                mkBox(sx + s * 1.5, sy - s * 0.5 - i * s * 1.2, s);
+                mkPlank(sx, sy - s * 1 - i * s * 1.2, s * 4);
             }
-        }
-        mkPlank(sx, sy - (rows * s * 1.2), s * 3, s * 0.3);
-        mkKid(sx, sy - (rows * s * 1.2) - s);
+            mkKid(sx - s * 0.5, sy - s * 0.5);
+            mkKid(sx + s * 0.5, sy - s * 0.5);
+            mkKid(sx, sy - s * 1.7);
+            mkKid(sx, sy - s * 2.9);
+            mkKid(sx, sy - s * 4.1);
+            break;
+            
+        case 14: // Bad Report Card - Defensive walls
+            // Strong defensive structure
+            mkBox(sx - s * 2.5, sy - s * 0.5, s);
+            mkBox(sx - s * 2.5, sy - s * 1.5, s);
+            mkBox(sx + s * 2.5, sy - s * 0.5, s);
+            mkBox(sx + s * 2.5, sy - s * 1.5, s);
+            mkPlank(sx, sy - s * 2.1, s * 6);
+            // Inner fortress
+            mkBox(sx - s, sy - s * 0.5, s);
+            mkBox(sx + s, sy - s * 0.5, s);
+            mkVertPlank(sx - s, sy - s * 1.5, s * 1.5);
+            mkVertPlank(sx + s, sy - s * 1.5, s * 1.5);
+            mkPlank(sx, sy - s * 2.5, s * 2.5);
+            mkKid(sx, sy - s * 0.5);
+            mkKid(sx, sy - s * 1.5);
+            mkKid(sx, sy - s * 2.9);
+            mkKid(sx - s * 2.5, sy - s * 2.5);
+            mkKid(sx + s * 2.5, sy - s * 2.5);
+            break;
+            
+        // ============ EXPERT LEVELS (16-20) ============
+        
+        case 15: // Vegetables - Dining fortress
+            // Table with cover
+            mkVertPlank(sx - s * 3, sy - s * 1.2, s * 2.4);
+            mkVertPlank(sx + s * 3, sy - s * 1.2, s * 2.4);
+            mkPlank(sx, sy - s * 2.5, s * 7);
+            // Under table
+            mkBox(sx - s * 1.5, sy - s * 0.5, s);
+            mkBox(sx + s * 1.5, sy - s * 0.5, s);
+            mkVertPlank(sx, sy - s * 1.2, s * 1.8);
+            // On table
+            mkBox(sx - s, sy - s * 3, s);
+            mkBox(sx + s, sy - s * 3, s);
+            mkPlank(sx, sy - s * 3.6, s * 3);
+            mkKid(sx - s * 2, sy - s * 0.5);
+            mkKid(sx + s * 2, sy - s * 0.5);
+            mkKid(sx, sy - s * 1.8);
+            mkKid(sx - s * 0.5, sy - s * 4);
+            mkKid(sx + s * 0.5, sy - s * 4);
+            break;
+            
+        case 16: // Empty Water Bottles - Bottle tower
+            // Tall unstable tower
+            for (let i = 0; i < 4; i++) {
+                mkBox(sx - s * 0.6, sy - s * 0.5 - i * s, s * 0.8);
+                mkBox(sx + s * 0.6, sy - s * 0.5 - i * s, s * 0.8);
+            }
+            mkPlank(sx, sy - s * 4.6, s * 2);
+            mkKid(sx, sy - s * 5);
+            // Side structure
+            mkBox(sx + s * 2.5, sy - s * 0.5, s);
+            mkBox(sx + s * 2.5, sy - s * 1.5, s);
+            mkKid(sx + s * 2.5, sy - s * 2.2);
+            mkBox(sx - s * 2.5, sy - s * 0.5, s);
+            mkBox(sx - s * 2.5, sy - s * 1.5, s);
+            mkKid(sx - s * 2.5, sy - s * 2.2);
+            mkKid(sx, sy - s * 2);
+            mkKid(sx, sy - s * 3);
+            break;
+            
+        case 17: // AC On - Cool room structure
+            // Complex room layout
+            // Left wall
+            mkBox(sx - s * 3, sy - s * 0.5, s);
+            mkBox(sx - s * 3, sy - s * 1.5, s);
+            mkBox(sx - s * 3, sy - s * 2.5, s);
+            // Right wall
+            mkBox(sx + s * 3, sy - s * 0.5, s);
+            mkBox(sx + s * 3, sy - s * 1.5, s);
+            mkBox(sx + s * 3, sy - s * 2.5, s);
+            // Ceiling
+            mkPlank(sx, sy - s * 3.1, s * 7);
+            // Internal pillars
+            mkVertPlank(sx - s * 1, sy - s * 1.5, s * 2.5);
+            mkVertPlank(sx + s * 1, sy - s * 1.5, s * 2.5);
+            mkPlank(sx, sy - s * 2, s * 2.5);
+            // Kids everywhere
+            mkKid(sx - s * 2, sy - s * 0.5);
+            mkKid(sx, sy - s * 0.5);
+            mkKid(sx + s * 2, sy - s * 0.5);
+            mkKid(sx - s * 2, sy - s * 1.8);
+            mkKid(sx + s * 2, sy - s * 1.8);
+            mkKid(sx, sy - s * 3.5);
+            break;
+            
+        case 18: // Back Answer - Angry structure
+            // Aggressive defensive layout
+            // Triple tower
+            for (let t = -1; t <= 1; t++) {
+                mkBox(sx + t * s * 2, sy - s * 0.5, s);
+                mkBox(sx + t * s * 2, sy - s * 1.5, s);
+                mkVertPlank(sx + t * s * 2, sy - s * 2.5, s * 1.5);
+                mkKid(sx + t * s * 2, sy - s * 3.4);
+            }
+            // Connecting platforms
+            mkPlank(sx - s, sy - s * 2.5, s * 2.5);
+            mkPlank(sx + s, sy - s * 2.5, s * 2.5);
+            mkKid(sx - s, sy - s * 2.9);
+            mkKid(sx + s, sy - s * 2.9);
+            // Inner protected kids
+            mkKid(sx - s, sy - s * 0.5);
+            mkKid(sx + s, sy - s * 0.5);
+            break;
+            
+        case 19: // The Final Boss - Ultimate fortress
+            // EPIC FINAL LEVEL
+            // Outer walls
+            mkBox(sx - s * 4, sy - s * 0.5, s);
+            mkBox(sx - s * 4, sy - s * 1.5, s);
+            mkBox(sx - s * 4, sy - s * 2.5, s);
+            mkBox(sx + s * 4, sy - s * 0.5, s);
+            mkBox(sx + s * 4, sy - s * 1.5, s);
+            mkBox(sx + s * 4, sy - s * 2.5, s);
+            mkPlank(sx, sy - s * 3.1, s * 9);
+            // Inner structure - first layer
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkBox(sx + s * 2, sy - s * 0.5, s);
+            mkVertPlank(sx - s * 2, sy - s * 1.6, s * 1.8);
+            mkVertPlank(sx + s * 2, sy - s * 1.6, s * 1.8);
+            mkPlank(sx, sy - s * 2.6, s * 4.5);
+            // Core fortress
+            mkBox(sx - s * 0.6, sy - s * 0.5, s);
+            mkBox(sx + s * 0.6, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 2);
+            mkVertPlank(sx - s * 0.6, sy - s * 1.8, s * 1.2);
+            mkVertPlank(sx + s * 0.6, sy - s * 1.8, s * 1.2);
+            mkPlank(sx, sy - s * 2.5, s * 1.8);
+            // BOSS (hidden kid in center)
+            mkKid(sx, sy - s * 0.5);
+            // Guards
+            mkKid(sx - s * 3, sy - s * 0.5);
+            mkKid(sx + s * 3, sy - s * 0.5);
+            mkKid(sx - s * 1.3, sy - s * 1.5);
+            mkKid(sx + s * 1.3, sy - s * 1.5);
+            // Top guards
+            mkKid(sx, sy - s * 2.9);
+            mkKid(sx - s * 2, sy - s * 3.5);
+            mkKid(sx + s * 2, sy - s * 3.5);
+            // Outer guards
+            mkKid(sx - s * 4, sy - s * 3.2);
+            mkKid(sx + s * 4, sy - s * 3.2);
+            break;
+            
+        default:
+            // Fallback - simple structure
+            mkBox(sx - s, sy - s * 0.5, s);
+            mkBox(sx + s, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 3);
+            mkKid(sx, sy - s * 1.5);
     }
 };
 
@@ -871,11 +1293,8 @@ class Game {
             this.ctx.clearRect(0, 0, this.width, this.height);
             
             if (this.gameActive) {
-                const floorH = 40 * this.scale;
-                this.ctx.fillStyle = '#795548'; 
-                this.ctx.fillRect(0, this.height - floorH, this.width, floorH);
-                this.ctx.fillStyle = '#5D4037'; 
-                this.ctx.fillRect(0, this.height - floorH, this.width, floorH * 0.15);
+                // Draw themed background
+                this.drawBackground();
 
                 this.drawMummy(this.anchor.x - (60 * this.scale), this.anchor.y + (30 * this.scale), this.scale);
 
@@ -897,6 +1316,560 @@ class Game {
         } catch (e) { 
             console.error(e); 
         }
+    }
+
+    // ========================================
+    // THEMED BACKGROUND DRAWING
+    // ========================================
+    drawBackground() {
+        const bg = LEVEL_BACKGROUNDS[this.currentLevelIdx] || LEVEL_BACKGROUNDS[0];
+        const ctx = this.ctx;
+        const w = this.width;
+        const h = this.height;
+        const s = this.scale;
+        const floorH = 40 * s;
+        
+        // Draw wall
+        ctx.fillStyle = bg.wallColor;
+        ctx.fillRect(0, 0, w, h);
+        
+        // Draw floor
+        ctx.fillStyle = bg.floorColor;
+        ctx.fillRect(0, h - floorH, w, floorH);
+        ctx.fillStyle = this.darkenColor(bg.floorColor, 20);
+        ctx.fillRect(0, h - floorH, w, floorH * 0.15);
+        
+        // Theme-specific decorations
+        switch(bg.theme) {
+            case 'study':
+                this.drawStudyRoom(ctx, w, h, s, bg);
+                break;
+            case 'living':
+                this.drawLivingRoom(ctx, w, h, s, bg);
+                break;
+            case 'outdoor':
+                this.drawOutdoor(ctx, w, h, s, bg);
+                break;
+            case 'kitchen':
+                this.drawKitchen(ctx, w, h, s, bg);
+                break;
+            case 'bedroom_night':
+                this.drawBedroomNight(ctx, w, h, s, bg);
+                break;
+            case 'dining':
+                this.drawDiningRoom(ctx, w, h, s, bg);
+                break;
+            case 'drawing':
+                this.drawDrawingRoom(ctx, w, h, s, bg);
+                break;
+            case 'kids_room':
+                this.drawKidsRoom(ctx, w, h, s, bg);
+                break;
+            case 'guest':
+                this.drawGuestRoom(ctx, w, h, s, bg);
+                break;
+            case 'study_night':
+                this.drawStudyNight(ctx, w, h, s, bg);
+                break;
+            case 'bedroom_dark':
+                this.drawBedroomDark(ctx, w, h, s, bg);
+                break;
+            case 'messy':
+                this.drawMessyRoom(ctx, w, h, s, bg);
+                break;
+            case 'living_cozy':
+                this.drawLivingCozy(ctx, w, h, s, bg);
+                break;
+            case 'bedroom_morning':
+                this.drawBedroomMorning(ctx, w, h, s, bg);
+                break;
+            case 'study_tense':
+                this.drawStudyTense(ctx, w, h, s, bg);
+                break;
+            case 'dining_green':
+                this.drawDiningGreen(ctx, w, h, s, bg);
+                break;
+            case 'kitchen_blue':
+                this.drawKitchenBlue(ctx, w, h, s, bg);
+                break;
+            case 'living_cool':
+                this.drawLivingCool(ctx, w, h, s, bg);
+                break;
+            case 'angry':
+                this.drawAngryRoom(ctx, w, h, s, bg);
+                break;
+            case 'boss':
+                this.drawBossRoom(ctx, w, h, s, bg);
+                break;
+        }
+    }
+    
+    // Helper to darken colors
+    darkenColor(hex, percent) {
+        const num = parseInt(hex.replace('#', ''), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = Math.max(0, (num >> 16) - amt);
+        const G = Math.max(0, ((num >> 8) & 0x00FF) - amt);
+        const B = Math.max(0, (num & 0x0000FF) - amt);
+        return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+    }
+    
+    // Study Room - Bookshelf and desk lamp
+    drawStudyRoom(ctx, w, h, s, bg) {
+        // Bookshelf on right
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(w - 120 * s, h - 250 * s, 100 * s, 210 * s);
+        // Shelf dividers
+        ctx.fillStyle = '#654321';
+        for (let i = 0; i < 3; i++) {
+            ctx.fillRect(w - 120 * s, h - 250 * s + i * 70 * s, 100 * s, 8 * s);
+        }
+        // Books on shelf
+        const bookColors = ['#E74C3C', '#3498DB', '#2ECC71', '#F39C12', '#9B59B6'];
+        for (let i = 0; i < 4; i++) {
+            ctx.fillStyle = bookColors[i % bookColors.length];
+            ctx.fillRect(w - 115 * s + i * 22 * s, h - 240 * s, 18 * s, 50 * s);
+        }
+        // Wall clock
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(w - 200 * s, 80 * s, 30 * s, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 3 * s;
+        ctx.stroke();
+    }
+    
+    // Living Room - TV and sofa silhouette
+    drawLivingRoom(ctx, w, h, s, bg) {
+        // TV on right wall
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(w - 180 * s, h - 280 * s, 150 * s, 90 * s);
+        ctx.fillStyle = '#4a90d9';
+        ctx.fillRect(w - 175 * s, h - 275 * s, 140 * s, 80 * s);
+        // TV stand
+        ctx.fillStyle = '#5D4037';
+        ctx.fillRect(w - 170 * s, h - 190 * s, 130 * s, 150 * s);
+        // Curtain on left
+        ctx.fillStyle = '#B8860B';
+        ctx.fillRect(20 * s, 20 * s, 60 * s, h - 100 * s);
+        ctx.fillRect(90 * s, 20 * s, 10 * s, h - 100 * s);
+    }
+    
+    // Outdoor - Sky, clouds, grass
+    drawOutdoor(ctx, w, h, s, bg) {
+        // Sun
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(w - 100 * s, 80 * s, 50 * s, 0, Math.PI * 2);
+        ctx.fill();
+        // Clouds
+        ctx.fillStyle = '#fff';
+        this.drawCloud(ctx, 100 * s, 60 * s, s);
+        this.drawCloud(ctx, w / 2, 40 * s, s * 0.8);
+        // Trees in background
+        ctx.fillStyle = '#228B22';
+        ctx.beginPath();
+        ctx.moveTo(w - 250 * s, h - 40 * s);
+        ctx.lineTo(w - 200 * s, h - 200 * s);
+        ctx.lineTo(w - 150 * s, h - 40 * s);
+        ctx.fill();
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(w - 210 * s, h - 80 * s, 20 * s, 40 * s);
+    }
+    
+    drawCloud(ctx, x, y, s) {
+        ctx.beginPath();
+        ctx.arc(x, y, 20 * s, 0, Math.PI * 2);
+        ctx.arc(x + 25 * s, y - 10 * s, 25 * s, 0, Math.PI * 2);
+        ctx.arc(x + 50 * s, y, 20 * s, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // Kitchen - Cabinets, stove, utensils
+    drawKitchen(ctx, w, h, s, bg) {
+        // Kitchen counter
+        ctx.fillStyle = '#D2691E';
+        ctx.fillRect(w - 300 * s, h - 150 * s, 280 * s, 110 * s);
+        // Counter top
+        ctx.fillStyle = '#F5F5DC';
+        ctx.fillRect(w - 300 * s, h - 150 * s, 280 * s, 15 * s);
+        // Stove
+        ctx.fillStyle = '#2F4F4F';
+        ctx.fillRect(w - 200 * s, h - 135 * s, 80 * s, 95 * s);
+        // Burners
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.arc(w - 180 * s, h - 100 * s, 15 * s, 0, Math.PI * 2);
+        ctx.arc(w - 140 * s, h - 100 * s, 15 * s, 0, Math.PI * 2);
+        ctx.fill();
+        // Pot
+        ctx.fillStyle = '#C0C0C0';
+        ctx.fillRect(w - 190 * s, h - 130 * s, 30 * s, 25 * s);
+        // Upper cabinets
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(w - 300 * s, 50 * s, 280 * s, 80 * s);
+        // Cabinet doors
+        ctx.strokeStyle = '#654321';
+        ctx.lineWidth = 3 * s;
+        ctx.strokeRect(w - 290 * s, 55 * s, 85 * s, 70 * s);
+        ctx.strokeRect(w - 195 * s, 55 * s, 85 * s, 70 * s);
+        ctx.strokeRect(w - 100 * s, 55 * s, 75 * s, 70 * s);
+    }
+    
+    // Bedroom Night - Bed, moonlight, phone glow
+    drawBedroomNight(ctx, w, h, s, bg) {
+        // Window with moon
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(w - 150 * s, 30 * s, 120 * s, 100 * s);
+        ctx.fillStyle = '#87CEEB';
+        ctx.fillRect(w - 145 * s, 35 * s, 110 * s, 90 * s);
+        // Moon
+        ctx.fillStyle = '#FFFACD';
+        ctx.beginPath();
+        ctx.arc(w - 90 * s, 70 * s, 25 * s, 0, Math.PI * 2);
+        ctx.fill();
+        // Stars
+        ctx.fillStyle = '#fff';
+        for (let i = 0; i < 5; i++) {
+            ctx.beginPath();
+            ctx.arc(w - 140 * s + i * 25 * s, 50 * s + (i % 2) * 20 * s, 2 * s, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        // Phone glow effect
+        const gradient = ctx.createRadialGradient(w * 0.6, h - 100 * s, 0, w * 0.6, h - 100 * s, 100 * s);
+        gradient.addColorStop(0, 'rgba(66, 133, 244, 0.3)');
+        gradient.addColorStop(1, 'rgba(66, 133, 244, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(w * 0.5, h - 200 * s, 200 * s, 200 * s);
+    }
+    
+    // Dining Room - Table silhouette
+    drawDiningRoom(ctx, w, h, s, bg) {
+        // Dining table
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(w * 0.4, h - 120 * s, 200 * s, 15 * s);
+        // Table legs
+        ctx.fillRect(w * 0.42, h - 105 * s, 15 * s, 65 * s);
+        ctx.fillRect(w * 0.4 + 175 * s, h - 105 * s, 15 * s, 65 * s);
+        // Plates
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.ellipse(w * 0.5, h - 125 * s, 25 * s, 8 * s, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Tiffin box hint
+        ctx.fillStyle = '#C0C0C0';
+        ctx.fillRect(w * 0.55, h - 140 * s, 30 * s, 20 * s);
+    }
+    
+    // Drawing Room - Vase, paintings
+    drawDrawingRoom(ctx, w, h, s, bg) {
+        // Painting frames on wall
+        ctx.fillStyle = '#654321';
+        ctx.fillRect(w - 200 * s, 50 * s, 100 * s, 80 * s);
+        ctx.fillStyle = '#87CEEB';
+        ctx.fillRect(w - 195 * s, 55 * s, 90 * s, 70 * s);
+        // Decorative plant
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(80 * s, h - 150 * s, 40 * s, 110 * s);
+        ctx.fillStyle = '#228B22';
+        ctx.beginPath();
+        ctx.arc(100 * s, h - 160 * s, 40 * s, 0, Math.PI * 2);
+        ctx.fill();
+        // Broken vase hint
+        ctx.fillStyle = '#E6E6FA';
+        ctx.beginPath();
+        ctx.moveTo(w * 0.6, h - 40 * s);
+        ctx.lineTo(w * 0.6 + 20 * s, h - 100 * s);
+        ctx.lineTo(w * 0.6 + 40 * s, h - 40 * s);
+        ctx.fill();
+    }
+    
+    // Kids Room - Colorful, toys
+    drawKidsRoom(ctx, w, h, s, bg) {
+        // Colorful wall decorations
+        const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3'];
+        for (let i = 0; i < 4; i++) {
+            ctx.fillStyle = colors[i];
+            ctx.beginPath();
+            ctx.arc(50 * s + i * 80 * s, 80 * s, 25 * s, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        // Toy blocks
+        ctx.fillStyle = '#FF4500';
+        ctx.fillRect(w - 100 * s, h - 80 * s, 30 * s, 30 * s);
+        ctx.fillStyle = '#32CD32';
+        ctx.fillRect(w - 130 * s, h - 80 * s, 25 * s, 30 * s);
+        // Poster
+        ctx.fillStyle = '#FFB6C1';
+        ctx.fillRect(w - 180 * s, 40 * s, 80 * s, 60 * s);
+    }
+    
+    // Guest Room - Elegant, flowers
+    drawGuestRoom(ctx, w, h, s, bg) {
+        // Elegant curtains
+        ctx.fillStyle = '#DAA520';
+        ctx.fillRect(w - 80 * s, 20 * s, 60 * s, h - 80 * s);
+        ctx.fillRect(20 * s, 20 * s, 60 * s, h - 80 * s);
+        // Flower vase
+        ctx.fillStyle = '#4169E1';
+        ctx.fillRect(w * 0.5 - 15 * s, h - 120 * s, 30 * s, 80 * s);
+        ctx.fillStyle = '#FF69B4';
+        ctx.beginPath();
+        ctx.arc(w * 0.5, h - 130 * s, 20 * s, 0, Math.PI * 2);
+        ctx.arc(w * 0.5 - 15 * s, h - 145 * s, 15 * s, 0, Math.PI * 2);
+        ctx.arc(w * 0.5 + 15 * s, h - 145 * s, 15 * s, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // Study Night - Lamp glow, dark room
+    drawStudyNight(ctx, w, h, s, bg) {
+        // Desk lamp glow
+        const gradient = ctx.createRadialGradient(150 * s, h - 150 * s, 0, 150 * s, h - 150 * s, 200 * s);
+        gradient.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
+        gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, h - 350 * s, 350 * s, 350 * s);
+        // Lamp
+        ctx.fillStyle = '#333';
+        ctx.fillRect(130 * s, h - 200 * s, 10 * s, 160 * s);
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.moveTo(100 * s, h - 200 * s);
+        ctx.lineTo(135 * s, h - 250 * s);
+        ctx.lineTo(170 * s, h - 200 * s);
+        ctx.fill();
+        // Books stacked
+        ctx.fillStyle = '#8B0000';
+        ctx.fillRect(w - 120 * s, h - 80 * s, 50 * s, 15 * s);
+        ctx.fillStyle = '#00008B';
+        ctx.fillRect(w - 115 * s, h - 95 * s, 45 * s, 15 * s);
+    }
+    
+    // Bedroom Dark - Very dark, moonlight
+    drawBedroomDark(ctx, w, h, s, bg) {
+        // Moonlight through window
+        const gradient = ctx.createLinearGradient(w - 100 * s, 0, w - 100 * s, h);
+        gradient.addColorStop(0, 'rgba(65, 105, 225, 0.2)');
+        gradient.addColorStop(1, 'rgba(65, 105, 225, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(w - 200 * s, 0, 200 * s, h);
+        // Window frame
+        ctx.strokeStyle = '#4169E1';
+        ctx.lineWidth = 5 * s;
+        ctx.strokeRect(w - 150 * s, 30 * s, 100 * s, 120 * s);
+        // Bed silhouette
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(w - 350 * s, h - 100 * s, 200 * s, 60 * s);
+    }
+    
+    // Messy Room - Scattered items
+    drawMessyRoom(ctx, w, h, s, bg) {
+        // Scattered clothes
+        ctx.fillStyle = '#4169E1';
+        ctx.beginPath();
+        ctx.ellipse(100 * s, h - 60 * s, 30 * s, 15 * s, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#DC143C';
+        ctx.beginPath();
+        ctx.ellipse(w * 0.4, h - 55 * s, 25 * s, 12 * s, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        // Toys scattered
+        ctx.fillStyle = '#FFD700';
+        ctx.fillRect(200 * s, h - 70 * s, 20 * s, 20 * s);
+        ctx.fillStyle = '#32CD32';
+        ctx.beginPath();
+        ctx.arc(280 * s, h - 55 * s, 12 * s, 0, Math.PI * 2);
+        ctx.fill();
+        // Poster tilted
+        ctx.save();
+        ctx.translate(w - 150 * s, 80 * s);
+        ctx.rotate(0.1);
+        ctx.fillStyle = '#BA55D3';
+        ctx.fillRect(-40 * s, -30 * s, 80 * s, 60 * s);
+        ctx.restore();
+    }
+    
+    // Living Cozy - Warm lighting
+    drawLivingCozy(ctx, w, h, s, bg) {
+        // Warm ambient light
+        const gradient = ctx.createRadialGradient(w * 0.3, h * 0.4, 0, w * 0.3, h * 0.4, h * 0.6);
+        gradient.addColorStop(0, 'rgba(255, 200, 100, 0.2)');
+        gradient.addColorStop(1, 'rgba(255, 200, 100, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, w, h);
+        // Sofa
+        ctx.fillStyle = '#CD853F';
+        ctx.fillRect(50 * s, h - 120 * s, 150 * s, 80 * s);
+        // Remote on sofa
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(100 * s, h - 100 * s, 30 * s, 10 * s);
+        // TV
+        ctx.fillStyle = '#2c2c2c';
+        ctx.fillRect(w - 160 * s, h - 200 * s, 130 * s, 80 * s);
+    }
+    
+    // Bedroom Morning - Bright, fresh
+    drawBedroomMorning(ctx, w, h, s, bg) {
+        // Window with sunlight
+        ctx.fillStyle = '#87CEEB';
+        ctx.fillRect(w - 150 * s, 30 * s, 120 * s, 100 * s);
+        // Sun rays
+        const gradient = ctx.createLinearGradient(w - 90 * s, 50 * s, w * 0.3, h);
+        gradient.addColorStop(0, 'rgba(255, 255, 200, 0.4)');
+        gradient.addColorStop(1, 'rgba(255, 255, 200, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, w, h);
+        // Bed
+        ctx.fillStyle = '#4682B4';
+        ctx.fillRect(w - 350 * s, h - 100 * s, 200 * s, 60 * s);
+        // Wet towel hint
+        ctx.fillStyle = '#fff';
+        ctx.save();
+        ctx.translate(w - 280 * s, h - 90 * s);
+        ctx.rotate(-0.1);
+        ctx.fillRect(0, 0, 60 * s, 20 * s);
+        ctx.restore();
+    }
+    
+    // Study Tense - Red tint, pressure
+    drawStudyTense(ctx, w, h, s, bg) {
+        // Red warning overlay
+        const gradient = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, w * 0.6);
+        gradient.addColorStop(0, 'rgba(139, 0, 0, 0.1)');
+        gradient.addColorStop(1, 'rgba(139, 0, 0, 0.3)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, w, h);
+        // Report card on wall
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(w - 120 * s, 60 * s, 80 * s, 100 * s);
+        ctx.fillStyle = '#B22222';
+        ctx.font = `bold ${20 * s}px sans-serif`;
+        ctx.fillText('F', w - 85 * s, 120 * s);
+    }
+    
+    // Dining Green - Vegetable theme
+    drawDiningGreen(ctx, w, h, s, bg) {
+        // Dining table
+        ctx.fillStyle = '#2E8B57';
+        ctx.fillRect(w * 0.35, h - 120 * s, 220 * s, 15 * s);
+        // Vegetables on plate
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.ellipse(w * 0.5, h - 130 * s, 40 * s, 15 * s, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Karela (bitter gourd)
+        ctx.fillStyle = '#228B22';
+        ctx.beginPath();
+        ctx.ellipse(w * 0.5, h - 135 * s, 25 * s, 8 * s, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Decorative plants
+        ctx.fillStyle = '#006400';
+        ctx.beginPath();
+        ctx.arc(100 * s, h - 150 * s, 50 * s, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // Kitchen Blue - Water bottles theme
+    drawKitchenBlue(ctx, w, h, s, bg) {
+        // Kitchen counter
+        ctx.fillStyle = '#D2691E';
+        ctx.fillRect(w - 280 * s, h - 140 * s, 260 * s, 100 * s);
+        ctx.fillStyle = '#F5F5DC';
+        ctx.fillRect(w - 280 * s, h - 140 * s, 260 * s, 10 * s);
+        // Water bottles
+        ctx.fillStyle = '#4682B4';
+        for (let i = 0; i < 4; i++) {
+            ctx.fillRect(w - 260 * s + i * 50 * s, h - 180 * s, 25 * s, 45 * s);
+            ctx.beginPath();
+            ctx.arc(w - 247 * s + i * 50 * s, h - 180 * s, 12 * s, Math.PI, 0);
+            ctx.fill();
+        }
+        // Water dispenser
+        ctx.fillStyle = '#87CEEB';
+        ctx.fillRect(80 * s, h - 250 * s, 60 * s, 210 * s);
+        ctx.fillStyle = '#4169E1';
+        ctx.beginPath();
+        ctx.arc(110 * s, h - 200 * s, 25 * s, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // Living Cool - AC theme
+    drawLivingCool(ctx, w, h, s, bg) {
+        // AC unit on wall
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(w * 0.4, 40 * s, 150 * s, 50 * s);
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 2 * s;
+        ctx.strokeRect(w * 0.4, 40 * s, 150 * s, 50 * s);
+        // AC vents
+        ctx.fillStyle = '#ddd';
+        for (let i = 0; i < 4; i++) {
+            ctx.fillRect(w * 0.4 + 10 * s + i * 35 * s, 75 * s, 30 * s, 10 * s);
+        }
+        // Cool air effect
+        ctx.strokeStyle = 'rgba(0, 206, 209, 0.3)';
+        ctx.lineWidth = 2 * s;
+        for (let i = 0; i < 5; i++) {
+            ctx.beginPath();
+            ctx.moveTo(w * 0.4 + 20 * s + i * 30 * s, 95 * s);
+            ctx.quadraticCurveTo(w * 0.4 + 35 * s + i * 30 * s, 130 * s, w * 0.4 + 20 * s + i * 30 * s, 160 * s);
+            ctx.stroke();
+        }
+        // Money tree (sarcastic element)
+        ctx.fillStyle = '#228B22';
+        ctx.beginPath();
+        ctx.arc(100 * s, h - 120 * s, 40 * s, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(90 * s, h - 80 * s, 20 * s, 40 * s);
+    }
+    
+    // Angry Room - Intense, red
+    drawAngryRoom(ctx, w, h, s, bg) {
+        // Dramatic red overlay
+        const gradient = ctx.createRadialGradient(w * 0.5, h * 0.3, 0, w * 0.5, h * 0.5, w * 0.5);
+        gradient.addColorStop(0, 'rgba(255, 50, 50, 0.15)');
+        gradient.addColorStop(1, 'rgba(139, 0, 0, 0.3)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, w, h);
+        // Angry speech bubbles
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(w * 0.3, 100 * s, 40 * s, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#DC143C';
+        ctx.font = `bold ${30 * s}px sans-serif`;
+        ctx.fillText('!', w * 0.3 - 8 * s, 110 * s);
+    }
+    
+    // Boss Room - Epic, dramatic
+    drawBossRoom(ctx, w, h, s, bg) {
+        // Dramatic lighting
+        const gradient = ctx.createRadialGradient(w * 0.7, h - 100 * s, 0, w * 0.7, h - 100 * s, 300 * s);
+        gradient.addColorStop(0, 'rgba(255, 69, 0, 0.3)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, w, h);
+        // Door frame (Dad entering)
+        ctx.fillStyle = '#3d2817';
+        ctx.fillRect(w - 150 * s, 50 * s, 120 * s, h - 100 * s);
+        ctx.fillStyle = '#1a0a0a';
+        ctx.fillRect(w - 140 * s, 60 * s, 100 * s, h - 120 * s);
+        // Ominous shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.beginPath();
+        ctx.moveTo(w - 90 * s, h - 60 * s);
+        ctx.lineTo(w - 140 * s, 100 * s);
+        ctx.lineTo(w - 40 * s, 100 * s);
+        ctx.lineTo(w - 90 * s, h - 60 * s);
+        ctx.fill();
+        // "Dad" silhouette in door
+        ctx.fillStyle = '#0a0505';
+        ctx.beginPath();
+        ctx.arc(w - 90 * s, 150 * s, 35 * s, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(w - 120 * s, 180 * s, 60 * s, 150 * s);
     }
 
     // ========================================
