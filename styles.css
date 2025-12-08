@@ -145,6 +145,70 @@ canvas {
   box-shadow: 0 2px 0 #e65100;
 }
 
+/* Mummy Selection Grid */
+.mummy-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  max-width: 700px;
+  width: 95%;
+  padding: 10px;
+}
+
+@media (max-width: 600px) {
+  .mummy-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.mummy-card {
+  background: linear-gradient(135deg, #fff 0%, #ffeee0 100%);
+  border: 3px solid #e64a19;
+  border-radius: 15px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.mummy-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(230, 74, 25, 0.3);
+}
+
+.mummy-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.mummy-card.selected {
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.4);
+}
+
+.mummy-preview {
+  width: 60px;
+  height: 80px;
+  margin: 0 auto 8px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mummy-name {
+  font-family: "Bangers", cursive;
+  font-size: 14px;
+  color: #d32f2f;
+  margin-bottom: 2px;
+}
+
+.mummy-region {
+  font-size: 11px;
+  color: #e65100;
+  font-weight: 600;
+}
+
 /* Status & Modal */
 .status-text {
   position: absolute;

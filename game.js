@@ -16,6 +16,100 @@ const Engine = Matter.Engine,
       Vector = Matter.Vector;
 
 // ========================================
+// REGIONAL MUMMY TYPES - Different styles from across India
+// ========================================
+const MUMMY_TYPES = [
+    { 
+        id: 'punjabi', 
+        name: 'Punjabi Mummy', 
+        region: 'Punjab', 
+        sareeColor: '#D81B60', 
+        accentColor: '#AD1457', 
+        bindiColor: '#FFD700', 
+        skinTone: '#E8B89D',
+        hairAccessory: 'paranda', // Colorful hair extension
+        specialFeature: 'heavy_jewelry'
+    },
+    { 
+        id: 'tamil', 
+        name: 'Tamil Amma', 
+        region: 'Tamil Nadu', 
+        sareeColor: '#1E88E5', 
+        accentColor: '#1565C0', 
+        bindiColor: '#D50000', 
+        skinTone: '#C68642',
+        hairAccessory: 'jasmine_garland',
+        specialFeature: 'nose_stud'
+    },
+    { 
+        id: 'bengali', 
+        name: 'Bengali Maa', 
+        region: 'Bengal', 
+        sareeColor: '#FFFFFF', 
+        accentColor: '#D50000', 
+        bindiColor: '#D50000', 
+        skinTone: '#DEBA9D',
+        hairAccessory: 'shakha_pola', // White & red bangles
+        specialFeature: 'sindoor_line'
+    },
+    { 
+        id: 'gujarati', 
+        name: 'Gujarati Ba', 
+        region: 'Gujarat', 
+        sareeColor: '#FF9800', 
+        accentColor: '#F57C00', 
+        bindiColor: '#4CAF50', 
+        skinTone: '#E0C4A8',
+        hairAccessory: 'ghunghat',
+        specialFeature: 'mirror_work'
+    },
+    { 
+        id: 'marathi', 
+        name: 'Marathi Aai', 
+        region: 'Maharashtra', 
+        sareeColor: '#4CAF50', 
+        accentColor: '#388E3C', 
+        bindiColor: '#D50000', 
+        skinTone: '#D9A688',
+        hairAccessory: 'gajra',
+        specialFeature: 'nath' // Nose ring
+    },
+    { 
+        id: 'malayali', 
+        name: 'Malayali Amma', 
+        region: 'Kerala', 
+        sareeColor: '#FFD54F', 
+        accentColor: '#8D6E63', 
+        bindiColor: '#000000', 
+        skinTone: '#C68642',
+        hairAccessory: 'mundu_kasavu',
+        specialFeature: 'gold_jewelry'
+    },
+    { 
+        id: 'rajasthani', 
+        name: 'Rajasthani Maa', 
+        region: 'Rajasthan', 
+        sareeColor: '#E91E63', 
+        accentColor: '#C2185B', 
+        bindiColor: '#FFD700', 
+        skinTone: '#E8B89D',
+        hairAccessory: 'borla', // Head jewelry
+        specialFeature: 'ghunghat_heavy'
+    },
+    { 
+        id: 'bihari', 
+        name: 'Bihari Maiya', 
+        region: 'Bihar', 
+        sareeColor: '#9C27B0', 
+        accentColor: '#7B1FA2', 
+        bindiColor: '#D50000', 
+        skinTone: '#D9A688',
+        hairAccessory: 'sindoor_heavy',
+        specialFeature: 'maang_tikka'
+    }
+];
+
+// ========================================
 // SOUND MANAGER - Procedural Audio via Web Audio API
 // ========================================
 class SoundManager {
@@ -285,6 +379,156 @@ class SoundManager {
             osc.start(now + delay);
             osc.stop(now + delay + 0.05);
         });
+    }
+
+    // ============================================
+    // FUNNY INDIAN TV SOUND EFFECTS
+    // ============================================
+
+    // Dramatic Sting - "Dhan Dhan Dhan!" Indian TV serial style
+    playDramaticSting() {
+        if (!this.enabled || !this.audioContext) return;
+        this.resume();
+        
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+        
+        // Three dramatic hits with reverb effect
+        const notes = [196, 196, 130.81]; // G3, G3, C3 - dramatic drop
+        const delays = [0, 0.15, 0.3];
+        const durations = [0.12, 0.12, 0.4];
+        
+        delays.forEach((delay, i) => {
+            const osc = ctx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.value = notes[i];
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 800;
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.3, now + delay);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + delay + durations[i]);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + delay);
+            osc.stop(now + delay + durations[i]);
+        });
+    }
+
+    // Mummy Angry Sound - Rising tension + angry grunt
+    playMummyAngry() {
+        if (!this.enabled || !this.audioContext) return;
+        this.resume();
+        
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+        
+        // Tension riser
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(100, now);
+        osc.frequency.exponentialRampToValueAtTime(400, now + 0.3);
+        
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 600;
+        
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
+        
+        // Angry "ARGH!" formant
+        const vowel = ctx.createOscillator();
+        vowel.type = 'sawtooth';
+        vowel.frequency.value = 180;
+        
+        const formant1 = ctx.createBiquadFilter();
+        formant1.type = 'bandpass';
+        formant1.frequency.value = 800;
+        formant1.Q.value = 8;
+        
+        const vGain = ctx.createGain();
+        vGain.gain.setValueAtTime(0, now + 0.25);
+        vGain.gain.linearRampToValueAtTime(0.25, now + 0.3);
+        vGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        
+        vowel.connect(formant1);
+        formant1.connect(vGain);
+        vGain.connect(ctx.destination);
+        vowel.start(now + 0.25);
+        vowel.stop(now + 0.5);
+    }
+
+    // Kid Taunt Sound - Nah nah nah!
+    playKidTaunt() {
+        if (!this.enabled || !this.audioContext) return;
+        this.resume();
+        
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+        
+        // Mocking "nah nah" melody
+        const notes = [392, 330, 392, 330, 262]; // G4 E4 G4 E4 C4
+        const durations = [0.1, 0.1, 0.1, 0.1, 0.2];
+        let time = now;
+        
+        notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.15, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + durations[i]);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(time);
+            osc.stop(time + durations[i]);
+            
+            time += durations[i] * 0.8;
+        });
+    }
+
+    // Laugh Track - Sitcom style haha
+    playLaughTrack() {
+        if (!this.enabled || !this.audioContext) return;
+        this.resume();
+        
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+        
+        // Multiple random "ha ha" sounds overlapping
+        for (let j = 0; j < 3; j++) {
+            const startDelay = j * 0.1;
+            const baseFreq = 200 + Math.random() * 100;
+            
+            for (let i = 0; i < 4; i++) {
+                const osc = ctx.createOscillator();
+                osc.type = 'triangle';
+                osc.frequency.value = baseFreq + (i % 2) * 50;
+                
+                const gain = ctx.createGain();
+                const t = now + startDelay + i * 0.08;
+                gain.gain.setValueAtTime(0.08, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.06);
+            }
+        }
     }
 }
 
@@ -857,9 +1101,16 @@ class Game {
         this.lastTime = Date.now();
         this.floatingElements = [];
         
-        // Mummy expression state (happy when kid hit, sad when miss)
-        this.mummyExpression = 'neutral'; // 'neutral', 'happy', 'sad'
+        // Mummy expression state (happy when kid hit, sad when miss, angry when provoked)
+        this.mummyExpression = 'neutral'; // 'neutral', 'happy', 'sad', 'angry'
         this.expressionTimer = 0;
+        
+        // Selected mummy type (regional variant)
+        this.selectedMummyIdx = 0;
+        
+        // Kid provocation state - tracks when kids are taunting
+        this.kidProvocationTimer = 0;
+        this.kidsAreTaunting = false;
 
         this.initResize();
         this.setupCollisionEvents();
@@ -908,6 +1159,234 @@ class Game {
         });
     }
 
+    initMummyGrid() {
+        const grid = document.getElementById('mummy-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        
+        // SVG preview icons for each regional outfit
+        const getOutfitPreview = (mummy) => {
+            const skin = mummy.skinTone;
+            const main = mummy.sareeColor;
+            const accent = mummy.accentColor;
+            const bindi = mummy.bindiColor;
+            
+            switch(mummy.id) {
+                case 'punjabi':
+                    // Salwar Kameez with Dupatta
+                    return `<svg viewBox="0 0 60 80" width="60" height="80">
+                        <!-- Head -->
+                        <circle cx="30" cy="15" r="12" fill="${skin}" stroke="#333" stroke-width="1"/>
+                        <!-- Hair -->
+                        <path d="M18 15 Q30 0 42 15 L42 10 Q30 -5 18 10 Z" fill="#212121"/>
+                        <!-- Bindi -->
+                        <circle cx="30" cy="12" r="2" fill="${bindi}"/>
+                        <!-- Kameez (long top) -->
+                        <path d="M20 25 L15 55 L45 55 L40 25 Q30 30 20 25" fill="${main}"/>
+                        <!-- Dupatta across shoulder -->
+                        <path d="M18 25 Q50 30 48 55" stroke="${accent}" stroke-width="6" fill="none" opacity="0.8"/>
+                        <!-- Salwar (pants) -->
+                        <path d="M20 55 L18 78 L28 78 L30 55" fill="${accent}"/>
+                        <path d="M40 55 L42 78 L32 78 L30 55" fill="${accent}"/>
+                        <!-- Paranda in hair -->
+                        <path d="M18 15 L12 35" stroke="#FF5722" stroke-width="2"/>
+                        <circle cx="12" cy="38" r="3" fill="#FF5722"/>
+                    </svg>`;
+                    
+                case 'tamil':
+                    // Silk Saree with Gajra (jasmine flowers)
+                    return `<svg viewBox="0 0 60 80" width="60" height="80">
+                        <!-- Head -->
+                        <circle cx="30" cy="15" r="12" fill="${skin}" stroke="#333" stroke-width="1"/>
+                        <!-- Hair bun -->
+                        <ellipse cx="22" cy="12" rx="8" ry="6" fill="#212121"/>
+                        <!-- GAJRA - Jasmine flowers in hair -->
+                        <circle cx="16" cy="8" r="2.5" fill="white" stroke="#eee" stroke-width="0.5"/>
+                        <circle cx="20" cy="5" r="2.5" fill="white" stroke="#eee" stroke-width="0.5"/>
+                        <circle cx="25" cy="4" r="2.5" fill="white" stroke="#eee" stroke-width="0.5"/>
+                        <circle cx="30" cy="5" r="2.5" fill="white" stroke="#eee" stroke-width="0.5"/>
+                        <!-- Bindi -->
+                        <circle cx="30" cy="12" r="2.5" fill="${bindi}"/>
+                        <!-- Saree body -->
+                        <ellipse cx="30" cy="50" rx="18" ry="28" fill="${main}"/>
+                        <!-- Gold zari border -->
+                        <ellipse cx="30" cy="50" rx="18" ry="28" fill="none" stroke="#FFD700" stroke-width="2"/>
+                        <!-- Pallu -->
+                        <path d="M22 25 Q45 35 42 55" fill="${accent}"/>
+                        <!-- Nose stud -->
+                        <circle cx="32" cy="17" r="1" fill="#FFD700"/>
+                    </svg>`;
+                    
+                case 'bengali':
+                    // White Saree with Red Border (Laal Paar)
+                    return `<svg viewBox="0 0 60 80" width="60" height="80">
+                        <!-- Head -->
+                        <circle cx="30" cy="15" r="12" fill="${skin}" stroke="#333" stroke-width="1"/>
+                        <!-- Hair with sindoor line -->
+                        <path d="M18 15 Q30 0 42 15 L42 8 Q30 -8 18 8 Z" fill="#212121"/>
+                        <line x1="30" y1="3" x2="30" y2="10" stroke="#D50000" stroke-width="2"/>
+                        <!-- Bindi -->
+                        <circle cx="30" cy="12" r="3" fill="${bindi}"/>
+                        <!-- White saree base -->
+                        <ellipse cx="30" cy="50" rx="18" ry="28" fill="#FFFFFF"/>
+                        <!-- RED BORDER - signature Laal Paar -->
+                        <ellipse cx="30" cy="50" rx="18" ry="28" fill="none" stroke="#D50000" stroke-width="4"/>
+                        <!-- Red pallu -->
+                        <path d="M22 25 Q45 35 42 55" fill="#D50000"/>
+                        <!-- Shakha-Pola bangles (white & red) -->
+                        <ellipse cx="12" cy="45" rx="4" ry="2" fill="white" stroke="#D50000" stroke-width="1"/>
+                        <ellipse cx="12" cy="48" rx="4" ry="2" fill="#D50000"/>
+                    </svg>`;
+                    
+                case 'gujarati':
+                    // Chaniya Choli with Mirror Work
+                    return `<svg viewBox="0 0 60 80" width="60" height="80">
+                        <!-- Head -->
+                        <circle cx="30" cy="15" r="12" fill="${skin}" stroke="#333" stroke-width="1"/>
+                        <!-- Hair -->
+                        <path d="M18 15 Q30 0 42 15 L42 8 Q30 -8 18 8 Z" fill="#212121"/>
+                        <!-- Bindi -->
+                        <circle cx="30" cy="12" r="2" fill="${bindi}"/>
+                        <!-- Choli (blouse) -->
+                        <ellipse cx="30" cy="30" rx="12" ry="8" fill="${accent}"/>
+                        <!-- Ghagra (flared skirt) -->
+                        <path d="M18 35 L8 78 L52 78 L42 35 Z" fill="${main}"/>
+                        <!-- MIRROR WORK - white circles -->
+                        <circle cx="20" cy="55" r="3" fill="white" opacity="0.9"/>
+                        <circle cx="30" cy="60" r="3" fill="white" opacity="0.9"/>
+                        <circle cx="40" cy="55" r="3" fill="white" opacity="0.9"/>
+                        <circle cx="25" cy="70" r="3" fill="white" opacity="0.9"/>
+                        <circle cx="35" cy="70" r="3" fill="white" opacity="0.9"/>
+                        <!-- Odhni over head -->
+                        <ellipse cx="30" cy="10" rx="18" ry="10" fill="${main}" opacity="0.5"/>
+                    </svg>`;
+                    
+                case 'marathi':
+                    // Nauvari (9-yard saree, kashta style)
+                    return `<svg viewBox="0 0 60 80" width="60" height="80">
+                        <!-- Head -->
+                        <circle cx="30" cy="15" r="12" fill="${skin}" stroke="#333" stroke-width="1"/>
+                        <!-- Hair with gajra -->
+                        <ellipse cx="22" cy="12" rx="8" ry="6" fill="#212121"/>
+                        <circle cx="16" cy="8" r="2" fill="white"/>
+                        <circle cx="20" cy="6" r="2" fill="white"/>
+                        <!-- Bindi -->
+                        <circle cx="30" cy="12" r="2" fill="${bindi}"/>
+                        <!-- NATH (big nose ring) - signature Marathi -->
+                        <circle cx="30" cy="20" r="4" fill="none" stroke="#FFD700" stroke-width="1.5"/>
+                        <circle cx="30" cy="24" r="1" fill="#FFD700"/>
+                        <!-- Nauvari saree body -->
+                        <ellipse cx="30" cy="48" rx="16" ry="26" fill="${main}"/>
+                        <!-- Kashta drape (dhoti style between legs) -->
+                        <path d="M28 50 L30 78 L32 50" fill="${accent}"/>
+                        <!-- Pallu tucked at back -->
+                        <path d="M15 30 Q12 45 15 55" stroke="${accent}" stroke-width="6" fill="none"/>
+                    </svg>`;
+                    
+                case 'malayali':
+                    // Kasavu Mundu (cream with gold border)
+                    return `<svg viewBox="0 0 60 80" width="60" height="80">
+                        <!-- Head -->
+                        <circle cx="30" cy="15" r="12" fill="${skin}" stroke="#333" stroke-width="1"/>
+                        <!-- Long hair -->
+                        <path d="M18 15 Q30 0 42 15 L44 35 Q30 30 16 35 Z" fill="#212121"/>
+                        <!-- Jasmine in hair -->
+                        <circle cx="44" cy="30" r="2" fill="white"/>
+                        <circle cx="44" cy="35" r="2" fill="white"/>
+                        <!-- Bindi -->
+                        <circle cx="30" cy="12" r="2" fill="${bindi}"/>
+                        <!-- Cream Kasavu base -->
+                        <ellipse cx="30" cy="50" rx="18" ry="28" fill="#FFFDD0"/>
+                        <!-- GOLD KASAVU BORDER - double line -->
+                        <ellipse cx="30" cy="50" rx="18" ry="28" fill="none" stroke="#FFD700" stroke-width="4"/>
+                        <ellipse cx="30" cy="50" rx="15" ry="25" fill="none" stroke="#FFD700" stroke-width="1"/>
+                        <!-- Heavy gold jewelry -->
+                        <path d="M22 25 L38 25" stroke="#FFD700" stroke-width="3"/>
+                        <circle cx="30" cy="28" r="3" fill="#FFD700"/>
+                    </svg>`;
+                    
+                case 'rajasthani':
+                    // Ghagra Choli with Heavy Ghunghat
+                    return `<svg viewBox="0 0 60 80" width="60" height="80">
+                        <!-- Head -->
+                        <circle cx="30" cy="15" r="12" fill="${skin}" stroke="#333" stroke-width="1"/>
+                        <!-- Hair -->
+                        <path d="M18 15 Q30 0 42 15 L42 8 Q30 -8 18 8 Z" fill="#212121"/>
+                        <!-- Borla (head jewelry) -->
+                        <circle cx="30" cy="5" r="3" fill="#FFD700"/>
+                        <path d="M30 8 L30 12" stroke="#FFD700" stroke-width="1"/>
+                        <!-- Bindi -->
+                        <circle cx="30" cy="12" r="2" fill="${bindi}"/>
+                        <!-- Choli -->
+                        <ellipse cx="30" cy="30" rx="14" ry="10" fill="${accent}"/>
+                        <!-- Wide Ghagra (flared skirt) -->
+                        <path d="M12 38 L2 78 L58 78 L48 38 Z" fill="${main}"/>
+                        <!-- Embroidery circles -->
+                        <circle cx="15" cy="60" r="4" fill="none" stroke="#FFD700" stroke-width="1"/>
+                        <circle cx="30" cy="65" r="4" fill="none" stroke="#FFD700" stroke-width="1"/>
+                        <circle cx="45" cy="60" r="4" fill="none" stroke="#FFD700" stroke-width="1"/>
+                        <!-- HEAVY GHUNGHAT over head -->
+                        <ellipse cx="28" cy="8" rx="22" ry="14" fill="${main}" opacity="0.7"/>
+                    </svg>`;
+                    
+                case 'bihari':
+                    // Traditional Saree with Heavy Sindoor & Maang Tikka
+                    return `<svg viewBox="0 0 60 80" width="60" height="80">
+                        <!-- Head -->
+                        <circle cx="30" cy="15" r="12" fill="${skin}" stroke="#333" stroke-width="1"/>
+                        <!-- Hair -->
+                        <path d="M18 15 Q30 0 42 15 L42 8 Q30 -8 18 8 Z" fill="#212121"/>
+                        <!-- HEAVY SINDOOR in maang -->
+                        <path d="M30 0 L30 12" stroke="#D50000" stroke-width="4"/>
+                        <!-- Maang Tikka -->
+                        <circle cx="30" cy="5" r="2" fill="#FFD700"/>
+                        <circle cx="30" cy="10" r="3" fill="#D50000" stroke="#FFD700" stroke-width="1"/>
+                        <!-- Bindi -->
+                        <circle cx="30" cy="14" r="2.5" fill="${bindi}"/>
+                        <!-- Saree body -->
+                        <ellipse cx="30" cy="50" rx="18" ry="28" fill="${main}"/>
+                        <!-- Golden border -->
+                        <ellipse cx="30" cy="50" rx="18" ry="28" fill="none" stroke="#DAA520" stroke-width="2"/>
+                        <!-- Pallu -->
+                        <path d="M22 25 Q45 35 42 55" fill="${accent}"/>
+                    </svg>`;
+                    
+                default:
+                    // Default saree
+                    return `<svg viewBox="0 0 60 80" width="60" height="80">
+                        <circle cx="30" cy="15" r="12" fill="${skin}" stroke="#333" stroke-width="1"/>
+                        <circle cx="30" cy="12" r="2" fill="${bindi}"/>
+                        <ellipse cx="30" cy="50" rx="18" ry="28" fill="${main}"/>
+                        <path d="M22 25 Q45 35 42 55" fill="${accent}"/>
+                    </svg>`;
+            }
+        };
+        
+        MUMMY_TYPES.forEach((mummy, i) => {
+            const card = document.createElement('div');
+            card.className = 'mummy-card' + (i === this.selectedMummyIdx ? ' selected' : '');
+            card.innerHTML = `
+                <div class="mummy-preview">
+                    ${getOutfitPreview(mummy)}
+                </div>
+                <div class="mummy-name">${mummy.name}</div>
+                <div class="mummy-region">${mummy.region}</div>
+            `;
+            card.onclick = () => {
+                sounds.playClick();
+                this.selectedMummyIdx = i;
+                // Update selection visual
+                document.querySelectorAll('.mummy-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                // Auto-proceed to level select after short delay
+                setTimeout(() => {
+                    this.showLevelSelect();
+                }, 300);
+            };
+            grid.appendChild(card);
+        });
+    }
+
     // ========================================
     // UI FLOW
     // ========================================
@@ -915,13 +1394,23 @@ class Game {
         this.gameActive = false;
         document.getElementById('start-screen').classList.remove('hidden');
         document.getElementById('level-screen').classList.add('hidden');
+        document.getElementById('mummy-screen').classList.add('hidden');
         document.getElementById('ui-layer').classList.add('hidden');
         document.getElementById('pause-screen').classList.add('hidden');
         document.getElementById('game-modal').classList.add('hidden');
     }
 
+    showMummySelect() {
+        sounds.playClick();
+        this.initMummyGrid();
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('mummy-screen').classList.remove('hidden');
+        document.getElementById('level-screen').classList.add('hidden');
+    }
+
     showLevelSelect() {
         document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('mummy-screen').classList.add('hidden');
         document.getElementById('level-screen').classList.remove('hidden');
         document.getElementById('pause-screen').classList.add('hidden');
     }
@@ -1932,13 +2421,22 @@ class Game {
             isVeryScared = dist < 150;
         }
         
+        // PROVOCATION STATE - kids taunt when not scared
+        const tauntCycle = (this.animTime + (body ? body.id * 0.5 : 0)) % 5;
+        const isTaunting = !isScared && tauntCycle > 3.5 && tauntCycle < 4.5;
+        const isShowingTongue = !isScared && tauntCycle > 2.5 && tauntCycle < 3.5;
+        
         // Blinking animation (blink every 3 seconds for 0.1 seconds)
         const blinkCycle = this.animTime % 3;
-        const isBlinking = blinkCycle > 2.9 && blinkCycle < 3.0;
+        const isBlinking = blinkCycle > 2.9 && blinkCycle < 3.0 && !isTaunting;
+        
+        // Bouncing when taunting
+        const bounce = isTaunting ? Math.sin(this.animTime * 15) * 3 : 0;
         
         // Subtle breathing animation
         const breathe = Math.sin(this.animTime * 2) * 0.02;
         ctx.save();
+        ctx.translate(0, bounce);
         ctx.scale(1, 1 + breathe);
         
         // Face base
@@ -1964,8 +2462,8 @@ class Game {
         ctx.lineTo(10, -radius); 
         ctx.fill();
         
-        // Eyes - with blinking and scared animation
-        const eyeSize = isScared ? radius * 0.35 : radius * 0.3;
+        // Eyes - with blinking and scared/taunting animation
+        const eyeSize = isScared ? radius * 0.35 : (isTaunting ? radius * 0.25 : radius * 0.3);
         const pupilSize = isVeryScared ? radius * 0.05 : radius * 0.1;
         
         if (!isBlinking) {
@@ -1976,7 +2474,7 @@ class Game {
             ctx.arc(radius * 0.3, -2, eyeSize, 0, Math.PI * 2); 
             ctx.fill();
             
-            // Pupils - look at chappal if scared
+            // Pupils - look at chappal if scared, look at mummy if taunting
             let pupilOffsetX = 0;
             let pupilOffsetY = 0;
             if (isScared && this.chappal && body) {
@@ -1985,6 +2483,9 @@ class Game {
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 pupilOffsetX = (dx / dist) * radius * 0.1;
                 pupilOffsetY = (dy / dist) * radius * 0.1;
+            } else if (isTaunting || isShowingTongue) {
+                // Look towards mummy (left side)
+                pupilOffsetX = -radius * 0.08;
             }
             
             ctx.fillStyle = 'black'; 
@@ -1992,6 +2493,16 @@ class Game {
             ctx.arc(-radius * 0.3 + pupilOffsetX, -2 + pupilOffsetY, pupilSize, 0, Math.PI * 2); 
             ctx.arc(radius * 0.3 + pupilOffsetX, -2 + pupilOffsetY, pupilSize, 0, Math.PI * 2); 
             ctx.fill();
+            
+            // Mischievous squint when taunting
+            if (isTaunting) {
+                ctx.strokeStyle = '#E64A19';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(-radius * 0.3, -2, eyeSize * 0.6, Math.PI * 0.8, Math.PI * 0.2);
+                ctx.arc(radius * 0.3, -2, eyeSize * 0.6, Math.PI * 0.8, Math.PI * 0.2);
+                ctx.stroke();
+            }
         } else {
             // Closed eyes (blinking)
             ctx.strokeStyle = 'black';
@@ -2014,7 +2525,7 @@ class Game {
             ctx.fill();
         }
         
-        // Mouth - scared or normal
+        // Mouth - scared, taunting, or normal
         ctx.fillStyle = '#3E2723';
         if (isVeryScared) {
             // Open mouth (scared)
@@ -2026,6 +2537,35 @@ class Game {
             ctx.beginPath();
             ctx.ellipse(0, radius * 0.4, radius * 0.18, radius * 0.15, 0, 0, Math.PI * 2);
             ctx.fill();
+        } else if (isShowingTongue) {
+            // TONGUE SHOWING! 👅
+            // Open mouth
+            ctx.beginPath();
+            ctx.ellipse(0, radius * 0.45, radius * 0.2, radius * 0.15, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Pink tongue sticking out
+            ctx.fillStyle = '#FF6B6B';
+            ctx.beginPath();
+            ctx.ellipse(0, radius * 0.65, radius * 0.15, radius * 0.12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Tongue highlight
+            ctx.fillStyle = '#FF8A8A';
+            ctx.beginPath();
+            ctx.ellipse(0, radius * 0.6, radius * 0.08, radius * 0.05, 0, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (isTaunting) {
+            // Mocking grin
+            ctx.strokeStyle = '#3E2723';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, radius * 0.35, radius * 0.2, 0.1 * Math.PI, 0.9 * Math.PI);
+            ctx.stroke();
+            // Cheeky cheeks
+            ctx.fillStyle = 'rgba(255, 150, 150, 0.5)';
+            ctx.beginPath();
+            ctx.arc(-radius * 0.5, radius * 0.2, radius * 0.12, 0, Math.PI * 2);
+            ctx.arc(radius * 0.5, radius * 0.2, radius * 0.12, 0, Math.PI * 2);
+            ctx.fill();
         } else {
             // Normal mouth
             ctx.beginPath(); 
@@ -2033,13 +2573,43 @@ class Game {
             ctx.fill();
         }
         
-        ctx.restore(); // End breathing transform
+        ctx.restore(); // End breathing/bounce transform
+        
+        // HANDS ON EARS TAUNT when taunting! 
+        if (isTaunting) {
+            ctx.fillStyle = '#FFCCBC';
+            // Left hand at ear
+            ctx.save();
+            ctx.translate(-radius * 0.9, -radius * 0.1);
+            ctx.rotate(Math.sin(this.animTime * 10) * 0.3); // Waggle!
+            ctx.beginPath();
+            ctx.ellipse(0, 0, radius * 0.2, radius * 0.15, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            // Fingers
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(-radius * 0.25 - i * 3, -3, 8, 6);
+            }
+            ctx.restore();
+            
+            // Right hand at ear
+            ctx.save();
+            ctx.translate(radius * 0.9, -radius * 0.1);
+            ctx.rotate(-Math.sin(this.animTime * 10) * 0.3); // Waggle opposite!
+            ctx.beginPath();
+            ctx.ellipse(0, 0, radius * 0.2, radius * 0.15, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            // Fingers
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(radius * 0.05 + i * 3, -3, 8, 6);
+            }
+            ctx.restore();
+        }
         
         // Legs (outside breathing transform)
         ctx.fillStyle = '#1E88E5'; 
         ctx.save(); 
         ctx.translate(-radius * 0.3, radius * 0.8); 
-        ctx.rotate(0.2); 
+        ctx.rotate(0.2 + (isTaunting ? Math.sin(this.animTime * 15) * 0.1 : 0)); 
         ctx.fillRect(-radius * 0.15, 0, radius * 0.3, radius * 0.6); 
         ctx.fillStyle = 'black'; 
         ctx.fillRect(-radius * 0.15, radius * 0.6, radius * 0.35, radius * 0.2); 
@@ -2047,7 +2617,7 @@ class Game {
         ctx.fillStyle = '#1E88E5'; 
         ctx.save(); 
         ctx.translate(radius * 0.3, radius * 0.8); 
-        ctx.rotate(-0.2); 
+        ctx.rotate(-0.2 - (isTaunting ? Math.sin(this.animTime * 15) * 0.1 : 0)); 
         ctx.fillRect(-radius * 0.15, 0, radius * 0.3, radius * 0.6); 
         ctx.fillStyle = 'black'; 
         ctx.fillRect(-radius * 0.15, radius * 0.6, radius * 0.35, radius * 0.2); 
@@ -2096,12 +2666,34 @@ class Game {
     }
 
     drawMummy(x, y, s) {
+        // Get selected mummy's colors
+        const mummyType = MUMMY_TYPES[this.selectedMummyIdx] || MUMMY_TYPES[0];
+        const sareeColor = mummyType.sareeColor;
+        const accentColor = mummyType.accentColor;
+        const skinTone = mummyType.skinTone;
+        const bindiColor = mummyType.bindiColor;
+        
+        // Anger shake effect
+        const isAngry = this.mummyExpression === 'angry';
+        const shakeX = isAngry ? Math.sin(this.animTime * 30) * 2 : 0;
+        
         this.ctx.save(); 
-        this.ctx.translate(x, y); 
+        this.ctx.translate(x + shakeX, y); 
         this.ctx.scale(s, s); 
         const lx = 0, ly = 0;
         
-        this.ctx.fillStyle = '#D9A688';
+        // Angry red overlay effect
+        if (isAngry) {
+            this.ctx.globalAlpha = 0.3;
+            this.ctx.fillStyle = '#FF0000';
+            this.ctx.beginPath();
+            this.ctx.arc(lx, ly - 30, 80, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.globalAlpha = 1;
+        }
+        
+        // Feet
+        this.ctx.fillStyle = skinTone;
         this.ctx.save(); 
         this.ctx.translate(-15, 60); 
         this.drawRoundedRect(0, 0, 12, 18, 5); 
@@ -2125,22 +2717,412 @@ class Game {
         this.ctx.lineTo(12, 5); 
         this.ctx.stroke(); 
         this.ctx.restore();
+        // ============================================
+        // REGION-SPECIFIC HAIRSTYLE DRAWING
+        // ============================================
+        const outfitId = mummyType.id;
+        this.ctx.fillStyle = '#212121'; // Hair color
         
-        this.ctx.fillStyle = '#212121'; 
-        this.ctx.beginPath(); 
-        this.ctx.arc(lx - 25, ly - 55, 14, 0, Math.PI * 2); 
-        this.ctx.fill();
-        this.ctx.fillStyle = '#D81B60'; 
-        this.ctx.beginPath(); 
-        this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2); 
-        this.ctx.fill();
-        this.ctx.fillStyle = '#AD1457'; 
-        this.ctx.beginPath(); 
-        this.ctx.moveTo(lx - 10, ly - 40); 
-        this.ctx.quadraticCurveTo(lx + 20, ly - 20, lx + 35, ly + 20); 
-        this.ctx.lineTo(lx + 10, ly + 20); 
-        this.ctx.lineTo(lx - 10, ly - 40); 
-        this.ctx.fill();
+        if (outfitId === 'punjabi') {
+            // PUNJABI - Long braid with Paranda (colorful tassels)
+            // Hair base flowing down
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 18, ly - 70);
+            this.ctx.quadraticCurveTo(lx - 30, ly - 50, lx - 32, ly - 20);
+            this.ctx.lineTo(lx - 28, ly - 20);
+            this.ctx.quadraticCurveTo(lx - 26, ly - 50, lx - 14, ly - 70);
+            this.ctx.fill();
+            // Braid pattern
+            this.ctx.strokeStyle = '#1a1a1a';
+            this.ctx.lineWidth = 1;
+            for (let i = 0; i < 5; i++) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(lx - 28, ly - 55 + i * 8);
+                this.ctx.lineTo(lx - 32, ly - 51 + i * 8);
+                this.ctx.stroke();
+            }
+            // Paranda (colorful tassels)
+            this.ctx.fillStyle = '#FF5722';
+            this.ctx.beginPath();
+            this.ctx.arc(lx - 30, ly - 15, 5, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.fillStyle = '#FFD700';
+            this.ctx.beginPath();
+            this.ctx.arc(lx - 30, ly - 8, 4, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.fillStyle = '#4CAF50';
+            this.ctx.beginPath();
+            this.ctx.arc(lx - 30, ly - 2, 3, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+        } else if (outfitId === 'tamil' || outfitId === 'marathi') {
+            // TAMIL/MARATHI - Side bun with PROPER Gajra (jasmine string)
+            // Low side bun - larger and more defined
+            this.ctx.fillStyle = '#212121';
+            this.ctx.beginPath();
+            this.ctx.arc(lx - 26, ly - 48, 18, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // GAJRA - Proper jasmine string wrapped around bun
+            // Draw as connected flower string, not scattered circles
+            this.ctx.strokeStyle = '#90EE90'; // Light green thread
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.arc(lx - 26, ly - 48, 20, 0, Math.PI * 2);
+            this.ctx.stroke();
+            
+            // Jasmine flowers ON the string - clustered like real gajra
+            this.ctx.fillStyle = 'white';
+            this.ctx.strokeStyle = '#FFFDE7'; // Slight yellow tint for realism
+            this.ctx.lineWidth = 0.5;
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                const gx = lx - 26 + Math.cos(angle) * 20;
+                const gy = ly - 48 + Math.sin(angle) * 20;
+                // Draw jasmine as small cluster of petals
+                this.ctx.beginPath();
+                this.ctx.arc(gx, gy, 3.5, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                // Add tiny petal details
+                this.ctx.fillStyle = '#FFFDE7';
+                this.ctx.beginPath();
+                this.ctx.arc(gx + 1, gy - 1, 1, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.fillStyle = 'white';
+            }
+            
+            // Second inner ring of gajra
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2 + 0.2;
+                const gx = lx - 26 + Math.cos(angle) * 12;
+                const gy = ly - 48 + Math.sin(angle) * 12;
+                this.ctx.beginPath();
+                this.ctx.arc(gx, gy, 2.5, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+        } else if (outfitId === 'bengali') {
+            // BENGALI - Center-parted hair with bun
+            // Hair bun on one side
+            this.ctx.fillStyle = '#212121';
+            this.ctx.beginPath();
+            this.ctx.arc(lx - 24, ly - 50, 14, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Note: Sindoor will be drawn on the HEAD/FACE section below
+            
+        } else if (outfitId === 'gujarati' || outfitId === 'rajasthani') {
+            // GUJARATI/RAJASTHANI - Hair covered by Ghunghat/Odhni
+            // Hidden hair underneath
+            this.ctx.fillStyle = '#212121';
+            this.ctx.beginPath();
+            this.ctx.arc(lx - 5, ly - 55, 10, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Ghunghat covering head
+            this.ctx.fillStyle = sareeColor;
+            this.ctx.globalAlpha = 0.85;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx - 5, ly - 55, 28, 20, 0.1, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.globalAlpha = 1;
+            // Decorative border on ghunghat
+            this.ctx.strokeStyle = accentColor;
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx - 5, ly - 55, 28, 20, 0.1, 0, Math.PI * 2);
+            this.ctx.stroke();
+            // Borla (head jewelry) for Rajasthani
+            if (outfitId === 'rajasthani') {
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.beginPath();
+                this.ctx.arc(lx, ly - 72, 5, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.strokeStyle = '#FFD700';
+                this.ctx.lineWidth = 1.5;
+                this.ctx.beginPath();
+                this.ctx.moveTo(lx, ly - 67);
+                this.ctx.lineTo(lx, ly - 60);
+                this.ctx.stroke();
+            }
+            
+        } else if (outfitId === 'malayali') {
+            // MALAYALI - Long flowing hair with jasmine STRING on side
+            // Long hair flowing down
+            this.ctx.fillStyle = '#212121';
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 15, ly - 70);
+            this.ctx.quadraticCurveTo(lx - 30, ly - 40, lx - 25, ly);
+            this.ctx.lineTo(lx - 18, ly);
+            this.ctx.quadraticCurveTo(lx - 22, ly - 40, lx - 10, ly - 70);
+            this.ctx.fill();
+            
+            // Jasmine string along the hair - connected flowers
+            this.ctx.strokeStyle = '#90EE90'; // Green thread
+            this.ctx.lineWidth = 1.5;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 27, ly - 65);
+            this.ctx.quadraticCurveTo(lx - 30, ly - 30, lx - 26, ly - 5);
+            this.ctx.stroke();
+            
+            // Jasmine flowers on the string
+            this.ctx.fillStyle = 'white';
+            for (let i = 0; i < 8; i++) {
+                const fy = ly - 60 + i * 7;
+                this.ctx.beginPath();
+                this.ctx.arc(lx - 27, fy, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+                // Petal detail
+                this.ctx.fillStyle = '#FFFDE7';
+                this.ctx.beginPath();
+                this.ctx.arc(lx - 26, fy - 1, 1, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.fillStyle = 'white';
+            }
+            
+        } else if (outfitId === 'bihari') {
+            // BIHARI - Traditional bun
+            this.ctx.fillStyle = '#212121';
+            this.ctx.beginPath();
+            this.ctx.arc(lx - 22, ly - 52, 14, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Note: Heavy sindoor will be drawn on HEAD/FACE section
+            
+        } else {
+            // DEFAULT - Simple hair bun
+            this.ctx.fillStyle = '#212121';
+            this.ctx.beginPath();
+            this.ctx.arc(lx - 25, ly - 55, 14, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        
+        // ============================================
+        // REGION-SPECIFIC OUTFIT DRAWING
+        // ============================================
+        const outfitType = mummyType.id;
+        
+        if (outfitType === 'punjabi') {
+            // PUNJABI - Salwar Kameez (kurta + pants)
+            // Salwar (pants)
+            this.ctx.fillStyle = accentColor;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 20, ly + 20);
+            this.ctx.lineTo(lx - 25, ly + 65);
+            this.ctx.lineTo(lx - 5, ly + 65);
+            this.ctx.lineTo(lx, ly + 20);
+            this.ctx.fill();
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx + 20, ly + 20);
+            this.ctx.lineTo(lx + 25, ly + 65);
+            this.ctx.lineTo(lx + 5, ly + 65);
+            this.ctx.lineTo(lx, ly + 20);
+            this.ctx.fill();
+            // Kameez (kurta top)
+            this.ctx.fillStyle = sareeColor;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly - 10, 30, 50, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Dupatta (scarf)
+            this.ctx.fillStyle = accentColor;
+            this.ctx.globalAlpha = 0.7;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 25, ly - 40);
+            this.ctx.quadraticCurveTo(lx + 40, ly - 20, lx + 35, ly + 30);
+            this.ctx.lineTo(lx + 20, ly + 25);
+            this.ctx.quadraticCurveTo(lx + 30, ly - 10, lx - 20, ly - 35);
+            this.ctx.fill();
+            this.ctx.globalAlpha = 1;
+            
+        } else if (outfitType === 'tamil') {
+            // TAMIL - Traditional Saree with Gajra (jasmine flowers)
+            this.ctx.fillStyle = sareeColor;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Gold border on saree
+            this.ctx.strokeStyle = '#FFD700';
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2);
+            this.ctx.stroke();
+            // Pallu
+            this.ctx.fillStyle = accentColor;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 10, ly - 40);
+            this.ctx.quadraticCurveTo(lx + 20, ly - 20, lx + 35, ly + 20);
+            this.ctx.lineTo(lx + 10, ly + 20);
+            this.ctx.fill();
+            // GAJRA (jasmine garland) in hair - white flowers
+            this.ctx.fillStyle = 'white';
+            for (let i = 0; i < 6; i++) {
+                this.ctx.beginPath();
+                this.ctx.arc(lx - 30 + i * 3, ly - 58 - Math.sin(i) * 2, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+        } else if (outfitType === 'bengali') {
+            // BENGALI - White Saree with Red Border (Laal Paar)
+            this.ctx.fillStyle = '#FFFFFF'; // White base
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Red border
+            this.ctx.strokeStyle = '#D50000';
+            this.ctx.lineWidth = 5;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2);
+            this.ctx.stroke();
+            // Red pallu
+            this.ctx.fillStyle = '#D50000';
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 10, ly - 40);
+            this.ctx.quadraticCurveTo(lx + 20, ly - 20, lx + 35, ly + 20);
+            this.ctx.lineTo(lx + 10, ly + 20);
+            this.ctx.fill();
+            // Shakha-Pola bangles (white & red) on wrists drawn later
+            
+        } else if (outfitType === 'gujarati') {
+            // GUJARATI - Chaniya Choli (Ghagra + Choli)
+            // Ghagra (skirt) with flare
+            this.ctx.fillStyle = sareeColor;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 10, ly - 10);
+            this.ctx.lineTo(lx - 40, ly + 65);
+            this.ctx.lineTo(lx + 40, ly + 65);
+            this.ctx.lineTo(lx + 10, ly - 10);
+            this.ctx.fill();
+            // Mirror work dots
+            this.ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            for (let i = 0; i < 5; i++) {
+                this.ctx.beginPath();
+                this.ctx.arc(lx - 25 + i * 12, ly + 30, 4, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            // Choli (blouse)
+            this.ctx.fillStyle = accentColor;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly - 25, 25, 25, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Odhni (dupatta) over head
+            this.ctx.fillStyle = sareeColor;
+            this.ctx.globalAlpha = 0.5;
+            this.ctx.beginPath();
+            this.ctx.arc(lx, ly - 60, 30, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.globalAlpha = 1;
+            
+        } else if (outfitType === 'marathi') {
+            // MARATHI - Nauvari (9-yard saree, kashta style)
+            this.ctx.fillStyle = sareeColor;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Distinctive kashta drape (dhoti-style between legs)
+            this.ctx.fillStyle = accentColor;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 5, ly + 10);
+            this.ctx.lineTo(lx, ly + 65);
+            this.ctx.lineTo(lx + 5, ly + 10);
+            this.ctx.fill();
+            // Pallu tucked at back
+            this.ctx.fillStyle = accentColor;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 30, ly - 30);
+            this.ctx.quadraticCurveTo(lx - 35, ly, lx - 30, ly + 20);
+            this.ctx.lineTo(lx - 20, ly + 15);
+            this.ctx.fill();
+            // NATH (nose ring) drawn on face later
+            
+        } else if (outfitType === 'malayali') {
+            // MALAYALI - Kasavu Mundu (cream/gold saree)
+            this.ctx.fillStyle = '#FFFDD0'; // Cream
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Gold kasavu border
+            this.ctx.strokeStyle = '#FFD700';
+            this.ctx.lineWidth = 6;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2);
+            this.ctx.stroke();
+            // Second gold line
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 32, 62, 0, 0, Math.PI * 2);
+            this.ctx.stroke();
+            // Jasmine in hair (like Tamil)
+            this.ctx.fillStyle = 'white';
+            for (let i = 0; i < 5; i++) {
+                this.ctx.beginPath();
+                this.ctx.arc(lx - 28 + i * 3, ly - 57, 2.5, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+        } else if (outfitType === 'rajasthani') {
+            // RAJASTHANI - Ghagra Choli with heavy embroidery
+            // Ghagra (wide flared skirt)
+            this.ctx.fillStyle = sareeColor;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 15, ly);
+            this.ctx.lineTo(lx - 45, ly + 65);
+            this.ctx.lineTo(lx + 45, ly + 65);
+            this.ctx.lineTo(lx + 15, ly);
+            this.ctx.fill();
+            // Embroidery pattern
+            this.ctx.strokeStyle = '#FFD700';
+            this.ctx.lineWidth = 1;
+            for (let i = 0; i < 7; i++) {
+                this.ctx.beginPath();
+                this.ctx.arc(lx - 30 + i * 10, ly + 40, 5, 0, Math.PI * 2);
+                this.ctx.stroke();
+            }
+            // Choli
+            this.ctx.fillStyle = accentColor;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly - 20, 28, 30, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Heavy odhni covering head
+            this.ctx.fillStyle = sareeColor;
+            this.ctx.globalAlpha = 0.6;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx - 5, ly - 55, 35, 25, 0.2, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.globalAlpha = 1;
+            // Borla (head jewelry) drawn on face
+            
+        } else if (outfitType === 'bihari') {
+            // BIHARI - Traditional Saree with heavy sindoor
+            this.ctx.fillStyle = sareeColor;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Golden border
+            this.ctx.strokeStyle = '#DAA520';
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2);
+            this.ctx.stroke();
+            // Pallu
+            this.ctx.fillStyle = accentColor;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 10, ly - 40);
+            this.ctx.quadraticCurveTo(lx + 20, ly - 20, lx + 35, ly + 20);
+            this.ctx.lineTo(lx + 10, ly + 20);
+            this.ctx.fill();
+            // Heavy SINDOOR in maang (drawn on head later)
+            
+        } else {
+            // DEFAULT SAREE
+            this.ctx.fillStyle = sareeColor;
+            this.ctx.beginPath();
+            this.ctx.ellipse(lx, ly, 35, 65, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.fillStyle = accentColor;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx - 10, ly - 40);
+            this.ctx.quadraticCurveTo(lx + 20, ly - 20, lx + 35, ly + 20);
+            this.ctx.lineTo(lx + 10, ly + 20);
+            this.ctx.fill();
+        }
         
         this.ctx.save(); 
         this.ctx.fillStyle = '#3E2723'; 
@@ -2174,7 +3156,7 @@ class Game {
         
         this.ctx.save(); 
         this.ctx.translate(lx, ly - 60); 
-        this.ctx.fillStyle = '#D9A688'; 
+        this.ctx.fillStyle = skinTone; // Use selected mummy's skin tone
         this.ctx.fillRect(-8, 10, 16, 10);
         this.ctx.beginPath(); 
         this.ctx.arc(0, 0, 22, 0, Math.PI * 2); 
@@ -2189,14 +3171,62 @@ class Game {
         this.ctx.beginPath(); 
         this.ctx.arc(0, 0, 22, Math.PI, 0); 
         this.ctx.fill();
+        
+        // ============================================
+        // SINDOOR IN MAANG (Hair Parting) - Bengali & Bihari
+        // ============================================
+        if (outfitId === 'bengali') {
+            // BENGALI SINDOOR - Red line in the hair parting
+            this.ctx.fillStyle = '#D50000';
+            // Draw sindoor as a red line in the center parting of hair
+            this.ctx.beginPath();
+            this.ctx.moveTo(-2, -22);
+            this.ctx.lineTo(2, -22);
+            this.ctx.lineTo(1, -12);
+            this.ctx.lineTo(-1, -12);
+            this.ctx.closePath();
+            this.ctx.fill();
+        } else if (outfitId === 'bihari') {
+            // BIHARI SINDOOR - HEAVY vermillion filling the entire parting
+            this.ctx.fillStyle = '#D50000';
+            // Much thicker sindoor - signature Bihari style
+            this.ctx.beginPath();
+            this.ctx.moveTo(-4, -24);
+            this.ctx.lineTo(4, -24);
+            this.ctx.lineTo(3, -10);
+            this.ctx.lineTo(-3, -10);
+            this.ctx.closePath();
+            this.ctx.fill();
+            // Maang tikka jewelry
+            this.ctx.fillStyle = '#FFD700';
+            this.ctx.beginPath();
+            this.ctx.arc(0, -26, 4, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.beginPath();
+            this.ctx.arc(0, -20, 2.5, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
         // Eyes - size changes based on expression
         const eyeScaleY = this.mummyExpression === 'happy' ? 3 : 
-                          this.mummyExpression === 'sad' ? 5 : 4;
+                          this.mummyExpression === 'sad' ? 5 : 
+                          this.mummyExpression === 'angry' ? 6 : 4;
         this.ctx.fillStyle = 'white'; 
         this.ctx.beginPath(); 
         this.ctx.ellipse(-8, 2, 6, eyeScaleY, 0, 0, Math.PI * 2); 
         this.ctx.ellipse(8, 2, 6, eyeScaleY, 0, 0, Math.PI * 2); 
         this.ctx.fill();
+        
+        // Angry eye veins
+        if (this.mummyExpression === 'angry') {
+            this.ctx.strokeStyle = '#FF0000';
+            this.ctx.lineWidth = 0.5;
+            this.ctx.beginPath();
+            this.ctx.moveTo(-12, 0); this.ctx.lineTo(-8, 2);
+            this.ctx.moveTo(-12, 4); this.ctx.lineTo(-8, 2);
+            this.ctx.moveTo(12, 0); this.ctx.lineTo(8, 2);
+            this.ctx.moveTo(12, 4); this.ctx.lineTo(8, 2);
+            this.ctx.stroke();
+        }
         
         // Pupils - position shifts based on expression
         const pupilY = this.mummyExpression === 'happy' ? 3 : 
@@ -2230,6 +3260,17 @@ class Game {
             this.ctx.moveTo(4, -1); 
             this.ctx.lineTo(14, -4); 
             this.ctx.stroke();
+        } else if (this.mummyExpression === 'angry') {
+            // ANGRY V-shaped eyebrows
+            this.ctx.lineWidth = 3.5;
+            this.ctx.beginPath(); 
+            this.ctx.moveTo(-14, -1); 
+            this.ctx.lineTo(-4, -5); 
+            this.ctx.stroke(); 
+            this.ctx.beginPath(); 
+            this.ctx.moveTo(4, -5); 
+            this.ctx.lineTo(14, -1); 
+            this.ctx.stroke();
         } else {
             // Neutral eyebrows
             this.ctx.beginPath(); 
@@ -2242,8 +3283,8 @@ class Game {
             this.ctx.stroke();
         }
         
-        // Bindi
-        this.ctx.fillStyle = '#D50000'; 
+        // Bindi - USE SELECTED MUMMY'S BINDI COLOR
+        this.ctx.fillStyle = bindiColor; 
         this.ctx.beginPath(); 
         this.ctx.arc(0, -6, 3, 0, Math.PI * 2); 
         this.ctx.fill();
@@ -2266,6 +3307,15 @@ class Game {
             this.ctx.beginPath();
             this.ctx.arc(0, 18, 6, 1.1 * Math.PI, 1.9 * Math.PI);
             this.ctx.stroke();
+        } else if (this.mummyExpression === 'angry') {
+            // ANGRY yelling mouth - wide open
+            this.ctx.fillStyle = '#8B0000';
+            this.ctx.beginPath();
+            this.ctx.ellipse(0, 14, 8, 6, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            // Teeth
+            this.ctx.fillStyle = 'white';
+            this.ctx.fillRect(-6, 11, 12, 3);
         } else {
             // Neutral slight curve
             this.ctx.strokeStyle = '#5D4037';
@@ -2386,6 +3436,35 @@ class Game {
             this.expressionTimer -= delta;
             if (this.expressionTimer <= 0) {
                 this.mummyExpression = 'neutral';
+            }
+        }
+        
+        // KID PROVOCATION DETECTION - triggers mummy anger!
+        if (this.gameActive && !this.isPaused && !this.isGameOver) {
+            this.kidProvocationTimer -= delta;
+            
+            // Check if any kid is currently taunting
+            let anyKidTaunting = false;
+            const tauntCheckTime = this.animTime % 5;
+            if (tauntCheckTime > 3.5 && tauntCheckTime < 4.5) {
+                // Kids are taunting right now
+                anyKidTaunting = Composite.allBodies(this.world).some(b => b.label === 'Kid');
+            }
+            
+            // Trigger mummy anger when kids taunt (with cooldown)
+            if (anyKidTaunting && this.kidProvocationTimer <= 0 && this.mummyExpression !== 'happy') {
+                this.mummyExpression = 'angry';
+                this.expressionTimer = 1.5; // Stay angry for 1.5 seconds
+                this.kidProvocationTimer = 5; // 5 second cooldown between anger triggers
+                
+                // Play angry sound + dramatic sting!
+                sounds.playMummyAngry();
+                sounds.playDramaticSting();
+            }
+            
+            // Reset provocation timer if it goes too negative
+            if (this.kidProvocationTimer < -10) {
+                this.kidProvocationTimer = 0;
             }
         }
         
