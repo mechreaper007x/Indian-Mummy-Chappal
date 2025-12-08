@@ -851,12 +851,18 @@ class Game {
         this.isReloading = false;
         this.chappal = null;
         this.sling = null;
+        
+        // Animation timers for living backgrounds
+        this.animTime = 0;
+        this.lastTime = Date.now();
+        this.floatingElements = [];
 
         this.initResize();
         this.setupCollisionEvents();
         this.setupMouse();
         this.initLevelGrid();
         this.setupFullscreenListener();
+        this.initFloatingElements();
         
         // Start Loop
         this.loop();
@@ -1295,6 +1301,9 @@ class Game {
             if (this.gameActive) {
                 // Draw themed background
                 this.drawBackground();
+                
+                // Draw floating elements (dust, sparkles)
+                this.drawFloatingElements();
 
                 this.drawMummy(this.anchor.x - (60 * this.scale), this.anchor.y + (30 * this.scale), this.scale);
 
@@ -1305,7 +1314,7 @@ class Game {
                     const w = b.bounds.max.x - b.bounds.min.x; 
                     const h = b.bounds.max.y - b.bounds.min.y;
                     if (b.label === 'Chappal') this.drawChappal(w, h);
-                    else if (b.label === 'Kid') this.drawKid(w / 2);
+                    else if (b.label === 'Kid') this.drawKid(w / 2, b);
                     else if (b.label === 'Book') this.drawBook(w, h);
                     else if (b.label === 'Wood') this.drawWood(w, h);
                     this.ctx.restore();
@@ -1887,56 +1896,140 @@ class Game {
         this.ctx.closePath();
     }
 
-    drawKid(radius) {
-        this.ctx.fillStyle = '#FFCCBC'; 
-        this.ctx.beginPath(); 
-        this.ctx.arc(0, 0, radius, 0, Math.PI * 2); 
-        this.ctx.fill();
-        this.ctx.lineWidth = 2; 
-        this.ctx.strokeStyle = '#E64A19'; 
-        this.ctx.stroke();
-        this.ctx.fillStyle = 'black'; 
-        this.ctx.beginPath(); 
-        this.ctx.arc(0, -radius * 0.2, radius - 1, Math.PI, 2 * Math.PI); 
-        this.ctx.fill();
-        this.ctx.beginPath(); 
-        this.ctx.moveTo(-10, -radius); 
-        this.ctx.lineTo(-5, -radius * 1.4); 
-        this.ctx.lineTo(0, -radius); 
-        this.ctx.moveTo(0, -radius); 
-        this.ctx.lineTo(5, -radius * 1.4); 
-        this.ctx.lineTo(10, -radius); 
-        this.ctx.fill();
-        this.ctx.fillStyle = 'white'; 
-        this.ctx.beginPath(); 
-        this.ctx.arc(-radius * 0.3, -2, radius * 0.3, 0, Math.PI * 2); 
-        this.ctx.arc(radius * 0.3, -2, radius * 0.3, 0, Math.PI * 2); 
-        this.ctx.fill();
-        this.ctx.fillStyle = 'black'; 
-        this.ctx.beginPath(); 
-        this.ctx.arc(-radius * 0.3, -2, radius * 0.1, 0, Math.PI * 2); 
-        this.ctx.arc(radius * 0.3, -2, radius * 0.1, 0, Math.PI * 2); 
-        this.ctx.fill();
-        this.ctx.fillStyle = '#3E2723'; 
-        this.ctx.beginPath(); 
-        this.ctx.ellipse(0, radius * 0.4, radius * 0.15, radius * 0.25, 0, 0, Math.PI * 2); 
-        this.ctx.fill();
-        this.ctx.fillStyle = '#1E88E5'; 
-        this.ctx.save(); 
-        this.ctx.translate(-radius * 0.3, radius * 0.8); 
-        this.ctx.rotate(0.2); 
-        this.ctx.fillRect(-radius * 0.15, 0, radius * 0.3, radius * 0.6); 
-        this.ctx.fillStyle = 'black'; 
-        this.ctx.fillRect(-radius * 0.15, radius * 0.6, radius * 0.35, radius * 0.2); 
-        this.ctx.restore();
-        this.ctx.fillStyle = '#1E88E5'; 
-        this.ctx.save(); 
-        this.ctx.translate(radius * 0.3, radius * 0.8); 
-        this.ctx.rotate(-0.2); 
-        this.ctx.fillRect(-radius * 0.15, 0, radius * 0.3, radius * 0.6); 
-        this.ctx.fillStyle = 'black'; 
-        this.ctx.fillRect(-radius * 0.15, radius * 0.6, radius * 0.35, radius * 0.2); 
-        this.ctx.restore();
+    drawKid(radius, body) {
+        const ctx = this.ctx;
+        
+        // Check if chappal is nearby (within 200 units) - scared mode
+        let isScared = false;
+        let isVeryScared = false;
+        if (this.chappal && body) {
+            const dx = this.chappal.position.x - body.position.x;
+            const dy = this.chappal.position.y - body.position.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            isScared = dist < 300;
+            isVeryScared = dist < 150;
+        }
+        
+        // Blinking animation (blink every 3 seconds for 0.1 seconds)
+        const blinkCycle = this.animTime % 3;
+        const isBlinking = blinkCycle > 2.9 && blinkCycle < 3.0;
+        
+        // Subtle breathing animation
+        const breathe = Math.sin(this.animTime * 2) * 0.02;
+        ctx.save();
+        ctx.scale(1, 1 + breathe);
+        
+        // Face base
+        ctx.fillStyle = '#FFCCBC'; 
+        ctx.beginPath(); 
+        ctx.arc(0, 0, radius, 0, Math.PI * 2); 
+        ctx.fill();
+        ctx.lineWidth = 2; 
+        ctx.strokeStyle = '#E64A19'; 
+        ctx.stroke();
+        
+        // Hair
+        ctx.fillStyle = 'black'; 
+        ctx.beginPath(); 
+        ctx.arc(0, -radius * 0.2, radius - 1, Math.PI, 2 * Math.PI); 
+        ctx.fill();
+        ctx.beginPath(); 
+        ctx.moveTo(-10, -radius); 
+        ctx.lineTo(-5, -radius * 1.4); 
+        ctx.lineTo(0, -radius); 
+        ctx.moveTo(0, -radius); 
+        ctx.lineTo(5, -radius * 1.4); 
+        ctx.lineTo(10, -radius); 
+        ctx.fill();
+        
+        // Eyes - with blinking and scared animation
+        const eyeSize = isScared ? radius * 0.35 : radius * 0.3;
+        const pupilSize = isVeryScared ? radius * 0.05 : radius * 0.1;
+        
+        if (!isBlinking) {
+            // Eye whites
+            ctx.fillStyle = 'white'; 
+            ctx.beginPath(); 
+            ctx.arc(-radius * 0.3, -2, eyeSize, 0, Math.PI * 2); 
+            ctx.arc(radius * 0.3, -2, eyeSize, 0, Math.PI * 2); 
+            ctx.fill();
+            
+            // Pupils - look at chappal if scared
+            let pupilOffsetX = 0;
+            let pupilOffsetY = 0;
+            if (isScared && this.chappal && body) {
+                const dx = this.chappal.position.x - body.position.x;
+                const dy = this.chappal.position.y - body.position.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                pupilOffsetX = (dx / dist) * radius * 0.1;
+                pupilOffsetY = (dy / dist) * radius * 0.1;
+            }
+            
+            ctx.fillStyle = 'black'; 
+            ctx.beginPath(); 
+            ctx.arc(-radius * 0.3 + pupilOffsetX, -2 + pupilOffsetY, pupilSize, 0, Math.PI * 2); 
+            ctx.arc(radius * 0.3 + pupilOffsetX, -2 + pupilOffsetY, pupilSize, 0, Math.PI * 2); 
+            ctx.fill();
+        } else {
+            // Closed eyes (blinking)
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-radius * 0.45, -2);
+            ctx.lineTo(-radius * 0.15, -2);
+            ctx.moveTo(radius * 0.15, -2);
+            ctx.lineTo(radius * 0.45, -2);
+            ctx.stroke();
+        }
+        
+        // Sweat drop when scared
+        if (isScared) {
+            ctx.fillStyle = '#87CEEB';
+            ctx.beginPath();
+            ctx.moveTo(radius * 0.5, -radius * 0.3);
+            ctx.quadraticCurveTo(radius * 0.7, -radius * 0.1, radius * 0.5, radius * 0.1);
+            ctx.quadraticCurveTo(radius * 0.3, -radius * 0.1, radius * 0.5, -radius * 0.3);
+            ctx.fill();
+        }
+        
+        // Mouth - scared or normal
+        ctx.fillStyle = '#3E2723';
+        if (isVeryScared) {
+            // Open mouth (scared)
+            ctx.beginPath();
+            ctx.ellipse(0, radius * 0.4, radius * 0.2, radius * 0.3, 0, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (isScared) {
+            // Worried mouth
+            ctx.beginPath();
+            ctx.ellipse(0, radius * 0.4, radius * 0.18, radius * 0.15, 0, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            // Normal mouth
+            ctx.beginPath(); 
+            ctx.ellipse(0, radius * 0.4, radius * 0.15, radius * 0.25, 0, 0, Math.PI * 2); 
+            ctx.fill();
+        }
+        
+        ctx.restore(); // End breathing transform
+        
+        // Legs (outside breathing transform)
+        ctx.fillStyle = '#1E88E5'; 
+        ctx.save(); 
+        ctx.translate(-radius * 0.3, radius * 0.8); 
+        ctx.rotate(0.2); 
+        ctx.fillRect(-radius * 0.15, 0, radius * 0.3, radius * 0.6); 
+        ctx.fillStyle = 'black'; 
+        ctx.fillRect(-radius * 0.15, radius * 0.6, radius * 0.35, radius * 0.2); 
+        ctx.restore();
+        ctx.fillStyle = '#1E88E5'; 
+        ctx.save(); 
+        ctx.translate(radius * 0.3, radius * 0.8); 
+        ctx.rotate(-0.2); 
+        ctx.fillRect(-radius * 0.15, 0, radius * 0.3, radius * 0.6); 
+        ctx.fillStyle = 'black'; 
+        ctx.fillRect(-radius * 0.15, radius * 0.6, radius * 0.35, radius * 0.2); 
+        ctx.restore();
     }
 
     drawChappal(w, h) {
@@ -2130,8 +2223,83 @@ class Game {
         this.ctx.stroke();
     }
 
+    // ========================================
+    // FLOATING BACKGROUND ELEMENTS - Living Backgrounds
+    // ========================================
+    initFloatingElements() {
+        this.floatingElements = [];
+        // Create dust particles and floating elements
+        for (let i = 0; i < 15; i++) {
+            this.floatingElements.push({
+                x: Math.random() * 1200,
+                y: Math.random() * 600,
+                size: Math.random() * 3 + 1,
+                speedX: (Math.random() - 0.5) * 20,
+                speedY: (Math.random() - 0.5) * 10 - 5,
+                opacity: Math.random() * 0.3 + 0.1,
+                type: Math.random() > 0.7 ? 'sparkle' : 'dust'
+            });
+        }
+    }
+    
+    updateFloatingElements(delta) {
+        if (!this.gameActive) return;
+        
+        this.floatingElements.forEach(el => {
+            el.x += el.speedX * delta;
+            el.y += el.speedY * delta;
+            
+            // Float effect
+            el.y += Math.sin(this.animTime * 2 + el.x * 0.01) * 0.5;
+            
+            // Wrap around screen
+            if (el.x < 0) el.x = this.width;
+            if (el.x > this.width) el.x = 0;
+            if (el.y < 0) el.y = this.height - 100;
+            if (el.y > this.height - 50) el.y = 0;
+        });
+    }
+    
+    drawFloatingElements() {
+        const ctx = this.ctx;
+        const bg = LEVEL_BACKGROUNDS[this.currentLevelIdx] || LEVEL_BACKGROUNDS[0];
+        
+        this.floatingElements.forEach(el => {
+            ctx.save();
+            ctx.globalAlpha = el.opacity * (0.5 + Math.sin(this.animTime * 3 + el.x) * 0.5);
+            
+            if (el.type === 'sparkle') {
+                // Sparkle effect
+                ctx.fillStyle = bg.accent || '#FFD700';
+                ctx.beginPath();
+                ctx.arc(el.x, el.y, el.size * (0.8 + Math.sin(this.animTime * 5) * 0.2), 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Dust particle
+                ctx.fillStyle = this.isDarkTheme() ? 'rgba(255,255,255,0.5)' : 'rgba(139,69,19,0.3)';
+                ctx.beginPath();
+                ctx.arc(el.x, el.y, el.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        });
+    }
+    
+    isDarkTheme() {
+        const darkThemes = ['bedroom_night', 'study_night', 'bedroom_dark', 'boss', 'angry'];
+        const bg = LEVEL_BACKGROUNDS[this.currentLevelIdx];
+        return bg && darkThemes.includes(bg.theme);
+    }
+
     loop() {
+        // Update animation time for living elements
+        const now = Date.now();
+        const delta = (now - this.lastTime) / 1000;
+        this.lastTime = now;
+        this.animTime += delta;
+        
         this.update();
+        this.updateFloatingElements(delta);
         this.draw();
         requestAnimationFrame(() => this.loop());
     }
