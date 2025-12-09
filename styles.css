@@ -155,35 +155,37 @@ canvas {
   box-shadow: 0 2px 0 #e65100;
 }
 
-/* Mobile Landscape: Horizontal Slider for Level Selection */
+/* Mobile Landscape: Vertical Scroll for Level Selection (keeps grid) */
 @media screen and (max-height: 500px) and (orientation: landscape) {
   #level-screen {
     padding: 10px 20px;
     justify-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   
   #level-screen h2 {
     font-size: 1.3rem;
     margin-bottom: 8px;
+    flex-shrink: 0;
   }
   
   .level-grid {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
     max-width: 100%;
     width: 100%;
-    padding: 10px 0;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px;
     scrollbar-width: thin;
     scrollbar-color: #ff9800 rgba(255,152,0,0.2);
   }
   
   .level-grid::-webkit-scrollbar {
-    height: 6px;
+    width: 6px;
   }
   
   .level-grid::-webkit-scrollbar-track {
@@ -197,17 +199,16 @@ canvas {
   }
   
   .lvl-btn {
-    flex: 0 0 auto;
-    min-width: 55px;
-    padding: 12px 8px;
-    font-size: 1rem;
-    scroll-snap-align: center;
+    padding: 10px 5px;
+    font-size: 0.9rem;
+    min-width: 40px;
   }
   
   #level-screen .btn-small {
     margin-top: 8px;
     font-size: 14px;
     padding: 6px 20px;
+    flex-shrink: 0;
   }
 }
 
