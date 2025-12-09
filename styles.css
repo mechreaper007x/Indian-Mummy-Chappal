@@ -443,22 +443,30 @@ canvas {
 }
 
 /* ========================================
-   COMIC STORYLINE SCREEN
+   COMIC STORYLINE SCREEN - 16:9 RATIO SYNC
 ======================================== */
 #comic-screen {
   background: linear-gradient(135deg, #2c1810 0%, #1a0a05 100%);
   z-index: 25;
+  /* 16:9 aspect ratio sync - same as game container */
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .comic-container {
   width: 95%;
   max-width: 800px;
-  height: 85%;
+  height: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 15px;
 }
 
 /* Comic Panel */
@@ -1111,3 +1119,220 @@ canvas {
     display: none !important;
   }
 }
+
+/* ========================================
+   KID LAUNCH EFFECT - "Fly at Screen"
+   ======================================== */
+.flying-kid {
+  filter: drop-shadow(0 0 20px rgba(255, 100, 0, 0.8));
+  animation: kidPanic 0.1s ease-in-out infinite alternate;
+}
+
+@keyframes kidPanic {
+  from { filter: drop-shadow(0 0 20px rgba(255, 100, 0, 0.8)) brightness(1); }
+  to { filter: drop-shadow(0 0 30px rgba(255, 50, 0, 1)) brightness(1.2); }
+}
+
+.screen-crack-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease-out;
+  background: 
+    radial-gradient(ellipse at 50% 50%, transparent 0%, rgba(0,0,0,0.3) 100%);
+}
+
+.screen-crack-overlay.visible {
+  opacity: 1;
+}
+
+.screen-crack-overlay::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  transform: translate(-50%, -50%);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100 100 L80 40 M100 100 L140 50 M100 100 L160 90 M100 100 L150 130 M100 100 L120 160 M100 100 L70 150 M100 100 L40 120 M100 100 L50 80 M100 100 L60 60 M100 100 L130 70' stroke='%23333' stroke-width='3' fill='none' opacity='0.8'/%3E%3Cpath d='M80 40 L70 10 M80 40 L50 30 M140 50 L170 30 M140 50 L150 20 M160 90 L190 85 M150 130 L180 150 M120 160 L130 190 M70 150 L50 180 M40 120 L10 130 M50 80 L20 70' stroke='%23333' stroke-width='2' fill='none' opacity='0.6'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: crackAppear 0.15s ease-out forwards;
+}
+
+@keyframes crackAppear {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.launch-shake {
+  animation: launchShake 0.5s ease-out;
+}
+
+@keyframes launchShake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-15px, 10px); }
+  20% { transform: translate(15px, -10px); }
+  30% { transform: translate(-10px, 15px); }
+  40% { transform: translate(10px, -15px); }
+  50% { transform: translate(-8px, 8px); }
+  60% { transform: translate(8px, -5px); }
+  70% { transform: translate(-5px, 5px); }
+  80% { transform: translate(5px, -3px); }
+  90% { transform: translate(-2px, 2px); }
+}
+
+/* ========================================
+   LOONEY TUNES SPLAT EFFECT - Face Stick
+   ======================================== */
+
+/* Splat Face - Flattened against glass */
+.splat-face {
+  filter: drop-shadow(0 0 30px rgba(0, 0, 0, 0.5));
+}
+
+.splat-face svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Dazed spiral eyes animation */
+.splat-face .dazed-eye-left,
+.splat-face .dazed-eye-right {
+  animation: dazedSpin 0.5s linear infinite;
+  transform-origin: center;
+}
+
+.splat-face .dazed-eye-right {
+  animation-direction: reverse;
+}
+
+@keyframes dazedSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Impact stars twinkle */
+.splat-face .impact-stars polygon {
+  animation: starTwinkle 0.3s ease-in-out infinite alternate;
+}
+
+.splat-face .impact-stars polygon:nth-child(odd) {
+  animation-delay: 0.15s;
+}
+
+@keyframes starTwinkle {
+  from { opacity: 0.6; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.1); }
+}
+
+/* Drool animation on splat face */
+.splat-face .drool {
+  animation: droolDrip 0.8s ease-in infinite;
+}
+
+@keyframes droolDrip {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -20; }
+}
+
+/* Glass Smear Overlay - Greasy slide mark */
+.glass-smear-overlay {
+  position: absolute;
+  top: 40%;
+  left: 35%;
+  width: 30%;
+  height: 0%;
+  opacity: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(200, 200, 200, 0.1) 0%,
+    rgba(180, 180, 180, 0.2) 20%,
+    rgba(160, 160, 160, 0.15) 50%,
+    rgba(140, 140, 140, 0.1) 80%,
+    transparent 100%
+  );
+  border-radius: 50% 50% 30% 30%;
+  pointer-events: none;
+  z-index: 180;
+  filter: blur(2px);
+  transition: height 1.8s ease-in, opacity 0.3s;
+}
+
+.glass-smear-overlay.visible {
+  opacity: 1;
+  height: 60%;
+}
+
+/* Drool Trails - Cartoon slime */
+.drool-trail {
+  background: linear-gradient(
+    to bottom,
+    rgba(135, 206, 235, 0.5) 0%,
+    rgba(173, 216, 230, 0.4) 40%,
+    rgba(135, 206, 235, 0.2) 80%,
+    transparent 100%
+  );
+  border-left: 2px solid rgba(135, 206, 235, 0.3);
+  border-right: 2px solid rgba(135, 206, 235, 0.3);
+  filter: blur(1px);
+  animation: droolWobble 0.5s ease-in-out infinite alternate;
+}
+
+.drool-trail:nth-child(odd) {
+  animation-delay: 0.25s;
+}
+
+@keyframes droolWobble {
+  from { transform: skewX(-2deg); }
+  to { transform: skewX(2deg); }
+}
+
+/* Enhanced screen crack with glass shatter effect */
+.screen-crack-overlay.visible::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(200, 200, 200, 0.1) 30%,
+    transparent 60%
+  );
+  border-radius: 50%;
+  animation: impactFlash 0.15s ease-out;
+}
+
+@keyframes impactFlash {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+}
+
+/* Dynamic shake intensity via CSS variable */
+.launch-shake {
+  --shake-intensity: 15px;
+  animation: launchShakeDynamic 0.5s ease-out;
+}
+
+@keyframes launchShakeDynamic {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(calc(var(--shake-intensity) * -1), calc(var(--shake-intensity) * 0.66)); }
+  20% { transform: translate(var(--shake-intensity), calc(var(--shake-intensity) * -0.66)); }
+  30% { transform: translate(calc(var(--shake-intensity) * -0.66), var(--shake-intensity)); }
+  40% { transform: translate(calc(var(--shake-intensity) * 0.66), calc(var(--shake-intensity) * -1)); }
+  50% { transform: translate(calc(var(--shake-intensity) * -0.5), calc(var(--shake-intensity) * 0.5)); }
+  60% { transform: translate(calc(var(--shake-intensity) * 0.5), calc(var(--shake-intensity) * -0.33)); }
+  70% { transform: translate(calc(var(--shake-intensity) * -0.33), calc(var(--shake-intensity) * 0.33)); }
+  80% { transform: translate(calc(var(--shake-intensity) * 0.33), calc(var(--shake-intensity) * -0.2)); }
+  90% { transform: translate(calc(var(--shake-intensity) * -0.13), calc(var(--shake-intensity) * 0.13)); }
+}
+

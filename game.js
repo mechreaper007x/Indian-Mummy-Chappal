@@ -857,7 +857,18 @@ const LEVELS = [
     { name: "Empty Water Bottles", desc: "Fill them up!" },
     { name: "AC On", desc: "Do you think money grows on trees?" },
     { name: "Back Answer", desc: "Don't talk back." },
-    { name: "The Final Boss", desc: "Dad is coming home." }
+    { name: "The Final Boss", desc: "Dad is coming home." },
+    // ============ NEW LEVELS 21-30 ============
+    { name: "Puja Room", desc: "Don't disturb the diyas!" },
+    { name: "Tupperware Loss", desc: "That was the good container!" },
+    { name: "New Car", desc: "Don't scratch it!" },
+    { name: "Terrace Tank", desc: "You forgot the motor!" },
+    { name: "Mango Tree", desc: "Stealing neighbour's aam?" },
+    { name: "Power Cut", desc: "Inverter battery died!" },
+    { name: "Train Journey", desc: "Don't buy platform snacks!" },
+    { name: "Sabzi Mandi", desc: "Bargaining gone wrong!" },
+    { name: "Smartphone Drop", desc: "The screen is cracked!" },
+    { name: "Shaadi Proposal", desc: "Behave in front of guests!" }
 ];
 
 // ========================================
@@ -963,6 +974,57 @@ const LEVEL_BACKGROUNDS = [
     { 
         wallColor: '#1a0a0a', floorColor: '#2d1810', 
         theme: 'boss', accent: '#FF4500'
+    },
+    // ============ NEW BACKGROUNDS 21-30 ============
+    // 20: Puja Room - Sacred Space
+    { 
+        wallColor: '#FFF3E0', floorColor: '#8B4513', 
+        theme: 'puja', accent: '#FF9800'
+    },
+    // 21: Tupperware Loss - Kitchen Chaos
+    { 
+        wallColor: '#FFFDE7', floorColor: '#cd853f', 
+        theme: 'kitchen_bright', accent: '#F44336'
+    },
+    // 22: New Car - Driveway/Garage
+    { 
+        wallColor: '#ECEFF1', floorColor: '#455A64', 
+        theme: 'garage', accent: '#2196F3'
+    },
+    // 23: Terrace Tank - Rooftop/Sunny
+    { 
+        wallColor: '#B3E5FC', floorColor: '#795548', 
+        theme: 'terrace', accent: '#00BCD4'
+    },
+    // 24: Mango Tree - Garden/Outdoor
+    { 
+        wallColor: '#C8E6C9', floorColor: '#4CAF50', 
+        theme: 'garden', accent: '#FFEB3B'
+    },
+    // 25: Power Cut - Dark Room
+    { 
+        wallColor: '#263238', floorColor: '#1a1a1a', 
+        theme: 'dark_room', accent: '#FFCA28'
+    },
+    // 26: Train Journey - Platform/Train
+    { 
+        wallColor: '#CFD8DC', floorColor: '#607D8B', 
+        theme: 'station', accent: '#FF5722'
+    },
+    // 27: Sabzi Mandi - Market Vibes
+    { 
+        wallColor: '#FFF8E1', floorColor: '#8D6E63', 
+        theme: 'market', accent: '#4CAF50'
+    },
+    // 28: Smartphone Drop - Living Room
+    { 
+        wallColor: '#F3E5F5', floorColor: '#8B4513', 
+        theme: 'living_modern', accent: '#673AB7'
+    },
+    // 29: Shaadi Proposal - Guest Hall
+    { 
+        wallColor: '#FCE4EC', floorColor: '#D7CCC8', 
+        theme: 'wedding_hall', accent: '#E91E63'
     }
 ];
 
@@ -1639,6 +1701,282 @@ const LEVEL_STORIES = [
                 chappalReady: true
             }
         ]
+    },
+
+    // ============ LEVEL 21: Puja Room ============
+    {
+        title: 'The Holy Mess',
+        panels: [
+            {
+                scene: 'puja_room',
+                narration: 'During Diwali puja...',
+                mummyExpression: 'praying',
+                kidExpression: 'bored',
+                dialogue: { speaker: 'mummy', text: 'Sit STILL! Pandit ji is watching!' }
+            },
+            {
+                scene: 'diya_knocked',
+                mummyExpression: 'shock',
+                kidExpression: 'oops',
+                dialogue: { speaker: 'kid', text: 'The ghee was slippery...' },
+                effect: 'fire_flicker'
+            },
+            {
+                scene: 'prasad_stolen',
+                mummyExpression: 'furious',
+                kidExpression: 'eating',
+                dialogue: { speaker: 'mummy', text: 'That PRASAD was for the GODS!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 22: Tupperware Loss ============
+    {
+        title: 'The Ultimate Crime',
+        panels: [
+            {
+                scene: 'kitchen_search',
+                mummyExpression: 'searching',
+                narration: 'Mummy opens the dabba cabinet...',
+                effect: 'cabinet_open'
+            },
+            {
+                scene: 'box_missing',
+                mummyExpression: 'shock',
+                kidExpression: 'nervous',
+                dialogue: { speaker: 'mummy', text: 'Where is my LOCK & LOCK container?!' }
+            },
+            {
+                scene: 'confession',
+                mummyExpression: 'rage',
+                kidExpression: 'guilty',
+                dialogue: { speaker: 'kid', text: 'I... may have left it at school...' },
+                effect: 'dramatic_zoom',
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 23: New Car ============
+    {
+        title: 'The Brand New Scratch',
+        panels: [
+            {
+                scene: 'garage',
+                mummyExpression: 'proud',
+                narration: 'Papa\'s new car, just 1 week old...',
+                kidExpression: 'playing',
+                effect: 'car_shine'
+            },
+            {
+                scene: 'cricket_near_car',
+                mummyExpression: 'warning',
+                kidExpression: 'ignoring',
+                dialogue: { speaker: 'mummy', text: 'DON\'T play cricket near the car!' }
+            },
+            {
+                scene: 'scratch_found',
+                mummyExpression: 'ultimate_rage',
+                kidExpression: 'terrified',
+                dialogue: { speaker: 'mummy', text: 'WHAT IS THIS SCRATCH?!' },
+                effect: 'anger_explosion',
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 24: Terrace Tank ============
+    {
+        title: 'The Forgotten Motor',
+        panels: [
+            {
+                scene: 'terrace',
+                narration: 'That morning...',
+                mummyExpression: 'instructing',
+                kidExpression: 'distracted',
+                dialogue: { speaker: 'mummy', text: 'Turn off the motor in 10 minutes!' }
+            },
+            {
+                scene: 'gaming',
+                mummyExpression: 'suspicious',
+                kidExpression: 'gaming',
+                dialogue: { speaker: 'kid', text: 'Just one more game...' },
+                effect: 'clock_ticking'
+            },
+            {
+                scene: 'water_overflow',
+                mummyExpression: 'furious',
+                kidExpression: 'panicking',
+                dialogue: { speaker: 'mummy', text: 'The TANK is OVERFLOWING! The whole terrace is WET!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 25: Mango Tree ============
+    {
+        title: 'Aam Chor',
+        panels: [
+            {
+                scene: 'garden_wall',
+                narration: 'Summer afternoon, neighbour\'s garden...',
+                kidExpression: 'sneaking',
+                effect: 'mango_tree'
+            },
+            {
+                scene: 'caught_climbing',
+                mummyExpression: 'shock',
+                kidExpression: 'holding_mango',
+                dialogue: { speaker: 'mummy', text: 'IS THAT SHARMA AUNTY\'S MANGO?!' }
+            },
+            {
+                scene: 'neighbour_complaint',
+                mummyExpression: 'embarrassed_rage',
+                kidExpression: 'guilty',
+                dialogue: { speaker: 'mummy', text: 'She CALLED ME! The whole society knows!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 26: Power Cut ============
+    {
+        title: 'Darkness Falls',
+        panels: [
+            {
+                scene: 'living_room_dark',
+                narration: 'Power cut during India-Pakistan match...',
+                mummyExpression: 'stressed',
+                kidExpression: 'using_phone',
+                effect: 'darkness'
+            },
+            {
+                scene: 'inverter_dead',
+                mummyExpression: 'checking',
+                kidExpression: 'innocent',
+                dialogue: { speaker: 'mummy', text: 'Why is the inverter not turning on?' }
+            },
+            {
+                scene: 'gaming_discovered',
+                mummyExpression: 'rage',
+                kidExpression: 'caught',
+                dialogue: { speaker: 'mummy', text: 'You were GAMING on it all day! Battery DEAD!' },
+                effect: 'phone_glow',
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 27: Train Journey ============
+    {
+        title: 'Platform Temptation',
+        panels: [
+            {
+                scene: 'railway_platform',
+                narration: 'On the way to Nani\'s house...',
+                mummyExpression: 'warning',
+                kidExpression: 'hungry',
+                dialogue: { speaker: 'mummy', text: 'DON\'T buy anything from outside!' }
+            },
+            {
+                scene: 'samosa_vendor',
+                mummyExpression: 'distracted',
+                kidExpression: 'buying',
+                dialogue: { speaker: 'vendor', text: 'Garam samosa! Chai!' },
+                effect: 'train_horn'
+            },
+            {
+                scene: 'tummy_ache',
+                mummyExpression: 'furious',
+                kidExpression: 'sick',
+                dialogue: { speaker: 'mummy', text: 'NOW your stomach hurts?! ₹50 wasted!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 28: Sabzi Mandi ============
+    {
+        title: 'Bargaining Gone Wrong',
+        panels: [
+            {
+                scene: 'vegetable_market',
+                narration: 'At the Sunday sabzi mandi...',
+                mummyExpression: 'bargaining',
+                kidExpression: 'bored',
+                dialogue: { speaker: 'mummy', text: 'Hold this bag, I\'m bargaining!' }
+            },
+            {
+                scene: 'kid_speaks',
+                mummyExpression: 'shocked',
+                kidExpression: 'helpful',
+                dialogue: { speaker: 'kid', text: 'Mummy, we bought these for ₹60 last week!' }
+            },
+            {
+                scene: 'bargain_ruined',
+                mummyExpression: 'rage',
+                kidExpression: 'confused',
+                dialogue: { speaker: 'mummy', text: 'You RUINED the bargain! Now it\'s ₹80!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 29: Smartphone Drop ============
+    {
+        title: 'The Cracked Screen',
+        panels: [
+            {
+                scene: 'living_room',
+                narration: 'Playing games on Mummy\'s phone...',
+                kidExpression: 'excited',
+                effect: 'phone_gaming'
+            },
+            {
+                scene: 'phone_falls',
+                mummyExpression: 'horror',
+                kidExpression: 'frozen',
+                narration: '*CRACK*',
+                effect: 'slow_motion'
+            },
+            {
+                scene: 'screen_shattered',
+                mummyExpression: 'ultimate_rage',
+                kidExpression: 'terrified',
+                dialogue: { speaker: 'mummy', text: 'That was EMI phone! ONE. MONTH. OLD!' },
+                chappalReady: true
+            }
+        ]
+    },
+
+    // ============ LEVEL 30: Shaadi Proposal ============
+    {
+        title: 'The Rishta Meeting',
+        panels: [
+            {
+                scene: 'guest_hall',
+                narration: 'Important guests for Bhabhi\'s rishta...',
+                mummyExpression: 'nervous_happy',
+                kidExpression: 'bored',
+                dialogue: { speaker: 'mummy', text: 'BEHAVE! VIP guests are coming!' }
+            },
+            {
+                scene: 'embarrassment',
+                mummyExpression: 'mortified',
+                kidExpression: 'dancing',
+                dialogue: { speaker: 'kid', text: '*singing* Sheila ki jawani...' },
+                effect: 'spotlight'
+            },
+            {
+                scene: 'chaos',
+                mummyExpression: 'rage',
+                kidExpression: 'running',
+                dialogue: { speaker: 'mummy', text: 'You EMBARRASSED us! Rishta CANCEL!' },
+                effect: 'guests_leaving',
+                chappalReady: true
+            }
+        ]
     }
 ];
 
@@ -2005,6 +2343,493 @@ const buildLevel = (idx, world, sx, sy, s) => {
             // Outer guards
             mkKid(sx - s * 4, sy - s * 3.2);
             mkKid(sx + s * 4, sy - s * 3.2);
+            break;
+            
+        // ============ NEW LEVELS 21-30 ============
+        
+        case 20: // Puja Room - Temple altar structure
+            // Altar steps
+            mkBox(sx - s * 1.5, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 0.5, s);
+            mkBox(sx + s * 1.5, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 4);
+            // Upper tier (diyas)
+            mkBox(sx - s * 0.7, sy - s * 1.6, s * 0.8);
+            mkBox(sx + s * 0.7, sy - s * 1.6, s * 0.8);
+            mkPlank(sx, sy - s * 2.1, s * 2.5);
+            // Kids hiding behind altar
+            mkKid(sx - s * 2.5, sy - s * 0.5);
+            mkKid(sx + s * 2.5, sy - s * 0.5);
+            mkKid(sx, sy - s * 2.5);
+            break;
+            
+        case 21: // Tupperware Loss - Kitchen shelves
+            // Shelf system
+            mkVertPlank(sx - s * 2.5, sy - s * 1.5, s * 3);
+            mkVertPlank(sx + s * 2.5, sy - s * 1.5, s * 3);
+            mkPlank(sx, sy - s * 0.8, s * 5);
+            mkPlank(sx, sy - s * 1.8, s * 5);
+            mkPlank(sx, sy - s * 2.8, s * 5);
+            // Boxes on shelves (containers)
+            mkBox(sx - s * 1.2, sy - s * 0.4, s * 0.8);
+            mkBox(sx, sy - s * 0.4, s * 0.8);
+            mkBox(sx + s * 1.2, sy - s * 0.4, s * 0.8);
+            mkBox(sx - s * 0.8, sy - s * 1.4, s * 0.8);
+            mkBox(sx + s * 0.8, sy - s * 1.4, s * 0.8);
+            // Kids
+            mkKid(sx - s * 1.5, sy - s * 2.2);
+            mkKid(sx + s * 1.5, sy - s * 2.2);
+            mkKid(sx, sy - s * 3.2);
+            break;
+            
+        case 22: // New Car - Garage with barriers
+            // Car shape (box structure)
+            mkBox(sx - s * 1.5, sy - s * 0.5, s);
+            mkBox(sx - s * 0.5, sy - s * 0.5, s);
+            mkBox(sx + s * 0.5, sy - s * 0.5, s);
+            mkBox(sx + s * 1.5, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.2, s * 4);
+            // Roof
+            mkBox(sx - s * 0.5, sy - s * 1.7, s * 0.9);
+            mkBox(sx + s * 0.5, sy - s * 1.7, s * 0.9);
+            mkPlank(sx, sy - s * 2.3, s * 2);
+            // Side barriers
+            mkVertPlank(sx - s * 3, sy - s * 1, s * 2);
+            mkVertPlank(sx + s * 3, sy - s * 1, s * 2);
+            // Kids around car
+            mkKid(sx - s * 2.2, sy - s * 0.5);
+            mkKid(sx + s * 2.2, sy - s * 0.5);
+            mkKid(sx, sy - s * 2.7);
+            mkKid(sx - s * 3, sy - s * 2.2);
+            mkKid(sx + s * 3, sy - s * 2.2);
+            break;
+            
+        case 23: // Terrace Tank - Water tank tower
+            // Tank support structure
+            mkVertPlank(sx - s * 1.5, sy - s * 1.5, s * 3);
+            mkVertPlank(sx + s * 1.5, sy - s * 1.5, s * 3);
+            mkPlank(sx, sy - s * 3.1, s * 3.5);
+            // Tank body
+            mkBox(sx - s * 0.6, sy - s * 0.5, s);
+            mkBox(sx + s * 0.6, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 1.5, s * 1.5);
+            // Kids on terrace
+            mkKid(sx - s * 2.5, sy - s * 0.5);
+            mkKid(sx + s * 2.5, sy - s * 0.5);
+            mkKid(sx, sy - s * 3.5);
+            mkKid(sx - s * 1.5, sy - s * 3.5);
+            mkKid(sx + s * 1.5, sy - s * 3.5);
+            break;
+            
+        case 24: // Mango Tree - Tree-like structure
+            // Tree trunk
+            mkVertPlank(sx, sy - s * 1.5, s * 3);
+            // Branches
+            mkPlank(sx - s * 1.5, sy - s * 2.5, s * 2);
+            mkPlank(sx + s * 1.5, sy - s * 2.5, s * 2);
+            mkPlank(sx, sy - s * 3.5, s * 3);
+            // "Mangoes" (small boxes)
+            mkBox(sx - s * 2, sy - s * 2.1, s * 0.6);
+            mkBox(sx + s * 2, sy - s * 2.1, s * 0.6);
+            mkBox(sx - s * 1, sy - s * 3.1, s * 0.6);
+            mkBox(sx + s * 1, sy - s * 3.1, s * 0.6);
+            // Kids climbing/hiding
+            mkKid(sx - s * 2.5, sy - s * 0.5);
+            mkKid(sx + s * 2.5, sy - s * 0.5);
+            mkKid(sx - s * 1.5, sy - s * 2.9);
+            mkKid(sx + s * 1.5, sy - s * 2.9);
+            mkKid(sx, sy - s * 4);
+            break;
+            
+        case 25: // Power Cut - Dark room fortress
+            // Enclosed bunker
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkBox(sx - s * 2, sy - s * 1.5, s);
+            mkBox(sx + s * 2, sy - s * 0.5, s);
+            mkBox(sx + s * 2, sy - s * 1.5, s);
+            mkPlank(sx, sy - s * 2.1, s * 5);
+            // Inner wall
+            mkVertPlank(sx, sy - s * 1, s * 2);
+            // Kids in darkness
+            mkKid(sx - s * 1, sy - s * 0.5);
+            mkKid(sx + s * 1, sy - s * 0.5);
+            mkKid(sx - s * 2, sy - s * 2.5);
+            mkKid(sx + s * 2, sy - s * 2.5);
+            break;
+            
+        case 26: // Train Journey - Platform structure
+            // Platform
+            mkBox(sx - s * 3, sy - s * 0.5, s);
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkBox(sx - s * 1, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 0.5, s);
+            mkBox(sx + s * 1, sy - s * 0.5, s);
+            mkPlank(sx - s * 1, sy - s * 1.1, s * 5);
+            // Vendor stall
+            mkVertPlank(sx + s * 2.5, sy - s * 1.2, s * 2.4);
+            mkPlank(sx + s * 2.5, sy - s * 2.5, s * 1.5);
+            mkBox(sx + s * 2.5, sy - s * 0.5, s);
+            // Kids on platform
+            mkKid(sx - s * 2.5, sy - s * 1.5);
+            mkKid(sx - s * 0.5, sy - s * 1.5);
+            mkKid(sx + s * 1, sy - s * 1.5);
+            mkKid(sx + s * 2.5, sy - s * 2.9);
+            break;
+            
+        case 27: // Sabzi Mandi - Market stalls
+            // Stall 1
+            mkVertPlank(sx - s * 3, sy - s * 1, s * 2);
+            mkPlank(sx - s * 2, sy - s * 2.1, s * 2.5);
+            mkBox(sx - s * 2.5, sy - s * 0.5, s * 0.8);
+            mkBox(sx - s * 1.5, sy - s * 0.5, s * 0.8);
+            // Stall 2
+            mkVertPlank(sx + s * 1, sy - s * 1, s * 2);
+            mkVertPlank(sx + s * 3, sy - s * 1, s * 2);
+            mkPlank(sx + s * 2, sy - s * 2.1, s * 2.5);
+            mkBox(sx + s * 1.5, sy - s * 0.5, s * 0.8);
+            mkBox(sx + s * 2.5, sy - s * 0.5, s * 0.8);
+            // Kids at market
+            mkKid(sx - s * 2, sy - s * 1.3);
+            mkKid(sx, sy - s * 0.5);
+            mkKid(sx + s * 2, sy - s * 1.3);
+            mkKid(sx - s * 2, sy - s * 2.5);
+            mkKid(sx + s * 2, sy - s * 2.5);
+            break;
+            
+        case 28: // Smartphone Drop - Living room setup
+            // Sofa base
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkBox(sx - s * 1, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 0.5, s);
+            mkBox(sx + s * 1, sy - s * 0.5, s);
+            mkBox(sx + s * 2, sy - s * 0.5, s);
+            // Cushions
+            mkBox(sx - s * 1.5, sy - s * 1.3, s * 0.9);
+            mkBox(sx, sy - s * 1.3, s * 0.9);
+            mkBox(sx + s * 1.5, sy - s * 1.3, s * 0.9);
+            mkPlank(sx, sy - s * 1.9, s * 4);
+            // Phone stand (unstable)
+            mkVertPlank(sx + s * 3, sy - s * 1.5, s * 3);
+            mkBox(sx + s * 3, sy - s * 0.5, s * 0.6);
+            // Kids
+            mkKid(sx - s * 1.5, sy - s * 2.3);
+            mkKid(sx + s * 1.5, sy - s * 2.3);
+            mkKid(sx + s * 3, sy - s * 3.2);
+            mkKid(sx - s * 3, sy - s * 0.5);
+            break;
+            
+        case 29: // Shaadi Proposal - Grand wedding hall
+            // Main stage
+            mkBox(sx - s * 3, sy - s * 0.5, s);
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkBox(sx - s * 1, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 0.5, s);
+            mkBox(sx + s * 1, sy - s * 0.5, s);
+            mkBox(sx + s * 2, sy - s * 0.5, s);
+            mkBox(sx + s * 3, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 7.5);
+            // Mandap pillars
+            mkVertPlank(sx - s * 2.5, sy - s * 2.2, s * 2);
+            mkVertPlank(sx + s * 2.5, sy - s * 2.2, s * 2);
+            mkPlank(sx, sy - s * 3.3, s * 5.5);
+            // Decorations
+            mkBox(sx - s * 1, sy - s * 1.6, s * 0.8);
+            mkBox(sx + s * 1, sy - s * 1.6, s * 0.8);
+            mkPlank(sx, sy - s * 2.1, s * 3);
+            // VIP guests (protecting kids)
+            mkKid(sx, sy - s * 1.5);
+            mkKid(sx - s * 2, sy - s * 1.5);
+            mkKid(sx + s * 2, sy - s * 1.5);
+            mkKid(sx - s * 1, sy - s * 2.5);
+            mkKid(sx + s * 1, sy - s * 2.5);
+            mkKid(sx, sy - s * 3.7);
+            break;
+            
+        // ============ LEVELS 31-40: MASTER & ULTIMATE TIER ============
+        
+        case 30: // Puja Room Chaos - Sacred multi-tier altar
+            // Base altar tier
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkBox(sx - s * 1, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 0.5, s);
+            mkBox(sx + s * 1, sy - s * 0.5, s);
+            mkBox(sx + s * 2, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 5.5);
+            // Diya stands (vertical obstacles)
+            mkVertPlank(sx - s * 1.8, sy - s * 2, s * 1.5);
+            mkVertPlank(sx + s * 1.8, sy - s * 2, s * 1.5);
+            // Second tier (idol platform)
+            mkBox(sx - s * 0.8, sy - s * 1.6, s * 0.9);
+            mkBox(sx + s * 0.8, sy - s * 1.6, s * 0.9);
+            mkPlank(sx, sy - s * 2.2, s * 2.5);
+            // Top tier (sacred space)
+            mkBox(sx, sy - s * 2.7, s * 0.8);
+            mkPlank(sx, sy - s * 3.2, s * 1.5);
+            // Kids hiding behind sacred items
+            mkKid(sx - s * 2.8, sy - s * 0.5);
+            mkKid(sx + s * 2.8, sy - s * 0.5);
+            mkKid(sx, sy - s * 1.5);
+            mkKid(sx, sy - s * 3.6);
+            break;
+            
+        case 31: // Geyser Forgotten - Bathroom pipe maze
+            // Main pipe structure (vertical)
+            mkVertPlank(sx - s * 2.5, sy - s * 1.5, s * 3);
+            mkVertPlank(sx, sy - s * 1.5, s * 3);
+            mkVertPlank(sx + s * 2.5, sy - s * 1.5, s * 3);
+            // Horizontal connector pipes
+            mkPlank(sx - s * 1.25, sy - s * 1, s * 3);
+            mkPlank(sx + s * 1.25, sy - s * 2, s * 3);
+            mkPlank(sx, sy - s * 3.1, s * 5.5);
+            // Water tank top
+            mkBox(sx - s * 0.6, sy - s * 0.5, s);
+            mkBox(sx + s * 0.6, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 3.6, s * 1.2);
+            // Kids in steamy bathroom
+            mkKid(sx - s * 1.5, sy - s * 0.5);
+            mkKid(sx + s * 1.5, sy - s * 0.5);
+            mkKid(sx - s * 2.5, sy - s * 3.5);
+            mkKid(sx + s * 2.5, sy - s * 3.5);
+            break;
+            
+        case 32: // Garden Destruction - Outdoor plant fortress
+            // Garden wall base
+            mkBox(sx - s * 3, sy - s * 0.5, s);
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkBox(sx + s * 2, sy - s * 0.5, s);
+            mkBox(sx + s * 3, sy - s * 0.5, s);
+            // Plant pot obstacles (circular-ish placement)
+            mkBox(sx - s * 1, sy - s * 0.5, s * 0.9);
+            mkBox(sx + s * 1, sy - s * 0.5, s * 0.9);
+            mkBox(sx, sy - s * 1.3, s);
+            // Tulsi stand (central protected)
+            mkVertPlank(sx - s * 0.8, sy - s * 2, s * 1.3);
+            mkVertPlank(sx + s * 0.8, sy - s * 2, s * 1.3);
+            mkPlank(sx, sy - s * 2.7, s * 2);
+            mkBox(sx, sy - s * 3.2, s * 0.8);
+            // Outer branches
+            mkPlank(sx - s * 2.5, sy - s * 1.5, s * 1.5);
+            mkPlank(sx + s * 2.5, sy - s * 1.5, s * 1.5);
+            // Kids hiding in garden
+            mkKid(sx - s * 3, sy - s * 1.2);
+            mkKid(sx + s * 3, sy - s * 1.2);
+            mkKid(sx - s * 1.5, sy - s * 1.8);
+            mkKid(sx + s * 1.5, sy - s * 1.8);
+            mkKid(sx, sy - s * 3.6);
+            break;
+            
+        case 33: // Guest WiFi - Modern tech fortress
+            // Router tower (central)
+            mkBox(sx, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 1.5, s * 0.9);
+            mkVertPlank(sx, sy - s * 2.5, s * 1.5);
+            mkBox(sx, sy - s * 3.4, s * 0.7);
+            // Device stations (left)
+            mkBox(sx - s * 2.5, sy - s * 0.5, s);
+            mkVertPlank(sx - s * 2.5, sy - s * 1.5, s * 1.5);
+            mkPlank(sx - s * 1.5, sy - s * 2.3, s * 2.5);
+            // Device stations (right)
+            mkBox(sx + s * 2.5, sy - s * 0.5, s);
+            mkVertPlank(sx + s * 2.5, sy - s * 1.5, s * 1.5);
+            mkPlank(sx + s * 1.5, sy - s * 2.3, s * 2.5);
+            // Connecting cable (top plank)
+            mkPlank(sx, sy - s * 3.8, s * 6);
+            // Kids with devices
+            mkKid(sx - s * 1.5, sy - s * 0.5);
+            mkKid(sx + s * 1.5, sy - s * 0.5);
+            mkKid(sx - s * 2.5, sy - s * 2.7);
+            mkKid(sx + s * 2.5, sy - s * 2.7);
+            mkKid(sx, sy - s * 4.2);
+            break;
+            
+        case 34: // Diwali Crackers - Festive firework towers
+            // Firework launch towers (triple)
+            for (let t = -1; t <= 1; t++) {
+                mkBox(sx + t * s * 2, sy - s * 0.5, s);
+                mkBox(sx + t * s * 2, sy - s * 1.5, s * 0.9);
+                mkVertPlank(sx + t * s * 2, sy - s * 2.5, s * 1.5);
+                mkBox(sx + t * s * 2, sy - s * 3.4, s * 0.7);
+            }
+            // Sparkler base connections
+            mkPlank(sx - s, sy - s * 1.2, s * 2.5);
+            mkPlank(sx + s, sy - s * 1.2, s * 2.5);
+            mkPlank(sx, sy - s * 3.8, s * 4.5);
+            // Anaar (ground spinner) blocks
+            mkBox(sx - s * 3.5, sy - s * 0.5, s * 0.8);
+            mkBox(sx + s * 3.5, sy - s * 0.5, s * 0.8);
+            // Kids celebrating
+            mkKid(sx - s * 3.5, sy - s * 1.2);
+            mkKid(sx + s * 3.5, sy - s * 1.2);
+            mkKid(sx - s, sy - s * 1.6);
+            mkKid(sx + s, sy - s * 1.6);
+            mkKid(sx, sy - s * 4.2);
+            break;
+            
+        case 35: // Milk Overflow - Kitchen stove fortress
+            // Gas stove base
+            mkBox(sx - s * 2, sy - s * 0.5, s);
+            mkBox(sx - s * 1, sy - s * 0.5, s);
+            mkBox(sx, sy - s * 0.5, s);
+            mkBox(sx + s * 1, sy - s * 0.5, s);
+            mkBox(sx + s * 2, sy - s * 0.5, s);
+            mkPlank(sx, sy - s * 1.1, s * 5.5);
+            // Vessel towers (patila stacks)
+            mkBox(sx - s * 1.5, sy - s * 1.6, s * 0.9);
+            mkBox(sx - s * 1.5, sy - s * 2.4, s * 0.8);
+            mkBox(sx + s * 1.5, sy - s * 1.6, s * 0.9);
+            mkBox(sx + s * 1.5, sy - s * 2.4, s * 0.8);
+            // Milk pot (central, precarious)
+            mkVertPlank(sx, sy - s * 1.9, s * 1.3);
+            mkBox(sx, sy - s * 2.7, s);
+            // Shelf above
+            mkVertPlank(sx - s * 3, sy - s * 2, s * 2);
+            mkVertPlank(sx + s * 3, sy - s * 2, s * 2);
+            mkPlank(sx, sy - s * 3.1, s * 6.5);
+            // Kids avoiding hot milk
+            mkKid(sx - s * 2.5, sy - s * 1.5);
+            mkKid(sx + s * 2.5, sy - s * 1.5);
+            mkKid(sx, sy - s * 1.5);
+            mkKid(sx - s * 3, sy - s * 3.5);
+            mkKid(sx + s * 3, sy - s * 3.5);
+            break;
+            
+        case 36: // Relative's Phone - Guest room fortress
+            // Sofa base (wide)
+            for (let i = -3; i <= 3; i++) {
+                mkBox(sx + i * s, sy - s * 0.5, s);
+            }
+            mkPlank(sx, sy - s * 1.1, s * 7.5);
+            // Cushion walls
+            mkBox(sx - s * 2, sy - s * 1.6, s);
+            mkBox(sx, sy - s * 1.6, s);
+            mkBox(sx + s * 2, sy - s * 1.6, s);
+            mkPlank(sx, sy - s * 2.2, s * 5.5);
+            // Phone stand (unstable tower)
+            mkVertPlank(sx + s * 4, sy - s * 1.5, s * 3);
+            mkBox(sx + s * 4, sy - s * 0.5, s * 0.7);
+            mkBox(sx + s * 4, sy - s * 3.2, s * 0.6);
+            // Side table
+            mkBox(sx - s * 4, sy - s * 0.5, s);
+            mkVertPlank(sx - s * 4, sy - s * 1.5, s * 1.5);
+            // Kids on sofa and around
+            mkKid(sx - s * 1, sy - s * 1.5);
+            mkKid(sx + s * 1, sy - s * 1.5);
+            mkKid(sx - s * 2.5, sy - s * 2.6);
+            mkKid(sx + s * 2.5, sy - s * 2.6);
+            mkKid(sx + s * 4, sy - s * 3.8);
+            mkKid(sx - s * 4, sy - s * 2.3);
+            break;
+            
+        case 37: // Wedding Prep - Festive mandap with sweets
+            // Grand stage base
+            for (let i = -4; i <= 4; i++) {
+                mkBox(sx + i * s * 0.9, sy - s * 0.5, s);
+            }
+            mkPlank(sx, sy - s * 1.1, s * 8.5);
+            // Mandap pillars (4 corners)
+            mkVertPlank(sx - s * 3, sy - s * 2.2, s * 2);
+            mkVertPlank(sx + s * 3, sy - s * 2.2, s * 2);
+            mkVertPlank(sx - s * 1.5, sy - s * 2.2, s * 2);
+            mkVertPlank(sx + s * 1.5, sy - s * 2.2, s * 2);
+            mkPlank(sx, sy - s * 3.3, s * 7);
+            // Sweet boxes (mithai stack)
+            mkBox(sx - s * 0.5, sy - s * 1.6, s * 0.8);
+            mkBox(sx + s * 0.5, sy - s * 1.6, s * 0.8);
+            mkPlank(sx, sy - s * 2.1, s * 2);
+            mkBox(sx, sy - s * 2.5, s * 0.7);
+            // Decoration on top
+            mkBox(sx - s * 2, sy - s * 3.8, s * 0.7);
+            mkBox(sx + s * 2, sy - s * 3.8, s * 0.7);
+            // Kids at mehendi
+            mkKid(sx - s * 3.5, sy - s * 0.5);
+            mkKid(sx + s * 3.5, sy - s * 0.5);
+            mkKid(sx - s * 2, sy - s * 1.5);
+            mkKid(sx + s * 2, sy - s * 1.5);
+            mkKid(sx, sy - s * 2.9);
+            mkKid(sx, sy - s * 3.7);
+            break;
+            
+        case 38: // Morning Temple - Multi-tier temple structure
+            // Temple base (steps)
+            for (let step = 0; step < 3; step++) {
+                const width = 5 - step;
+                for (let i = 0; i < width; i++) {
+                    mkBox(sx + (i - (width-1)/2) * s, sy - s * (0.5 + step * 0.9), s * 0.9);
+                }
+            }
+            // Temple spire structure
+            mkVertPlank(sx - s * 1.2, sy - s * 3, s * 1.5);
+            mkVertPlank(sx + s * 1.2, sy - s * 3, s * 1.5);
+            mkPlank(sx, sy - s * 3.8, s * 3);
+            mkBox(sx, sy - s * 4.3, s * 0.9);
+            // Kalash on top
+            mkBox(sx, sy - s * 5, s * 0.6);
+            // Bell stands
+            mkVertPlank(sx - s * 2.5, sy - s * 2, s * 2);
+            mkVertPlank(sx + s * 2.5, sy - s * 2, s * 2);
+            mkBox(sx - s * 2.5, sy - s * 3.2, s * 0.5);
+            mkBox(sx + s * 2.5, sy - s * 3.2, s * 0.5);
+            // Kids hiding in temple
+            mkKid(sx - s * 3.5, sy - s * 0.5);
+            mkKid(sx + s * 3.5, sy - s * 0.5);
+            mkKid(sx - s * 1.5, sy - s * 2);
+            mkKid(sx + s * 1.5, sy - s * 2);
+            mkKid(sx, sy - s * 4.7);
+            mkKid(sx, sy - s * 5.4);
+            break;
+            
+        case 39: // Final Reckoning - ULTIMATE DOUBLE FORTRESS (BOSS LEVEL)
+            // === OUTER FORTRESS ===
+            // Outer walls left
+            for (let i = 0; i < 4; i++) {
+                mkBox(sx - s * 5, sy - s * (0.5 + i), s);
+            }
+            // Outer walls right
+            for (let i = 0; i < 4; i++) {
+                mkBox(sx + s * 5, sy - s * (0.5 + i), s);
+            }
+            // Outer ceiling
+            mkPlank(sx, sy - s * 4.1, s * 11);
+            
+            // === INNER FORTRESS ===
+            // Inner walls
+            mkBox(sx - s * 2.5, sy - s * 0.5, s);
+            mkBox(sx - s * 2.5, sy - s * 1.5, s);
+            mkBox(sx - s * 2.5, sy - s * 2.5, s);
+            mkBox(sx + s * 2.5, sy - s * 0.5, s);
+            mkBox(sx + s * 2.5, sy - s * 1.5, s);
+            mkBox(sx + s * 2.5, sy - s * 2.5, s);
+            mkPlank(sx, sy - s * 3.1, s * 5.5);
+            
+            // === CORE SANCTUM (triple protected) ===
+            mkVertPlank(sx - s * 1, sy - s * 1.5, s * 2.5);
+            mkVertPlank(sx + s * 1, sy - s * 1.5, s * 2.5);
+            mkPlank(sx, sy - s * 2.8, s * 2.5);
+            // Core protection
+            mkBox(sx - s * 0.5, sy - s * 0.5, s * 0.8);
+            mkBox(sx + s * 0.5, sy - s * 0.5, s * 0.8);
+            mkPlank(sx, sy - s * 1.1, s * 1.8);
+            
+            // === PAPA'S SECOND CHAPPAL (obstacles at different angles) ===
+            mkBox(sx - s * 4, sy - s * 1.5, s * 0.9);
+            mkBox(sx + s * 4, sy - s * 1.5, s * 0.9);
+            mkPlank(sx - s * 4, sy - s * 2.2, s * 1.5);
+            mkPlank(sx + s * 4, sy - s * 2.2, s * 1.5);
+            
+            // === 8 KIDS - MAXIMUM DIFFICULTY ===
+            // Core (hardest to hit)
+            mkKid(sx, sy - s * 0.5);
+            // Inner sanctum
+            mkKid(sx, sy - s * 1.5);
+            mkKid(sx, sy - s * 3.5);
+            // Inner walls
+            mkKid(sx - s * 2.5, sy - s * 3.2);
+            mkKid(sx + s * 2.5, sy - s * 3.2);
+            // Outer fortress
+            mkKid(sx - s * 4, sy - s * 2.6);
+            mkKid(sx + s * 4, sy - s * 2.6);
+            // Top guards
+            mkKid(sx, sy - s * 4.5);
             break;
             
         default:
@@ -3414,10 +4239,32 @@ class Game {
                     if (health) {
                         health.hp -= damage;
                         if (health.hp <= 0) {
-                            // Kid knocked out!
-                            this.textPopups.push(new TextPopup(hitPos.x, hitPos.y - 40, 'K.O.!', '#FF1744'));
-                            Composite.remove(this.world, obstacle);
-                            this.kidHealth.delete(obstacle.id);
+                            // Check if this is the LAST KID STANDING
+                            const allKids = Composite.allBodies(this.world).filter(b => b.label === 'Kid');
+                            const isLastKid = allKids.length === 1 && allKids[0].id === obstacle.id;
+                            
+                            if (isLastKid && typeof kidLauncher !== 'undefined') {
+                                // EPIC FINALE - Launch kid at the screen!
+                                this.textPopups.push(new TextPopup(hitPos.x, hitPos.y - 40, 'FINAL K.O.!', '#FF1744'));
+                                
+                                // Remove kid from physics world
+                                Composite.remove(this.world, obstacle);
+                                this.kidHealth.delete(obstacle.id);
+                                
+                                // Trigger the launch effect with delayed win screen
+                                const kidSkinTone = MUMMY_TYPES[this.selectedMummyIdx]?.skinTone || '#E8B89D';
+                                this.isGameOver = true; // Prevent other win checks
+                                
+                                kidLauncher.launch(hitPos.x, hitPos.y, { skinTone: kidSkinTone }, () => {
+                                    // Show win screen AFTER the animation
+                                    this.showWinScreen();
+                                });
+                            } else {
+                                // Normal knockout
+                                this.textPopups.push(new TextPopup(hitPos.x, hitPos.y - 40, 'K.O.!', '#FF1744'));
+                                Composite.remove(this.world, obstacle);
+                                this.kidHealth.delete(obstacle.id);
+                            }
                         } else {
                             // Kid still standing - show damage number
                             this.textPopups.push(new TextPopup(hitPos.x, hitPos.y - 30, `-${Math.floor(damage)}`, '#FF5722'));
@@ -3983,7 +4830,7 @@ class Game {
 
     /**
      * Advance to the next level
-     * BUG FIX: This method was missing in the original code!
+     * BUG FIX: Now shows comic before each level!
      */
     nextLevel() {
         this.currentLevelIdx++;
@@ -3991,7 +4838,9 @@ class Game {
             this.currentLevelIdx = 0;
             this.showStartScreen();
         } else {
-            this.startGame();
+            // Show comic intro before starting the level (consistent flow)
+            document.getElementById('game-modal').classList.add('hidden');
+            this.showComic(this.currentLevelIdx);
         }
     }
 
