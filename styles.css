@@ -501,30 +501,25 @@ canvas {
 }
 
 /* ========================================
-   COMIC STORYLINE SCREEN - 16:9 RATIO SYNC
+   COMIC STORYLINE SCREEN
 ======================================== */
 #comic-screen {
   background: linear-gradient(135deg, #2c1810 0%, #1a0a05 100%);
   z-index: 25;
-  /* 16:9 aspect ratio sync - same as game container */
-  aspect-ratio: 16 / 9;
-  max-width: 100%;
-  max-height: 100%;
-  margin: auto;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 .comic-container {
   width: 95%;
   max-width: 800px;
-  height: 90%;
+  height: auto;
+  max-height: 95%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 15px;
+  justify-content: flex-start;
+  gap: 10px;
+  overflow-y: auto;
+  padding: 10px;
 }
 
 /* Comic Panel */
@@ -834,35 +829,55 @@ canvas {
 
 /* Extra small screens and landscape mobile */
 @media (max-width: 400px), (max-height: 500px) {
+  #comic-screen {
+    padding: 5px;
+  }
+  
   .comic-container {
     gap: 5px;
     padding: 5px;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    justify-content: space-between;
   }
 
   .comic-panel {
-    max-height: calc(100dvh - 80px);
+    max-height: none;
+    min-height: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   .comic-scene {
-    height: 90px;
-    min-height: 80px;
+    height: 70px;
+    min-height: 60px;
+    flex-shrink: 0;
   }
 
   .narration-box {
-    padding: 5px 10px;
-    margin: 15px 8px 5px;
-    font-size: 10px;
+    padding: 4px 8px;
+    margin: 12px 8px 4px;
+    font-size: 9px;
   }
 
   .speech-bubble {
-    padding: 8px 10px;
-    margin: -8px 8px 10px;
-    font-size: 11px;
+    padding: 6px 10px;
+    margin: -6px 8px 8px;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .comic-controls {
+    flex-shrink: 0;
+    padding: 5px 0;
   }
 
   .comic-controls .btn {
-    font-size: 12px;
-    padding: 5px 15px;
+    font-size: 11px;
+    padding: 5px 12px;
   }
 }
 
