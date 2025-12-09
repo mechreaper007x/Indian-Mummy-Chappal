@@ -147,11 +147,68 @@ canvas {
   box-shadow: 0 4px 0 #e65100;
   font-family: "Bangers", cursive;
   font-size: 1.2rem;
+  min-width: 50px;
 }
 
 .lvl-btn:active {
   transform: translateY(2px);
   box-shadow: 0 2px 0 #e65100;
+}
+
+/* Mobile Landscape: Horizontal Slider for Level Selection */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  #level-screen {
+    padding: 10px 20px;
+    justify-content: flex-start;
+  }
+  
+  #level-screen h2 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+  }
+  
+  .level-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+    max-width: 100%;
+    width: 100%;
+    padding: 10px 0;
+    scrollbar-width: thin;
+    scrollbar-color: #ff9800 rgba(255,152,0,0.2);
+  }
+  
+  .level-grid::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .level-grid::-webkit-scrollbar-track {
+    background: rgba(255,152,0,0.2);
+    border-radius: 3px;
+  }
+  
+  .level-grid::-webkit-scrollbar-thumb {
+    background: #ff9800;
+    border-radius: 3px;
+  }
+  
+  .lvl-btn {
+    flex: 0 0 auto;
+    min-width: 55px;
+    padding: 12px 8px;
+    font-size: 1rem;
+    scroll-snap-align: center;
+  }
+  
+  #level-screen .btn-small {
+    margin-top: 8px;
+    font-size: 14px;
+    padding: 6px 20px;
+  }
 }
 
 /* Mummy Selection Grid */
