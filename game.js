@@ -3465,49 +3465,355 @@ class Game {
         comicCanvas.width = containerWidth;
         comicCanvas.height = containerHeight;
         
-        const comicCtx = comicCanvas.getContext('2d');
+        const ctx = comicCanvas.getContext('2d');
         const mummyType = MUMMY_TYPES[this.selectedMummyIdx];
         
-        // Calculate scale based on container size (reference: 500x200)
-        const scaleX = containerWidth / 500;
-        const scaleY = containerHeight / 200;
-        const charScale = Math.min(scaleX, scaleY);
-        
-        // CONTEXT SWAP: Temporarily use comic canvas as main context so drawing functions work
-        const originalCtx = this.ctx;
-        this.ctx = comicCtx;
-        
         // Clear comic canvas
-        this.ctx.clearRect(0, 0, comicCanvas.width, comicCanvas.height);
+        ctx.clearRect(0, 0, comicCanvas.width, comicCanvas.height);
         
         // Get background color based on level theme
         const bg = LEVEL_BACKGROUNDS[this.currentLevelIdx] || LEVEL_BACKGROUNDS[0];
         
         // Draw simple background
-        this.ctx.fillStyle = bg.wallColor;
-        this.ctx.fillRect(0, 0, comicCanvas.width, comicCanvas.height * 0.7);
-        this.ctx.fillStyle = bg.floorColor;
-        this.ctx.fillRect(0, comicCanvas.height * 0.7, comicCanvas.width, comicCanvas.height * 0.3);
+        ctx.fillStyle = bg.wallColor;
+        ctx.fillRect(0, 0, comicCanvas.width, comicCanvas.height * 0.7);
+        ctx.fillStyle = bg.floorColor;
+        ctx.fillRect(0, comicCanvas.height * 0.7, comicCanvas.width, comicCanvas.height * 0.3);
         
-        // Add some scene details based on level
-        this.drawSceneDetails(this.ctx, comicCanvas, this.currentLevelIdx);
+        // Draw window detail
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = '#87CEEB';
+        const winX = containerWidth - 80;
+        ctx.fillRect(winX, 20, 50, 60);
+        ctx.strokeStyle = '#654321';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(winX, 20, 50, 60);
+        ctx.beginPath();
+        ctx.moveTo(winX + 25, 20);
+        ctx.lineTo(winX + 25, 80);
+        ctx.moveTo(winX, 50);
+        ctx.lineTo(winX + 50, 50);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
         
-        // Calculate responsive positions (proportional to canvas size)
-        const mummyX = containerWidth * 0.22;  // 22% from left
-        const mummyY = containerHeight * 0.95; // Near bottom
-        const kidX = containerWidth * 0.78;    // 78% from left
-        const kidY = containerHeight * 0.75;   // Slightly above floor
+        // Characters - calculate scale based on container height
+        // Reference: characters are ~160px tall at scale 1
+        const scale = Math.min(containerHeight / 200, containerWidth / 500) * 0.75;
         
-        // Draw kid FIRST (right side, further back)
+        // Floor Y - where characters' feet will be
+        const floorY = containerHeight * 0.95;
+        
+        // Draw MUMMY on left side
+        const mummyX = containerWidth * 0.25;
+        this.drawComicMummyScaled(ctx, mummyX, floorY, scale, mummyType, panel.mummyExpression || 'neutral');
+        
+        // Draw KID on right side (if expression specified)
         if (panel.kidExpression) {
-            this.drawComicKid(this.ctx, kidX, kidY, panel.kidExpression);
+            const kidX = containerWidth * 0.75;
+            this.drawComicKidScaled(ctx, kidX, floorY, scale * 0.7, panel.kidExpression);
+        }
+    }
+    
+    // Scaled version of comic mummy for small canvases
+    drawComicMummyScaled(ctx, x, footY, scale, mummyType, expression) {
+        ctx.save();
+        ctx.translate(x, footY);
+        ctx.scale(scale, scale);
+        
+        // Draw at origin since we translated
+        const s = 1; // Internal scale factor
+        
+        // === LEGS ===
+        ctx.fillStyle = mummyType.accentColor;
+        ctx.beginPath();
+        ctx.moveTo(-15, -70);
+        ctx.lineTo(-20, 0);
+        ctx.lineTo(-5, 0);
+        ctx.lineTo(-5, -70);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(5, -70);
+        ctx.lineTo(5, 0);
+        ctx.lineTo(20, 0);
+        ctx.lineTo(15, -70);
+        ctx.fill();
+        
+        // === FEET ===
+        ctx.fillStyle = '#8B4513';
+        ctx.beginPath();
+        ctx.ellipse(-12, 3, 12, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(12, 3, 12, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // === SAREE BODY ===
+        ctx.fillStyle = mummyType.sareeColor;
+        ctx.beginPath();
+        ctx.moveTo(-25, -70);
+        ctx.quadraticCurveTo(-30, -100, -20, -120);
+        ctx.lineTo(20, -120);
+        ctx.quadraticCurveTo(30, -100, 25, -70);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = mummyType.accentColor;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // === PALLU ===
+        ctx.fillStyle = mummyType.accentColor;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(-20, -120);
+        ctx.quadraticCurveTo(30, -110, 35, -80);
+        ctx.lineTo(25, -80);
+        ctx.quadraticCurveTo(20, -100, -15, -110);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        
+        // === ARMS ===
+        ctx.fillStyle = mummyType.skinTone;
+        ctx.strokeStyle = mummyType.skinTone;
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
+        
+        // Left arm
+        ctx.beginPath();
+        ctx.moveTo(-22, -110);
+        ctx.lineTo(-35, -80);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(-37, -75, 8, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Right arm (raised if angry)
+        if (expression === 'rage' || expression === 'furious' || expression === 'angry') {
+            ctx.beginPath();
+            ctx.moveTo(22, -110);
+            ctx.lineTo(50, -145);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(55, -150, 8, 0, Math.PI * 2);
+            ctx.fill();
+            // Chappal in hand
+            ctx.fillStyle = '#8B4513';
+            ctx.save();
+            ctx.translate(60, -160);
+            ctx.rotate(-0.8);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 12, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(-6, -5, 12, 4);
+            ctx.restore();
+        } else {
+            ctx.beginPath();
+            ctx.moveTo(22, -110);
+            ctx.lineTo(35, -80);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(37, -75, 8, 0, Math.PI * 2);
+            ctx.fill();
         }
         
-        // Draw mummy SECOND (left side, in front)
-        this.drawComicMummy(this.ctx, mummyX, mummyY, mummyType, panel.mummyExpression || 'neutral');
+        // === HEAD ===
+        ctx.fillStyle = mummyType.skinTone;
+        ctx.beginPath();
+        ctx.arc(0, -145, 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.stroke();
         
-        // Restore context
-        this.ctx = originalCtx;
+        // === HAIR ===
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.ellipse(0, -160, 20, 12, 0, Math.PI * 0.9, Math.PI * 2.1);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(-18, -150, 10, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // === BINDI ===
+        ctx.fillStyle = mummyType.bindiColor;
+        ctx.beginPath();
+        ctx.arc(0, -155, 4, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // === EYES ===
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.ellipse(-8, -148, 5, 4, 0, 0, Math.PI * 2);
+        ctx.ellipse(8, -148, 5, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(-8, -147, 2.5, 0, Math.PI * 2);
+        ctx.arc(8, -147, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // === MOUTH ===
+        ctx.strokeStyle = '#8B0000';
+        ctx.lineWidth = 2;
+        if (expression === 'angry' || expression === 'rage') {
+            ctx.fillStyle = '#8B0000';
+            ctx.beginPath();
+            ctx.moveTo(-8, -135);
+            ctx.quadraticCurveTo(0, -140, 8, -135);
+            ctx.quadraticCurveTo(0, -127, -8, -135);
+            ctx.fill();
+        } else {
+            ctx.beginPath();
+            ctx.moveTo(-6, -135);
+            ctx.lineTo(6, -135);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
+    }
+    
+    // Scaled version of comic kid for small canvases
+    drawComicKidScaled(ctx, x, footY, scale, expression) {
+        ctx.save();
+        ctx.translate(x, footY);
+        ctx.scale(scale, scale);
+        
+        // === LEGS ===
+        ctx.fillStyle = '#5D4037';
+        ctx.beginPath();
+        ctx.moveTo(-10, -50);
+        ctx.lineTo(-15, 0);
+        ctx.lineTo(-3, 0);
+        ctx.lineTo(-3, -50);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(3, -50);
+        ctx.lineTo(3, 0);
+        ctx.lineTo(15, 0);
+        ctx.lineTo(10, -50);
+        ctx.fill();
+        
+        // === SHOES ===
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.ellipse(-9, 3, 10, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(9, 3, 10, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // === SHIRT ===
+        ctx.fillStyle = '#2196F3';
+        ctx.beginPath();
+        ctx.moveTo(-18, -50);
+        ctx.lineTo(-20, -85);
+        ctx.lineTo(20, -85);
+        ctx.lineTo(18, -50);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#1565C0';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Collar
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.moveTo(-8, -85);
+        ctx.lineTo(0, -78);
+        ctx.lineTo(8, -85);
+        ctx.fill();
+        
+        // === ARMS ===
+        ctx.fillStyle = '#E8B89D';
+        ctx.strokeStyle = '#E8B89D';
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
+        
+        if (expression === 'mischievous' || expression === 'taunting') {
+            // Taunting pose - hands near ears
+            ctx.beginPath();
+            ctx.moveTo(-18, -75);
+            ctx.lineTo(-25, -100);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(18, -75);
+            ctx.lineTo(25, -100);
+            ctx.stroke();
+        } else {
+            // Normal arms down
+            ctx.beginPath();
+            ctx.moveTo(-18, -75);
+            ctx.lineTo(-25, -55);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(18, -75);
+            ctx.lineTo(25, -55);
+            ctx.stroke();
+        }
+        
+        // === HEAD ===
+        ctx.fillStyle = '#FFCCBC';
+        ctx.beginPath();
+        ctx.arc(0, -105, 20, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#E64A19';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // === HAIR ===
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.arc(0, -110, 18, Math.PI, 2 * Math.PI);
+        ctx.fill();
+        // Spiky hair
+        ctx.beginPath();
+        ctx.moveTo(-8, -125);
+        ctx.lineTo(-5, -135);
+        ctx.lineTo(0, -125);
+        ctx.lineTo(5, -135);
+        ctx.lineTo(8, -125);
+        ctx.fill();
+        
+        // === EYES ===
+        const isScared = ['scared', 'terrified', 'nervous'].includes(expression);
+        const eyeSize = isScared ? 7 : 5;
+        
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.ellipse(-7, -107, eyeSize, eyeSize - 1, 0, 0, Math.PI * 2);
+        ctx.ellipse(7, -107, eyeSize, eyeSize - 1, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(-7, -106, 2.5, 0, Math.PI * 2);
+        ctx.arc(7, -106, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // === MOUTH ===
+        if (isScared) {
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.ellipse(0, -93, 5, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (expression === 'mischievous') {
+            // Cheeky grin
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, -98, 6, 0, Math.PI);
+            ctx.stroke();
+        } else {
+            // Neutral
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-5, -95);
+            ctx.lineTo(5, -95);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
     }
     
     drawSceneDetails(ctx, canvas, levelIdx) {
