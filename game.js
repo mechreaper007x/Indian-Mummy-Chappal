@@ -3453,9 +3453,24 @@ class Game {
     
     drawComicCharacters(panel) {
         const comicCanvas = document.getElementById('comic-canvas');
-        if (!comicCanvas) return;
+        const comicScene = document.getElementById('comic-scene');
+        if (!comicCanvas || !comicScene) return;
+        
+        // Get container dimensions and resize canvas accordingly
+        const containerWidth = comicScene.clientWidth || 500;
+        const containerHeight = comicScene.clientHeight || 200;
+        
+        // Set canvas to match container (for responsive sizing)
+        comicCanvas.width = containerWidth;
+        comicCanvas.height = containerHeight;
+        
         const comicCtx = comicCanvas.getContext('2d');
         const mummyType = MUMMY_TYPES[this.selectedMummyIdx];
+        
+        // Calculate scale based on container size (reference: 500x200)
+        const scaleX = containerWidth / 500;
+        const scaleY = containerHeight / 200;
+        const charScale = Math.min(scaleX, scaleY);
         
         // CONTEXT SWAP: Temporarily use comic canvas as main context so drawing functions work
         const originalCtx = this.ctx;
@@ -3476,12 +3491,18 @@ class Game {
         // Add some scene details based on level
         this.drawSceneDetails(this.ctx, comicCanvas, this.currentLevelIdx);
         
+        // Calculate responsive positions (proportional to canvas size)
+        const mummyX = containerWidth * 0.22;  // 22% from left
+        const mummyY = containerHeight * 0.95; // Near bottom
+        const kidX = containerWidth * 0.78;    // 78% from left
+        const kidY = containerHeight * 0.75;   // Slightly above floor
+        
         // Draw kid FIRST (right side, further back)
         if (panel.kidExpression) {
             this.ctx.save();
-            this.ctx.translate(380, 160); // Position Kid on right, moved up
-            this.ctx.scale(0.7, 0.7);
-            this.drawKid(30, null, panel.kidExpression);
+            this.ctx.translate(kidX, kidY);
+            this.ctx.scale(charScale * 0.8, charScale * 0.8);
+            this.drawKid(0, null, panel.kidExpression);
             this.ctx.restore();
         }
         
@@ -3490,7 +3511,7 @@ class Game {
         if (panel.mummyExpression) {
             this.mummyExpression = panel.mummyExpression;
         }
-        this.drawMummy(100, 200, 0.75);
+        this.drawMummy(mummyX, mummyY, charScale * 0.85);
         this.mummyExpression = originalExpression;
         
         // Restore context
