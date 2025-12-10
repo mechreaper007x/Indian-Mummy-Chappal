@@ -3448,7 +3448,8 @@ class Game {
             nextBtn.style.background = '#e64a19';
         }
         
-        // Draw characters on canvas is handled by the loop now
+        // Draw characters on the comic canvas
+        this.drawComicCharacters(panel);
     }
     
     drawComicCharacters(panel) {
@@ -3499,20 +3500,11 @@ class Game {
         
         // Draw kid FIRST (right side, further back)
         if (panel.kidExpression) {
-            this.ctx.save();
-            this.ctx.translate(kidX, kidY);
-            this.ctx.scale(charScale * 0.8, charScale * 0.8);
-            this.drawKid(0, null, panel.kidExpression);
-            this.ctx.restore();
+            this.drawComicKid(this.ctx, kidX, kidY, panel.kidExpression);
         }
         
         // Draw mummy SECOND (left side, in front)
-        const originalExpression = this.mummyExpression;
-        if (panel.mummyExpression) {
-            this.mummyExpression = panel.mummyExpression;
-        }
-        this.drawMummy(mummyX, mummyY, charScale * 0.85);
-        this.mummyExpression = originalExpression;
+        this.drawComicMummy(this.ctx, mummyX, mummyY, mummyType, panel.mummyExpression || 'neutral');
         
         // Restore context
         this.ctx = originalCtx;
