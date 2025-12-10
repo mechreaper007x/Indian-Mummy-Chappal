@@ -827,57 +827,135 @@ canvas {
   }
 }
 
-/* Extra small screens and landscape mobile */
-@media (max-width: 400px), (max-height: 500px) {
+/* Mobile Landscape: Horizontal Comic Layout */
+@media screen and (max-height: 500px) and (orientation: landscape) {
   #comic-screen {
-    padding: 5px;
+    padding: 8px;
   }
   
   .comic-container {
-    gap: 5px;
+    flex-direction: row;
+    gap: 10px;
     padding: 5px;
     width: 100%;
     max-width: 100%;
     height: 100%;
     max-height: 100%;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: stretch;
   }
 
   .comic-panel {
-    max-height: none;
-    min-height: auto;
     flex: 1;
+    max-width: 65%;
+    min-height: auto;
+    border-width: 4px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
-
-  .comic-scene {
-    height: 70px;
-    min-height: 60px;
-    flex-shrink: 0;
+  
+  .comic-title {
+    font-size: 14px;
+    padding: 3px 15px;
+    top: -10px;
   }
-
+  
+  .panel-counter {
+    font-size: 11px;
+    top: 5px;
+    right: 8px;
+  }
+  
   .narration-box {
-    padding: 4px 8px;
-    margin: 12px 8px 4px;
-    font-size: 9px;
-  }
-
-  .speech-bubble {
-    padding: 6px 10px;
-    margin: -6px 8px 8px;
+    padding: 4px 10px;
+    margin: 15px 10px 5px;
     font-size: 10px;
     flex-shrink: 0;
   }
 
-  .comic-controls {
+  .comic-scene {
+    flex: 1;
+    height: auto;
+    min-height: 80px;
+    max-height: 120px;
+    padding: 5px;
+  }
+  
+  #comic-canvas {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+  }
+
+  .speech-bubble {
+    padding: 8px 12px;
+    margin: 0 10px 10px;
+    font-size: 11px;
     flex-shrink: 0;
-    padding: 5px 0;
+  }
+  
+  .speech-bubble::after {
+    border-width: 10px;
+    bottom: -10px;
+    left: 25px;
+  }
+  
+  .speech-bubble::before {
+    border-width: 8px;
+    bottom: -6px;
+    left: 27px;
+  }
+
+  /* Controls on the right side */
+  .comic-controls {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    min-width: 100px;
   }
 
   .comic-controls .btn {
-    font-size: 11px;
-    padding: 5px 12px;
+    font-size: 12px;
+    padding: 8px 16px;
+    width: 100%;
+  }
+}
+
+/* Extra small height (very short landscape) */
+@media screen and (max-height: 380px) and (orientation: landscape) {
+  .comic-panel {
+    max-width: 70%;
+  }
+  
+  .narration-box {
+    padding: 3px 8px;
+    margin: 12px 8px 4px;
+    font-size: 9px;
+  }
+  
+  .comic-scene {
+    min-height: 60px;
+    max-height: 90px;
+  }
+  
+  .speech-bubble {
+    padding: 5px 8px;
+    font-size: 10px;
+    margin: 0 8px 8px;
+  }
+  
+  .comic-controls {
+    min-width: 80px;
+    gap: 8px;
+  }
+  
+  .comic-controls .btn {
+    font-size: 10px;
+    padding: 6px 12px;
   }
 }
 
